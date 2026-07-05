@@ -1,7 +1,7 @@
 # Vaccination Badge
 
 > Layer: `domain`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 > Concept: a dog's vaccination standing, with date-driven meaning.
 

@@ -1,7 +1,7 @@
 # Field Group
 
 > Layer: `patterns`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 
 ## Objective
@@ -11,7 +11,7 @@ A responsive group of Field atoms with consistent spacing and a shared section l
 Reference **semantic tokens**; compose the Field atom + Section Header.
 
 - **Anatomy:** optional Section Header · one or more Fields laid out in a responsive grid · optional group-level hint/error.
-- **Grid:** `auto-fit, minmax(280px, 1fr)` (280px governed exception), gap `spacing.primitive.4`; single column below `breakpoint.sm` (640).
+- **Grid:** `auto-fit, minmax(280px, 1fr)` (280px governed exception — CSS grid minimum column width for responsive reflow), gap `spacing.primitive.4`; single column below `breakpoint.sm` (640).
 - **Full-width members:** a Field may span all columns (e.g. textarea).
 - **Spacing:** vertical rhythm between groups `spacing.semantic.section-gap`.
 - **RN compatibility:** props `title?`, `columns` (auto|1|2), `children` (Fields), `hint?`, `error?`.

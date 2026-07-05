@@ -1,7 +1,7 @@
 # Section Header
 
 > Layer: `patterns`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 
 ## Objective
@@ -11,7 +11,7 @@ The single header for every card/section: an ALL-CAPS label, an optional count, 
 Reference **semantic tokens**; compose atoms.
 
 - **Anatomy:** `title` (label) · optional `count` badge (immediately after the title) · optional `action` slot (right-aligned — any atom: Button, Status Badge, toggle).
-- **Title:** `typography.semantic.label` (mono, uppercase, 0.14em), `color.semantic.text.default`.
+- **Title:** `typography.semantic.label` (mono, uppercase; tracking from the token), `color.semantic.text.default`.
 - **Count:** small pill, `color.semantic.action.primary.container` bg / `color.semantic.action.primary.on-container` text; sits right after the title, not far-right.
 - **Layout:** flex row, space-between, `spacing.primitive.3` gap, wrap; bottom margin `spacing.primitive.3`.
 - **Heading level:** `as` = h2 | h3 (default) | h4.

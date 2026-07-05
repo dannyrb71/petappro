@@ -1,7 +1,7 @@
 # Booking Card
 
 > Layer: `domain`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 > Concept: a single reservation — its service, dates, pets, price, and lifecycle state.
 
@@ -12,7 +12,7 @@ The canonical summary of one booking, used in lists and detail contexts. Encapsu
 Reference **semantic + domain tokens**; compose atoms/patterns.
 
 - **Anatomy:** header row (Service Pill(s) + Status Badge) · dates line (arrival → departure, nights/day count) · pets (Multi-pet Avatar Stack) · footer (Money total + optional action Button/chevron).
-- **Container:** `color.semantic.surface.bright`, radius `radius.semantic.card`, `elevation.semantic.card`, padding `spacing.semantic.card-padding`, 1px `color.semantic.border.variant`.
+- **Container:** `color.semantic.surface.bright`, radius `radius.semantic.card`, `elevation.semantic.card`, padding `spacing.semantic.card-padding`, `size.stroke.hairline` `color.semantic.border.variant` border.
 - **Status:** Status Badge (`kind=booking`) — theme-independent domain color.
 - **Service:** Service Pill(s) for the booked service + add-ons.
 - **Dates:** `typography.semantic.body-sm`, `color.semantic.text.variant`; icon `calendar-days`.
@@ -24,7 +24,7 @@ Reference **semantic + domain tokens**; compose atoms/patterns.
 - [ ] All status/service colors from `color.semantic.domain.*` (theme-independent); brand chrome from `color.semantic.*`.
 - [ ] Money always via the Money atom; cancelled strikes the amount.
 - [ ] Composes Status Badge, Service Pill, Multi-pet Stack, Money — no re-implemented sub-parts.
-- [ ] Clickable variant meets 44px + focus/press states.
+- [ ] Clickable variant meets `size.min-touch-target` (44) + focus/press states.
 
 ## Documentation
 - **Purpose:** represent one reservation.

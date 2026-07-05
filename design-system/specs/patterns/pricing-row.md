@@ -1,7 +1,7 @@
 # Pricing Row
 
 > Layer: `patterns`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 
 ## Objective

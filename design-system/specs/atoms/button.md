@@ -1,7 +1,7 @@
 # Button
 
 > Layer: `atoms`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 
 ## Objective
@@ -12,13 +12,13 @@ Reference **semantic tokens only**.
 
 - **Variants:**
   - `primary` — fill `color.semantic.action.primary.default`, label `color.semantic.action.primary.on`; hover `…primary.hover`, pressed `…primary.pressed`.
-  - `secondary` — fill `color.semantic.surface.bright`, 1px `color.semantic.border.default`, label `color.semantic.action.primary.default`; hover fill `color.semantic.surface.container`.
+  - `secondary` — fill `color.semantic.surface.bright`, `size.stroke.hairline` `color.semantic.border.default` border, label `color.semantic.action.primary.default`; hover fill `color.semantic.surface.container`.
   - `tertiary` (ghost) — transparent fill, label `color.semantic.action.primary.default`; hover fill `color.semantic.action.primary.container`.
   - `destructive` — fill `color.semantic.domain.notification.urgent.base`, label `color.semantic.text.on-solid`; use only for irreversible/removal actions.
-  - `success` — booking-CREATION actions only (New/Create/Request Booking). Fill `color.semantic.status.success-solid` (=green.700; green.500 fails white-text contrast), label `color.semantic.text.on-solid`.
+  - `success` — booking-CREATION actions only (New/Create/Request Booking). Fill `color.semantic.status.success-solid` (AA-safe solid green; the lighter success tint fails white-text contrast), label `color.semantic.text.on-solid`.
 - **Sizes (height):** from `size.control.{lg,md,sm,xs}` (52/44/36/28). `md` (44) is the standard tap target.
 - **Icon slots:** optional `leading` + `trailing` (Icon atom, Lucide). Icon sizes to the label; gap `spacing.primitive.2`.
-- **States:** default, hover, pressed (scale `motion.semantic.press-scale`), focus-visible (3px ring from `color.semantic.focus-ring`, ≥3:1), disabled (`color.semantic.surface.container-high` fill / `color.semantic.text.faint` label), loading (spinner replaces label; width locked; control disabled).
+- **States:** default, hover, pressed (scale `motion.semantic.press-scale`), focus-visible (`size.stroke.focus` ring from `color.semantic.focus-ring`, ≥3:1), disabled (`color.semantic.surface.container-high` fill / `color.semantic.text.faint` label), loading (spinner replaces label; width locked; control disabled).
 - **Shape:** radius `radius.semantic.button` (fully rounded). Padding-x from `spacing.primitive.5` (`md`).
 - **Type:** label = `typography.semantic.body` at bold weight.
 - **Motion:** hover/press transitions `motion.semantic.duration-fast` + `motion.semantic.easing-standard`; honor reduced-motion.
@@ -28,7 +28,7 @@ Reference **semantic tokens only**.
 ## Acceptance Criteria
 - [ ] No literal values; colors/radii/spacing/type from tokens (with the noted additions).
 - [ ] No detached instances; all variants share tokens.
-- [ ] WCAG 2.1 AA — every variant's label ≥4.5:1 on its fill; focus ring ≥3:1; `md` = 44px target.
+- [ ] WCAG 2.1 AA — every variant's label ≥4.5:1 on its fill; focus ring ≥3:1; `md` = `size.min-touch-target` (44) target.
 - [ ] Loading state preserves button width (no layout shift).
 - [ ] Properties minimal and RN-mapped; one reusable component (no per-variant copies).
 

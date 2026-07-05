@@ -13,8 +13,25 @@ node design-system/tools/lint-tokens.mjs     # token integrity (semantic-over-li
 node design-system/tools/lint-specs.mjs      # spec integrity (encodes every past mechanical lesson)
 ```
 `lint-specs` currently enforces: **S1** no hex literals · **S2** no bare `white`/`black` as a color ·
-**S3** every token ref resolves (+warn on group-vs-leaf) · **S4** acceptance wording vs declared
+**S6** no bare primitive shorthand (`green.700`, `red.500`, …) · **S7** no undeclared fixed
+dimensions (`1px`/`3px`/`0.14em`/`46×28`) — token or named exception (glosses & WCAG ratios exempt) ·
+**S3** every token ref resolves (group-vs-leaf → warning) · **S4** acceptance wording vs declared
 exceptions · **S5** contract sections present. **New mechanical lesson → add a rule here, not just a note.**
+
+The mechanical gate covers every **color** literal (S1/S2/S6) and every **unit-bearing dimension**
+literal — px/em/`N×N`/ranges (S7). A governed exception only counts if it states a **reason**
+("governed exception — <reason>"); the phrase alone is rejected. **Scope limit (honest):** S7 does
+*not* chase arbitrary **unitless** integers (`thumb 22`, `min 92`) — those collide with token steps,
+versions, counts, and ratios — so a unitless structural value must live inside a **reasoned governed
+exception** or a token, and the reviewer confirms that in §2. A green gate means no undeclared
+unit-bearing literal slipped through; unitless one-offs are governed by exception, not by the linter.
+
+**Error vs warning policy (decided 2026-07-05).** **Errors** (S1, S2, S4, S5, S6, S7 — incl. an
+unreasoned exception) fail the gate and must be zero before review. **Warnings** = **S3 group-token
+refs only** — they do **not** fail the gate (a group ref can be a legitimate categorical/covers-all-
+states or wildcard reference) **but every one MUST be explicitly acknowledged in review** (confirmed
+intentional or converted to a leaf). An unaddressed S3 warning = **incomplete review**. Script and
+rubric agree.
 
 ## 2. Judgment checklist — what the linters can't check
 Per spec:
@@ -56,3 +73,8 @@ This is the mechanism that makes the loop improve. No learning note = review not
 | 2026-07-05 | Referencing a not-yet-existing token as if real (`size.avatar-overlap`) | lint-specs S3 (resolves) |
 | 2026-07-05 | First pass checked token paths but not acceptance-vs-exception wording | rubric §2 (contract) + S4 |
 | 2026-07-05 | External-library constants (Lucide grid/stroke) need to be allowed as declared exceptions | rubric §2 |
+| 2026-07-05 | "Raw color" is broader than white/black/hex — primitive shorthand (`green.700`, `red.500`) also slips in | lint-specs **S6** |
+| 2026-07-05 | Warning vs error semantics must match between script and rubric (S3 group refs) | rubric §1 policy + lint-specs output |
+| 2026-07-05 | "Literal" includes fixed **dimensions** (`1px`, `3px`, `0.14em`, `46×28`), not just colors — undeclared ones slipped past a color-only linter | lint-specs **S7** (unit-bearing dimensions) |
+| 2026-07-05 | A governed exception must be **reasoned**, not just labeled `(governed exception)` — the phrase alone was a loophole | lint-specs **S7** now requires "exception — <reason>" |
+| 2026-07-05 | Script/rubric parity: S5-missing is an **error** (was emitted as a warning); warnings = S3 only. Guide docs (README/AUTHORING-GUIDE) excluded from spec-lint | lint-specs + rubric §1 |

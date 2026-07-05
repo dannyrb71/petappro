@@ -1,7 +1,7 @@
 # Report Card (Metric Tile)
 
 > Layer: `domain`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 > Concept: a single dashboard/report metric with value, context, and optional drill-in.
 

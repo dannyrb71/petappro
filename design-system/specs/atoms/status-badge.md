@@ -1,7 +1,7 @@
 # Status Badge
 
 > Layer: `atoms`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 
 ## Objective
@@ -15,7 +15,7 @@ Reference **semantic tokens only** (domain layer is theme-independent by design)
   - `payment`: Paid, Unpaid, Partial, Overridden → `color.semantic.domain.payment.<status>.{container,on}`.
 - **Skin:** soft `.container` background + `.on` label (AA ≥4.5:1). Cancelled may add a subtle outline in `booking.cancelled.on`.
 - **Never color alone:** each carries a text label (+ optional leading Icon/dot).
-- **Shape:** radius `radius.semantic.badge` (fully rounded). Label `typography.semantic.label` at 11–12px weight bold. Padding `spacing.primitive.1`/`2`.
+- **Shape:** radius `radius.semantic.badge` (fully rounded). Label `typography.semantic.label` at bold weight (size from the token). Padding `spacing.primitive.1`/`2`.
 - **RN compatibility:** props `kind` (`booking|payment`), `status`, `label?` (defaults from status), `icon?`.
 
 ## Acceptance Criteria

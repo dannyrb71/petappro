@@ -1,7 +1,7 @@
 # Pet Avatar
 
 > Layer: `domain`
-> Status: `in-review`
+> Status: `approved`
 > Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 > Concept: a dog's identity marker — photo, gender tint, puppy status.
 
