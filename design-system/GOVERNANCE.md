@@ -92,8 +92,9 @@ Worked example — adding **Boarding Status Badge** (Domain layer):
 ## 6. Governance-as-a-gate: what's mechanical vs. human
 
 **Mechanical (a script says yes/no — no opinion):**
-- **Token linter** — [`tools/lint-tokens.mjs`](./tools/lint-tokens.mjs). Enforces semantic-over-literal, alias integrity, naming, `$type` presence. Run: `node docs/design-system/tools/lint-tokens.mjs`. Exceptions must be *declared and reasoned* (`$extensions.ds.allowLiteral`), never silent.
-- *(Later)* Every spec has an acceptance section; every shipped component has a record. Cheap to check with a script once volume justifies it.
+- **Token linter** — [`tools/lint-tokens.mjs`](./tools/lint-tokens.mjs). Enforces semantic-over-literal, alias integrity, naming, `$type` presence. Exceptions must be *declared and reasoned* (`$extensions.ds.allowLiteral`), never silent.
+- **Spec linter** — [`tools/lint-specs.mjs`](./tools/lint-specs.mjs). Enforces per-spec integrity (no raw color literals, all token refs resolve, acceptance wording vs declared exceptions, contract sections). Encodes every past review lesson so it can't recur. Run both linters **before** handing specs to review.
+- **Review rubric** — [`../Codex-feedback/REVIEW-RUBRIC.md`](../../Codex-feedback/REVIEW-RUBRIC.md): the standing checklist Codex + Claude use every review (mechanical gate → judgment → finding-origin labels → learning note → lessons log). New mechanical lesson → add a rule to `lint-specs.mjs`; new judgment lesson → add to the rubric.
 
 **Human (judgment — Danny, assisted by ChatGPT):** the charter's four standing questions —
 1. Is this visually consistent?

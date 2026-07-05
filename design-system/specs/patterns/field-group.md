@@ -17,7 +17,7 @@ Reference **semantic tokens**; compose the Field atom + Section Header.
 - **RN compatibility:** props `title?`, `columns` (auto|1|2), `children` (Fields), `hint?`, `error?`.
 
 ## Acceptance Criteria
-- [ ] Tokens only; spacing from scale (no arbitrary gaps).
+- [ ] No undeclared literal values (exceptions named); spacing from scale (no arbitrary gaps).
 - [ ] Collapses to one column below `sm`.
 - [ ] Group error/hint distinct from per-field error.
 

@@ -19,7 +19,7 @@ Reference **semantic tokens**; compose atoms.
 - **RN compatibility:** props `leading` (icon|avatar), `title`, `subtitle?`, `trailing?` (slot), `clickable`, `onPress`.
 
 ## Acceptance Criteria
-- [ ] Tokens only; ≥ `size.min-touch-target` (44) row height; clickable rows expose pressed/focus state.
+- [ ] No undeclared literal values (exceptions named); ≥ `size.min-touch-target` (44) row height; clickable rows expose pressed/focus state.
 - [ ] Trailing slot accepts any atom without overrides.
 - [ ] Divider vs standalone-tile treatments both supported.
 

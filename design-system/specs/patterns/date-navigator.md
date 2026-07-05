@@ -18,7 +18,7 @@ Reference **semantic tokens**; compose atoms.
 - **RN compatibility:** props `date`, `todayStr`, `onChange`, `onPrev`, `onNext`.
 
 ## Acceptance Criteria
-- [ ] Tokens only; nav targets ≥44px effective.
+- [ ] No undeclared literal values (exceptions named); nav targets ≥44px effective.
 - [ ] Today pill appears only on the actual today.
 - [ ] Prev/next adjust by one day; date field editable directly.
 

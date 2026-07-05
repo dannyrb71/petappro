@@ -19,7 +19,7 @@ Reference **semantic tokens only**.
 - **RN compatibility:** props `src`, `name`, `size` (`xs|sm|md|lg|xl`), `ring` (`none|brand|gender`), `gender`, `statusDot`, `badge`.
 
 ## Acceptance Criteria
-- [ ] No literal values (gender ring uses `color.semantic.domain.pet.*`).
+- [ ] No undeclared literal values; all exceptions named and reasoned (gender ring uses `color.semantic.domain.pet.*`).
 - [ ] Fallback legible (AA) at every size; perfect circle, no distortion.
 - [ ] Base atom stays generic — pet styling comes from `ring`/`badge` props, not a fork.
 

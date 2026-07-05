@@ -18,7 +18,7 @@ Reference **semantic tokens only**.
 - **RN compatibility:** props `checked` (bool), `disabled` (bool), `onChange`, `label?`.
 
 ## Acceptance Criteria
-- [ ] Token-driven colors; no literals.
+- [ ] Token-driven colors; no undeclared literals (exceptions named and reasoned).
 - [ ] ≥44px effective target; visible focus ring ≥3:1.
 - [ ] On/off distinguishable beyond color (thumb position).
 

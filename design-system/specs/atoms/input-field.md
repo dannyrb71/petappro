@@ -23,7 +23,7 @@ Reference **semantic tokens only**.
 - **RN compatibility:** props `label`, `type` (`text|number|date|textarea|select`), `value`, `placeholder`, `leadingIcon`, `trailingAffix`, `state` (`default|focus|error|disabled|readonly`), `hint`, `error`.
 
 ## Acceptance Criteria
-- [ ] No literal values; tokens only.
+- [ ] No undeclared literal values; all exceptions are named and reasoned.
 - [ ] Error never signals by color alone (icon + message present).
 - [ ] Label always associated (or documented aria-label); focus ring ≥3:1; ≥44px target.
 - [ ] One shell; type is a property, not a fork.

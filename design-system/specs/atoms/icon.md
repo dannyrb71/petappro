@@ -20,7 +20,7 @@ One icon primitive and one curated set, so glyphs are consistent in weight, grid
 
 ## Acceptance Criteria
 - [ ] Single Icon component with `name` + `size` properties; no pasted ad-hoc SVGs elsewhere.
-- [ ] Consistent stroke + grid; color via token, never literal.
+- [ ] Consistent stroke + grid (external-library/Lucide constants are declared governed exceptions); color via token, never a raw literal.
 
 ## Documentation
 - **Purpose:** the only way to render an icon.
