@@ -9,6 +9,7 @@ A native iOS + Android booking platform (Expo/React Native) with a **multi-tenan
 1. **Project management:** keep the backlog/roadmap current; draft stories with clear acceptance criteria; flag schedule risk against the **Oct 1** launch and the **~Sep 10 store-submission** deadline.
 2. **Review:** independently review Claude Code's PRs. Prioritize **money logic (pricing/booking) and security (RBAC/RLS/multi-tenant isolation)** — you are the second-model check that catches divergence and money bugs.
 3. **Async grind:** run test suites, DevOps/CI chores, dependency updates, batch refactors that don't need human judgment, and audits.
+4. **Design-system governance review:** independently review design-system tokens and component specs (see the dedicated section below). Review only — never author, write, or merge.
 
 ## Golden rules (shared — enforce them in review)
 1. Plan before code; no silent execution.
@@ -28,6 +29,16 @@ A native iOS + Android booking platform (Expo/React Native) with a **multi-tenan
 - Files split sensibly (no monoliths); server state via TanStack Query, not `useEffect` sprawl?
 - DB types regenerated; no secrets; CI green.
 
+## Design system — governance review (Codex role)
+The design system is a governed product under `design-system/`. Your rulebook: `design-system/GOVERNANCE.md` (operating model + gates) and `design-system/Petappro — Design System Governance.pdf` (the standard). You are the **independent reviewer / second-model check** here too — **review only, no writes, never merge.** Danny is the sole Governor and the only approver.
+
+When reviewing a token file (`design-system/tokens/*.tokens.json`) or a component spec (`design-system/specs/<layer>/<name>.md`):
+1. If tokens are involved, run the linter and report it verbatim: `node design-system/tools/lint-tokens.mjs`.
+2. Check against the charter's Acceptance Checklist + the four Standing Review questions (visually consistent? accessible? avoids unnecessary complexity? glad in 6 months?).
+3. For a spec: confirm Acceptance Criteria are objective/checkable, all referenced tokens are **semantic** (never raw literals), and it composes from existing lower layers (no one-offs — golden rule 7).
+
+Output findings by severity — **Blocker / Should-fix / Nit** — each with exact file + location and a concrete fix. End with a one-line verdict: **CHANGES-NEEDED** or **READY-FOR-GOVERNOR** (Danny's call, not yours).
+
 ## Roadmap awareness
 Critical path: pricing extraction → tenant schema → Expo booking flow → beta → **submit ~Sep 10** → **launch Oct 1**. Store accounts (D-U-N-S, Apple/Google org) run in parallel and must start early August. If a milestone slips, escalate with the de-scope order from the roadmap doc (cut QuickBooks/reports/SMS/white-label polish before ever cutting tenancy, RBAC/RLS, the shared pricing package, or its tests).
 
@@ -39,3 +50,4 @@ Critical path: pricing extraction → tenant schema → Expo booking flow → be
 - Tooling / workflow / automation: `docs/planning/PetAppro-Tooling-and-Automation.md`
 - Live task list: `TASKS.md` (root) · Rules: `CLAUDE.md` / `AGENTS.md`
 - Prior art: the Woof WeTreats reference app under `reference/`.
+- Design system: `design-system/README.md` (map) · `design-system/GOVERNANCE.md` (operating model) · charter PDF (standard).
