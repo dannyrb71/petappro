@@ -1,0 +1,14 @@
+/* ============================================================
+   Petappro Design System — global entry point.
+   Consumers link ONLY this file.
+   Cascade order: fonts -> reference -> system -> component tokens
+                  -> compatibility aliases -> component classes.
+   ============================================================ */
+@import url('./tokens/fonts.css');
+@import url('./tokens/reference.css');
+@import url('./tokens/system.css');
+@import url('./tokens/component-tokens.css');
+@import url('./tokens/aliases.css');
+@import url('./tokens/themes.css');
+@import url('./tokens/business-logic.css');
+@import url('./components/components.css');

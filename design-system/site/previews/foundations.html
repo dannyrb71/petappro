@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Petappro — Design System Preview</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; background: var(--surface-app); color: var(--text-body);
+         font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 28px 96px; }
+  .sec { margin-top: 56px; }
+  .sec > h2 { font-size: var(--fs-h2); font-weight: var(--fw-black); color: var(--text-strong);
+              letter-spacing: var(--tracking-tight); margin: 0 0 4px; }
+  .sec > p.desc { margin: 0 0 22px; color: var(--text-muted); font-size: var(--fs-sm); max-width: 620px; }
+  .grid { display: grid; gap: 14px; }
+  .swatch { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-subtle);
+            background: var(--surface-card); }
+  .swatch .chip { height: 76px; }
+  .swatch .meta { padding: 9px 11px; }
+  .swatch .meta .n { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--text-strong); }
+  .swatch .meta .h { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+  .panel { background: var(--surface-card); border: 1px solid var(--border-subtle);
+           border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 26px; }
+  .rowflex { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .divider { height: 1px; background: var(--border-subtle); margin: 22px 0; }
+  .cardnote { font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); }
+
+  /* phone */
+  .phone { width: 340px; background: #fff; border-radius: 34px; padding: 10px;
+           box-shadow: var(--shadow-lg); border: 1px solid var(--border-default); }
+  .phone__screen { background: var(--surface-app); border-radius: 26px; overflow: hidden; height: 700px;
+                   display: flex; flex-direction: column; }
+  .phone__scroll { flex: 1; overflow-y: auto; }
+  .statusbar { display:flex; justify-content:space-between; align-items:center;
+               padding: 12px 20px 6px; font-size: 12px; font-weight: var(--fw-bold); color: var(--text-strong); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+    <img src="../assets/petappro-logo-full.png" alt="Petappro" style="height:76px; width:auto;">
+    <div>
+      <div class="pp-eyebrow">Design System · v0.1 · Sage &amp; Sand</div>
+      <h1 style="font-size:var(--fs-display); font-weight:var(--fw-black); letter-spacing:var(--tracking-tight); color:var(--text-strong); margin:6px 0 4px;">Foundations preview</h1>
+      <p style="margin:0; color:var(--text-muted); max-width:560px;">Tokens, type, and core components applied. UX modeled on the Woof Wetreats booking flow. Everything below references white-label-safe <span style="font-family:var(--font-mono);font-size:12px;">--brand-*</span> aliases.</p>
+    </div>
+  </div>
+
+  <!-- Colors -->
+  <div class="sec">
+    <h2>Color</h2>
+    <p class="desc">Brand pine + sage lead; warm sand neutrals carry the UI. Semantic hues are muted to sit calmly beside the brand.</p>
+
+    <div class="pp-eyebrow" style="margin-bottom:10px;">Brand</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); margin-bottom:24px;">
+      <div class="swatch"><div class="chip" style="background:var(--pine-700)"></div><div class="meta"><div class="n">Pine / primary</div><div class="h">#1F4E44</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--pine-900)"></div><div class="meta"><div class="n">Pine deep</div><div class="h">#123A32</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--sage-500)"></div><div class="meta"><div class="n">Sage / accent</div><div class="h">#7FA05A</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--sage-600)"></div><div class="meta"><div class="n">Sage deep</div><div class="h">#647F45</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--sage-100)"></div><div class="meta"><div class="n">Sage tint</div><div class="h">#EDF1E1</div></div></div>
+    </div>
+
+    <div class="pp-eyebrow" style="margin-bottom:10px;">Neutrals — warm sand</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); margin-bottom:24px;">
+      <div class="swatch"><div class="chip" style="background:var(--sand-50); border-bottom:1px solid var(--border-subtle)"></div><div class="meta"><div class="n">App bg</div><div class="h">#FBF8F2</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--sand-100)"></div><div class="meta"><div class="n">Sunken</div><div class="h">#F6F1E9</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--sand-200)"></div><div class="meta"><div class="n">Border sub</div><div class="h">#EDE5D8</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--sand-300)"></div><div class="meta"><div class="n">Border</div><div class="h">#E0D6C5</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--taupe-500)"></div><div class="meta"><div class="n">Muted text</div><div class="h">#7A7264</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-900)"></div><div class="meta"><div class="n">Ink</div><div class="h">#2A2620</div></div></div>
+    </div>
+
+    <div class="pp-eyebrow" style="margin-bottom:10px;">Semantic</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr));">
+      <div class="swatch"><div class="chip" style="background:var(--success-500)"></div><div class="meta"><div class="n">Success</div><div class="h">#6E9247</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--warning-500)"></div><div class="meta"><div class="n">Warning</div><div class="h">#C98A3C</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--error-500)"></div><div class="meta"><div class="n">Error</div><div class="h">#C05A45</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--info-500)"></div><div class="meta"><div class="n">Info</div><div class="h">#4C8A86</div></div></div>
+    </div>
+  </div>
+
+  <!-- Type -->
+  <div class="sec">
+    <h2>Typography</h2>
+    <p class="desc">Hanken Grotesk for everything UI + display; Space Mono for data, IDs, and eyebrow labels.</p>
+    <div class="panel">
+      <div style="font-size:var(--fs-display); line-height:var(--lh-display); font-weight:var(--fw-black); letter-spacing:var(--tracking-tight); color:var(--text-strong);">Book with people who love dogs</div>
+      <div style="font-size:var(--fs-h1); font-weight:var(--fw-bold); letter-spacing:var(--tracking-tight); color:var(--text-strong); margin-top:16px;">Overnight boarding, done right</div>
+      <div style="font-size:var(--fs-h3); font-weight:var(--fw-semibold); color:var(--text-strong); margin-top:12px;">A meet &amp; greet comes first</div>
+      <p style="font-size:var(--fs-body-lg); line-height:var(--lh-body-lg); color:var(--text-body); margin:14px 0 0; max-width:560px;">Body large — Loving, attentive boarding and daycare for your dog. We keep our home small and personal, so every pup gets real attention.</p>
+      <p style="font-size:var(--fs-body); line-height:var(--lh-body); color:var(--text-body); margin:10px 0 0; max-width:560px;">Body default — You'll get photos and updates throughout, and we promise to treat them like the good boy or girl they are.</p>
+      <div style="font-size:var(--fs-sm); color:var(--text-muted); margin-top:12px;">Small / caption — Bookings without a completed meet &amp; greet will be cancelled.</div>
+      <div style="font-family:var(--font-mono); font-size:var(--fs-mono); color:var(--text-muted); margin-top:12px;">MONO · BKG-2049 · SAT 12 JUL · $52.00</div>
+    </div>
+  </div>
+
+  <!-- Components -->
+  <div class="sec">
+    <h2>Components</h2>
+    <p class="desc">Framework-free CSS classes (React equivalents ship alongside). All states derive from tokens.</p>
+    <div class="panel">
+      <div class="pp-eyebrow" style="margin-bottom:12px;">Buttons</div>
+      <div class="rowflex">
+        <button class="pp-btn pp-btn--primary">Request booking</button>
+        <button class="pp-btn pp-btn--accent">Confirm</button>
+        <button class="pp-btn pp-btn--secondary">View details</button>
+        <button class="pp-btn pp-btn--ghost">Cancel</button>
+        <button class="pp-btn pp-btn--danger">Withdraw</button>
+        <button class="pp-btn pp-btn--primary" disabled>Locked</button>
+      </div>
+      <div class="rowflex" style="margin-top:12px;">
+        <button class="pp-btn pp-btn--primary pp-btn--sm">Small</button>
+        <button class="pp-btn pp-btn--primary">Default</button>
+        <button class="pp-btn pp-btn--primary pp-btn--lg">Large</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="pp-eyebrow" style="margin-bottom:12px;">Inputs</div>
+      <div class="grid" style="grid-template-columns:1fr 1fr; gap:18px; max-width:640px;">
+        <div class="pp-field"><label class="pp-label">Dog's name</label><input class="pp-input" placeholder="e.g. Biscuit"></div>
+        <div class="pp-field"><label class="pp-label">Veterinarian</label><input class="pp-input" value="SF SPCA"></div>
+        <div class="pp-field" style="grid-column:1 / -1"><label class="pp-label">Care notes</label><textarea class="pp-textarea" placeholder="Quirks, meds, furniture rules, allergies…"></textarea><span class="pp-hint">The little things live here — the more we know, the better the stay.</span></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="pp-eyebrow" style="margin-bottom:12px;">Badges &amp; tags</div>
+      <div class="rowflex">
+        <span class="pp-badge pp-badge--brand">✓ Verified</span>
+        <span class="pp-badge pp-badge--success">Confirmed</span>
+        <span class="pp-badge pp-badge--warning">Meet &amp; greet needed</span>
+        <span class="pp-badge pp-badge--error">Cancelled</span>
+        <span class="pp-badge pp-badge--info">Pending</span>
+        <span class="pp-badge pp-badge--neutral">Draft</span>
+      </div>
+      <div class="rowflex" style="margin-top:14px;">
+        <span class="pp-tag pp-tag--selected">Boarding</span>
+        <span class="pp-tag">Daycare</span>
+        <span class="pp-tag">Dog walk</span>
+        <span class="pp-tag">Grooming</span>
+        <span class="pp-tag">Training</span>
+        <span class="pp-tag">+ Pickup</span>
+      </div>
+
+      <div class="divider"></div>
+      <div class="rowflex" style="gap:28px;">
+        <div>
+          <div class="pp-eyebrow" style="margin-bottom:12px;">Switch</div>
+          <label class="pp-switch"><input type="checkbox" checked><span class="pp-switch__track"></span><span class="pp-switch__thumb"></span></label>
+          <label class="pp-switch" style="margin-left:10px;"><input type="checkbox"><span class="pp-switch__track"></span><span class="pp-switch__thumb"></span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Applied screen -->
+  <div class="sec">
+    <h2>In context</h2>
+    <p class="desc">A provider home with requirement-gated booking — the Woof Wetreats flow, in the Petappro system, co-branded for a provider.</p>
+    <div style="display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start;">
+      <div class="phone">
+        <div class="phone__screen">
+          <div class="statusbar"><span>9:41</span><span>􀙇 􀺸 􀛨</span></div>
+          <div class="phone__scroll">
+            <!-- provider header -->
+            <div style="padding:16px 20px 18px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <img src="../assets/petappro-mark.png" alt="Petappro" style="height:46px; width:46px; object-fit:contain; display:block;">
+                <div>
+                  <div style="font-size:var(--fs-h3); font-weight:var(--fw-bold); color:var(--text-strong);">Woof Wetreats</div>
+                  <div style="font-family:var(--font-mono); font-size:12px; font-weight:var(--fw-bold); color:var(--text-muted);">by Petappro · San Francisco</div>
+                </div>
+                <span class="pp-badge pp-badge--brand" style="margin-left:auto;"><i data-lucide="shield-check" style="width:13px;height:13px;stroke-width:2.2"></i> Verified</span>
+              </div>
+            </div>
+
+            <!-- gate banner -->
+            <div style="margin:0 16px 14px; background:var(--warning-100); border:1px solid #EBD3A8; border-radius:var(--radius-lg); padding:14px 16px;">
+              <div style="display:flex; gap:10px; align-items:flex-start;">
+                <i data-lucide="handshake" style="width:19px;height:19px;color:#8A5A16;stroke-width:1.9;flex:none;margin-top:1px;"></i>
+                <div>
+                  <div style="font-size:var(--fs-sm); font-weight:var(--fw-bold); color:#8A5A16;">Meet &amp; greet required first</div>
+                  <div style="font-size:var(--fs-caption); color:#8A5A16; margin-top:2px; line-height:1.4;">Boarding &amp; daycare unlock once you've met. It's quick — request one below.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- services -->
+            <div style="padding:2px 16px 8px;">
+              <div class="pp-eyebrow" style="margin-bottom:10px;">Services</div>
+              <div class="pp-card" style="margin-bottom:10px;">
+                <div class="pp-row" style="border-radius:var(--radius-lg);">
+                  <div style="width:40px;height:40px;border-radius:11px;background:var(--sage-100);display:flex;align-items:center;justify-content:center;"><i data-lucide="moon" style="width:20px;height:20px;color:var(--sage-600);stroke-width:1.9"></i></div>
+                  <div style="flex:1;">
+                    <div style="font-size:var(--fs-body); font-weight:var(--fw-bold); color:var(--text-strong);">Overnight boarding</div>
+                    <div style="font-size:var(--fs-caption); color:var(--text-muted);">From $52 / night</div>
+                  </div>
+                  <span class="pp-badge pp-badge--warning">Locked</span>
+                </div>
+              </div>
+              <div class="pp-card" style="margin-bottom:10px;">
+                <div class="pp-row" style="border-radius:var(--radius-lg);">
+                  <div style="width:40px;height:40px;border-radius:11px;background:var(--sage-100);display:flex;align-items:center;justify-content:center;"><i data-lucide="sun" style="width:20px;height:20px;color:var(--sage-600);stroke-width:1.9"></i></div>
+                  <div style="flex:1;">
+                    <div style="font-size:var(--fs-body); font-weight:var(--fw-bold); color:var(--text-strong);">Daycare</div>
+                    <div style="font-size:var(--fs-caption); color:var(--text-muted);">From $38 / day</div>
+                  </div>
+                  <span class="pp-badge pp-badge--warning">Locked</span>
+                </div>
+              </div>
+              <div class="pp-card">
+                <div class="pp-row" style="border-radius:var(--radius-lg);">
+                  <div style="width:40px;height:40px;border-radius:11px;background:var(--sage-100);display:flex;align-items:center;justify-content:center;"><i data-lucide="footprints" style="width:20px;height:20px;color:var(--sage-600);stroke-width:1.9"></i></div>
+                  <div style="flex:1;">
+                    <div style="font-size:var(--fs-body); font-weight:var(--fw-bold); color:var(--text-strong);">Dog walk</div>
+                    <div style="font-size:var(--fs-caption); color:var(--text-muted);">From $22 · no meet &amp; greet needed</div>
+                  </div>
+                  <span style="color:var(--text-muted); font-weight:var(--fw-bold);">›</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:16px;">
+              <button class="pp-btn pp-btn--primary pp-btn--block pp-btn--lg"><i data-lucide="handshake" style="width:18px;height:18px;stroke-width:1.9"></i> Request meet &amp; greet</button>
+              <button class="pp-btn pp-btn--ghost pp-btn--block" style="margin-top:8px;"><i data-lucide="clipboard-list" style="width:17px;height:17px;stroke-width:1.9"></i> Read house rules first</button>
+            </div>
+          </div>
+          <!-- tab bar -->
+          <div class="pp-tabbar">
+            <button class="pp-tabbar__item pp-tabbar__item--active"><i data-lucide="house" style="width:22px;height:22px;stroke-width:1.9"></i>Home</button>
+            <button class="pp-tabbar__item"><i data-lucide="calendar-days" style="width:22px;height:22px;stroke-width:1.9"></i>Bookings</button>
+            <button class="pp-tabbar__item"><i data-lucide="dog" style="width:22px;height:22px;stroke-width:1.9"></i>My dog</button>
+            <button class="pp-tabbar__item"><i data-lucide="menu" style="width:22px;height:22px;stroke-width:1.9"></i>More</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1; min-width:280px; max-width:380px;">
+        <div class="pp-eyebrow" style="margin-bottom:14px;">Branding tiers</div>
+
+        <!-- Base tier -->
+        <div class="pp-card" style="margin-bottom:14px;">
+          <div class="pp-card__body" style="padding:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+              <span class="pp-badge pp-badge--neutral" style="white-space:nowrap;">Standard</span>
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">Free</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:11px;">
+              <img src="../assets/petappro-mark.png" alt="Petappro" style="height:40px; width:40px; object-fit:contain; display:block;">
+              <div>
+                <div style="font-size:var(--fs-body); font-weight:var(--fw-bold); color:var(--text-strong); white-space:nowrap;">Woof Wetreats</div>
+                <div style="font-family:var(--font-mono); font-size:12px; font-weight:var(--fw-bold); color:var(--text-accent); white-space:nowrap;">by Petappro</div>
+              </div>
+            </div>
+            <div style="font-size:var(--fs-caption); color:var(--text-muted); margin-top:12px; line-height:1.5;">Petappro shield leads, provider name beside it. Trust borrowed from the platform.</div>
+          </div>
+        </div>
+
+        <!-- White-label tier -->
+        <div class="pp-card" style="border-color:var(--sage-400); box-shadow:var(--shadow-md);">
+          <div class="pp-card__body" style="padding:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+              <span class="pp-badge pp-badge--brand" style="white-space:nowrap;"><i data-lucide="sparkles" style="width:12px;height:12px;stroke-width:2.2"></i> White-label</span>
+              <span style="font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); color:var(--sage-600);">+$10/mo</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:11px;">
+              <div style="width:40px; height:40px; border-radius:11px; background:#B5502F; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:var(--fw-black); font-size:17px;">W</div>
+              <div>
+                <div style="font-size:var(--fs-body); font-weight:var(--fw-bold); color:var(--text-strong); white-space:nowrap;">Woof Wetreats</div>
+                <div style="font-family:var(--font-mono); font-size:12px; font-weight:var(--fw-bold); color:var(--text-muted); white-space:nowrap;">San Francisco</div>
+              </div>
+            </div>
+            <div style="font-size:var(--fs-caption); color:var(--text-muted); margin-top:12px; line-height:1.5;">Provider’s own logo, colors &amp; name. Petappro disappears — fully their brand.</div>
+          </div>
+        </div>
+
+        <div class="cardnote" style="margin-top:16px;">Same app, same tokens — only <span style="font-family:var(--font-mono)">--brand-*</span> and the mark swap.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

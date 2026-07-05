@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Petappro — Figma Build Playbook · Part 2: Atoms</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--surface-app); color:var(--text-body); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
+  .shell { display:grid; grid-template-columns:264px 1fr; align-items:start; }
+  @media (max-width:900px){ .shell{ grid-template-columns:1fr; } .toc{ display:none; } }
+  .toc { position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--surface-card); border-right:1px solid var(--border-subtle); padding:26px 22px; }
+  .toc img { height:38px; width:38px; object-fit:contain; margin-bottom:14px; }
+  .toc h1 { font-size:15px; font-weight:var(--fw-black); color:var(--text-strong); margin:0 0 2px; letter-spacing:var(--tracking-tight); }
+  .toc .sub { font-family:var(--font-mono); font-size:10.5px; font-weight:var(--fw-bold); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:22px; }
+  .toc a { display:block; font-size:13.5px; color:var(--text-body); text-decoration:none; padding:7px 10px; border-radius:var(--radius-sm); margin-bottom:2px; }
+  .toc a:hover { background:var(--surface-sunken); color:var(--text-strong); }
+  .toc a .n { font-family:var(--font-mono); font-size:11px; color:var(--text-faint); margin-right:8px; }
+  .toc .grouplbl { font-family:var(--font-mono); font-size:10px; font-weight:var(--fw-bold); text-transform:uppercase; letter-spacing:0.12em; color:var(--text-faint); margin:18px 0 8px 10px; }
+
+  main { padding:52px 48px 120px; max-width:920px; }
+  @media (max-width:640px){ main{ padding:32px 20px 80px; } }
+  .eyebrow { font-family:var(--font-mono); font-size:12px; font-weight:var(--fw-bold); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--text-muted); }
+  h2.sec { font-size:var(--fs-h1); font-weight:var(--fw-black); letter-spacing:var(--tracking-tight); color:var(--text-strong); margin:8px 0 6px; scroll-margin-top:24px; }
+  .lede { font-size:var(--fs-body-lg); line-height:1.6; color:var(--text-body); max-width:700px; margin:0 0 8px; }
+  section.block { margin-top:56px; } section.block:first-of-type { margin-top:24px; }
+  .divider { height:1px; background:var(--border-subtle); margin:0; border:none; }
+
+  .prompt { background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; margin:14px 0; }
+  .prompt__bar { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--pine-700); color:#fff; }
+  .prompt__bar .tag { font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); letter-spacing:0.1em; text-transform:uppercase; opacity:.9; }
+  .prompt__bar .ttl { font-size:14px; font-weight:var(--fw-bold); }
+  .prompt__copy { margin-left:auto; font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); background:rgba(255,255,255,.16); color:#fff; border:none; padding:7px 12px; border-radius:999px; cursor:pointer; transition:background .15s; }
+  .prompt__copy:hover { background:rgba(255,255,255,.28); } .prompt__copy.done { background:var(--sage-500); }
+  .prompt pre { margin:0; padding:18px; font-family:var(--font-mono); font-size:12.5px; line-height:1.6; color:var(--text-strong); white-space:pre-wrap; }
+  .prompt pre b { color:var(--pine-700); }
+  .callout { background:var(--sage-100); border:1px solid var(--sage-200); border-radius:var(--radius-md); padding:14px 16px; font-size:13.5px; line-height:1.55; color:#3A4A24; margin:16px 0; max-width:720px; }
+  .callout b { color:#2C3A18; }
+  .demo { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 4px; align-items:center; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="toc">
+    <img src="../assets/petappro-mark.png" alt="Petappro">
+    <h1>Figma Build Playbook</h1>
+    <div class="sub">Part 2 · Atoms</div>
+    <a href="#how"><span class="n">00</span>How to use / for George</a>
+    <a href="#biz"><span class="n">01</span>Business-logic tokens</a>
+    <div class="grouplbl">Atom specs</div>
+    <a href="#button"><span class="n">02</span>Button</a>
+    <a href="#field"><span class="n">03</span>Input / Field</a>
+    <a href="#avatar"><span class="n">04</span>Avatar</a>
+    <a href="#icon"><span class="n">05</span>Icon</a>
+    <a href="#money"><span class="n">06</span>Money</a>
+    <a href="#badge"><span class="n">07</span>Status &amp; Payment badge</a>
+    <a href="#pill"><span class="n">08</span>Service pill</a>
+    <a href="#switch"><span class="n">09</span>Switch</a>
+    <a href="#next"><span class="n">→</span>What's next</a>
+  </nav>
+
+  <main>
+    <section class="block" id="how">
+      <div class="eyebrow">Petappro Design System · Figma build · Part 2</div>
+      <h2 class="sec">Atoms</h2>
+      <p class="lede">Every atom is a <strong>specification</strong> (Objective → Requirements → Acceptance Criteria), gated by the Governance charter. Run them after the Part 1 foundations exist — each references those tokens.</p>
+      <div class="callout"><b>Governance loop.</b> Draft here → <b>George reviews</b> against the acceptance checklist + four questions → GO/NO-GO → Claude Code implements (and optionally pushes to Figma via MCP). No atom merges without sign-off.</div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 01 BIZ TOKENS -->
+    <section class="block" id="biz">
+      <div class="eyebrow">01 · Foundation add-on</div>
+      <h2 class="sec">Business-logic tokens</h2>
+      <p class="lede">Domain semantics — booking, payment, service, notification, capacity, risk, role, pet-gender. <strong>Theme-independent</strong>: they encode meaning, not brand, so they do <em>not</em> live in the theme modes. Atoms below consume them.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Add business-logic color tokens (single mode)</span><button class="prompt__copy">Copy</button></div>
+        <pre>Add a "business" token set (Tokens Studio JSON). SINGLE mode — these are theme-independent (a "cancelled" red must mean cancelled in every brand theme, so they are NOT part of the theme modes). Each role has: base hue, .container (soft tint), .on (accessible text on the tint, ≥4.5:1).
+
+booking:  upcoming #4C8A86 / #DEEBEA / #2E5F5C ; in-progress #6E9247 / #EDF1E1 / #445F27 ; completed #8A8175 / #EDE5D8 / #5C554A ; cancelled #C05A45 / #F5E2DC / #9B3F2C
+payment:  paid #6E9247 / #EDF1E1 / #445F27 ; unpaid #C98A3C / #F6EBD9 / #7A4E12 ; partial #B0704E / #F2E3D9 / #6E4028 ; overridden #7B6EA8 / #E8E4F1 / #453C63
+service:  boarding #5A7A9E ; daycare #C08A3C ; walk #6E9247 ; sitting #B0704E ; grooming #4C8A86 ; training #7B6EA8 ; pickup #8A8150 ; meet-greet #4F9E87  (each with matching container + on; see business-logic.css)
+notification: info #4C8A86 ; success #6E9247 ; warning #C98A3C ; urgent #C05A45
+capacity: available #6E9247 ; limited #C98A3C ; full #C05A45
+risk: none #6E9247 ; watch #C98A3C ; high #C05A45
+role: owner→theme primary ; staff→theme secondary ; client→neutral  (these DO follow the theme)
+pet: male #4882AF ; female #AB5FB9 ; unknown → on-surface-variant
+
+Rules: components reference business tokens by role name, never a raw hex. Return the JSON. (Canonical source: tokens/business-logic.css.)</pre>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- 02 BUTTON -->
+    <section class="block" id="button">
+      <div class="eyebrow">02 · Atom</div>
+      <h2 class="sec">Button</h2>
+      <div class="demo">
+        <button class="pp-btn pp-btn--primary">Primary</button>
+        <button class="pp-btn pp-btn--secondary">Secondary</button>
+        <button class="pp-btn pp-btn--ghost">Ghost</button>
+        <button class="pp-btn pp-btn--danger">Destructive</button>
+        <button class="pp-btn pp-btn--accent">Booking</button>
+      </div>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Canonical Button</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Create the canonical <b>Button</b> for the Petappro Design System.
+
+REQUIREMENTS
+- Variants: Primary, Secondary, Tertiary/Ghost, Destructive, Success (booking-green — booking-CREATION actions only).
+- Sizes: Lg 52 / Md 44 / Sm 36 / Xs 28 px height; Md default; ≥44 is the standard tap target.
+- Icon slots: optional leading + trailing (Lucide, 1.9 stroke), sized to the label.
+- States: default, hover, pressed, focus-visible (3px ring ≥3:1), disabled, loading (spinner replaces label, width locked).
+- Tokens: fill/label from theme color roles; radius = comp.button.shape (fully rounded); gap = space/2; height per size token.
+- Auto Layout: horizontal, hug, center; padding from space tokens.
+- RN compatibility: props (variant, size, leadingIcon, trailingIcon, state, label) named to map onto RN.
+
+ACCEPTANCE CRITERIA
+- No literal hex; all variants use shared tokens. No detached instances.
+- Meets WCAG AA (contrast + focus ring + 44px default target).
+- Minimal, well-named component properties. One reusable component.
+
+DOCUMENTATION
+- Purpose · Usage · When not to use · Variant descriptions (booking-creation = Success) · A11y · Dev notes.</pre>
+      </div>
+    </section>
+
+    <!-- 03 FIELD -->
+    <section class="block" id="field">
+      <h2 class="sec">03 · Input / Field</h2>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Text field / input</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Create the canonical <b>Field</b> (text input) for Petappro.
+
+REQUIREMENTS
+- Anatomy (slots): label · input · optional leading icon · optional trailing icon/affix (e.g. "$") · hint/help · error message.
+- Types: text, number, date, textarea (multi-line), select. Share one visual shell.
+- States: default, focus (border = primary + 3px focus ring), filled, disabled, error (error border + message), read-only.
+- Tokens: container = comp.input.container; border = comp.input.outline / focus; radius = comp.input.shape (12); text = on-surface; label = body-sm 600; hint = label size, on-surface-variant; error = business error/notif-urgent.on.
+- Sizing: min height 44; padding from space tokens; textarea min 92.
+- Auto Layout: vertical group (label/input/hint), gap = space/2.
+- RN compatibility: props (label, type, value, placeholder, leadingIcon, trailingAffix, state, hint, error).
+
+ACCEPTANCE CRITERIA
+- No literal hex. Error state never signals by color alone (icon + message). Label always present (or aria-label noted).
+- Focus ring ≥3:1; 44px min target. One shell, variants for type.
+
+DOCUMENTATION
+- Purpose · Usage · When not to use · Type/state descriptions · A11y (label association) · Dev notes.</pre>
+      </div>
+    </section>
+
+    <!-- 04 AVATAR -->
+    <section class="block" id="avatar">
+      <h2 class="sec">04 · Avatar</h2>
+      <p class="lede">Generic avatar atom. The <strong>Pet Avatar</strong> domain component (gender ring, puppy badge) and the Multi-pet Stack build on top of this — noted for Part 4.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Avatar</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Create the canonical <b>Avatar</b> for Petappro (people and, as a base, pets).
+
+REQUIREMENTS
+- Content: image, or fallback (monogram initials, or a Lucide glyph e.g. dog).
+- Shape: circle (default); size variants Xs 24 / Sm 32 / Md 40 / Lg 64 / Xl 96.
+- Optional ring: none (default) | brand | gender (male #4882AF / female #AB5FB9 via business tokens) — for the Pet Avatar extension.
+- Optional status dot (online/active) bottom-right, and an optional corner badge slot (e.g. puppy) — expose as boolean/slot, off by default.
+- Tokens: fallback bg = surface-container-high; monogram text = on-surface-variant; ring color from theme or business pet-gender tokens; border 2px.
+- Auto Layout / constraints: image fills; badge pinned bottom-right.
+- RN compatibility: props (src, name, size, ring, statusDot, badge).
+
+ACCEPTANCE CRITERIA
+- No literal hex (gender ring uses business tokens). Fallback always legible (AA). Fixed square ratio at every size.
+- Base atom stays generic; pet-specific styling comes from the ring/badge props, not a fork.
+
+DOCUMENTATION
+- Purpose · Usage · When not to use · Size/ring guidance · A11y (alt text) · Dev notes.</pre>
+      </div>
+    </section>
+
+    <!-- 05 ICON -->
+    <section class="block" id="icon">
+      <h2 class="sec">05 · Icon</h2>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Icon</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Establish the <b>Icon</b> atom + the Petappro icon set.
+
+REQUIREMENTS
+- Library: Lucide. Stroke 1.9, round caps/joins, 24px grid.
+- Sizes: 16 / 18 / 20 / 24 (default) / 28, as size variants; stroke stays optically consistent.
+- Color: inherits currentColor by default; may be set to any theme or business token.
+- Curated set (import as components): navigation (house, calendar-days, dog, menu, search, bell, user-round, settings), services (moon, sun, footprints, house-plus, scissors, graduation-cap, car-front, bone), status (shield-check, circle-check-big, lock, clock, handshake, calendar-check, clipboard-list, credit-card), care (syringe, stethoscope, pill, utensils, camera, map-pin, triangle-alert, notebook-pen), actions (plus, chevron-right, pencil, x, check, message-circle, star, share).
+
+ACCEPTANCE CRITERIA
+- Single Icon component with a name/size property; no ad-hoc pasted SVGs elsewhere. Consistent stroke + grid.
+
+DOCUMENTATION
+- Purpose · Usage · Naming map (semantic → glyph) · Sizing · Dev notes (icon font vs SVG in RN).</pre>
+      </div>
+    </section>
+
+    <!-- 06 MONEY -->
+    <section class="block" id="money">
+      <h2 class="sec">06 · Money</h2>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Money</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Create the <b>Money</b> atom — the single way an amount is rendered.
+
+REQUIREMENTS
+- Formats value as currency (2 decimals, locale-aware; USD default).
+- States: default; <b>cancelled</b> = strikethrough + on-surface-variant color (matches live app rule — struck everywhere a cancelled amount appears).
+- Optional emphasis: regular vs bold (totals).
+- Tokens: text = on-surface / on-surface-variant; no literal colors.
+- RN compatibility: props (value, cancelled, emphasis, currency).
+
+ACCEPTANCE CRITERIA
+- Strike + mute always travel together for cancelled. No hard-coded color. Never re-implement a struck price inline.
+
+DOCUMENTATION
+- Purpose · Usage · When not to use · Dev notes (formatting util shared with pricing engine).</pre>
+      </div>
+    </section>
+
+    <!-- 07 BADGE -->
+    <section class="block" id="badge">
+      <h2 class="sec">07 · Status &amp; Payment badge</h2>
+      <div class="demo">
+        <span class="pp-badge pp-badge--info">Upcoming</span>
+        <span class="pp-badge pp-badge--success">In progress</span>
+        <span class="pp-badge pp-badge--neutral">Completed</span>
+        <span class="pp-badge pp-badge--error">Cancelled</span>
+        <span class="pp-badge pp-badge--warning">Unpaid</span>
+      </div>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Status / Payment badge</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Create the canonical <b>Badge</b> for lifecycle + payment status (the app's single source for status pills).
+
+REQUIREMENTS
+- Booking statuses: Upcoming, In Progress, Completed, Cancelled.
+- Payment statuses: Paid, Unpaid, Partial, Overridden.
+- Skin: soft container bg + accessible on-container text from the BUSINESS tokens (booking.* / payment.*). Cancelled may add a subtle outline.
+- Never color-alone: each carries a label (and optional leading icon/dot).
+- Shape: comp.badge.shape (fully rounded); label = 11–12px 700; padding from space tokens.
+- RN compatibility: props (kind[booking|payment], status, label?, icon?).
+
+ACCEPTANCE CRITERIA
+- Colors come only from business tokens; theme-independent. Text ≥4.5:1 on its container. Label always present. One component, status as a property (no per-status forks).
+
+DOCUMENTATION
+- Purpose · Usage · Status → token map · When not to use (don't use for services — use Service Pill) · A11y · Dev notes.</pre>
+      </div>
+    </section>
+
+    <!-- 08 SERVICE PILL -->
+    <section class="block" id="pill">
+      <h2 class="sec">08 · Service pill</h2>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Service pill</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Create the canonical <b>Service Pill</b> — one source for every service/activity tag.
+
+REQUIREMENTS
+- Services: Boarding, Daycare, Walk, In-home Sitting, Grooming, Training, Pickup/Dropoff, Meet & Greet.
+- Skin: solid fill = business service token, white label + leading icon — EXCEPT Meet & Greet, the only OUTLINED pill (white bg, colored stroke + text) per the live app.
+- Selectable variant (for booking flows): unselected (outline/neutral) vs selected (filled brand). Expose "selectable" + "selected" props.
+- Shape: comp.chip.shape (fully rounded); height ~22–28; icon = Lucide.
+- RN compatibility: props (service, label?, selectable, selected, icon).
+
+ACCEPTANCE CRITERIA
+- Colors from business service tokens only. Solid + outlined pills align on the same baseline/height. Meet & Greet is the sole outlined case. One component; service as a property.
+
+DOCUMENTATION
+- Purpose · Usage · Service → token/icon map · Solid vs outlined rule · A11y · Dev notes.</pre>
+      </div>
+    </section>
+
+    <!-- 09 SWITCH -->
+    <section class="block" id="switch">
+      <h2 class="sec">09 · Switch</h2>
+      <div class="demo">
+        <label class="pp-switch"><input type="checkbox" checked><span class="pp-switch__track"></span><span class="pp-switch__thumb"></span></label>
+        <label class="pp-switch"><input type="checkbox"><span class="pp-switch__track"></span><span class="pp-switch__thumb"></span></label>
+      </div>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Switch / toggle</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Create the canonical <b>Switch</b> (binary toggle) for Petappro.
+
+REQUIREMENTS
+- States: off, on, disabled-off, disabled-on, focus-visible.
+- On = comp.switch.on (theme secondary-solid); track off = outline-strong; thumb = white with elevation-1.
+- Motion: thumb slides medium + standard easing; honor reduced-motion.
+- Size: track 46×28, thumb 22 (≥44px hit area via padding).
+- RN compatibility: props (checked, disabled, onChange, label?).
+
+ACCEPTANCE CRITERIA
+- Token-driven colors; 44px effective target; visible focus ring; clear on/off beyond color (thumb position).
+
+DOCUMENTATION
+- Purpose · Usage · When to use vs checkbox · A11y · Dev notes.</pre>
+      </div>
+    </section>
+
+    <hr class="divider" style="margin-top:52px;">
+    <section class="block" id="next">
+      <div class="eyebrow">Coming next</div>
+      <h2 class="sec">Part 3 — Patterns · Part 4 — Domain system</h2>
+      <p class="lede">Once atoms pass review: <strong>Patterns</strong> (Section Header, Date Navigator, field groups, list rows, pricing row) then the <strong>Domain system</strong> (Booking Card, Pet Avatar + Multi-pet Stack, Vaccination/Temperament/Medication, Booking Timeline, Capacity Meter, Client Risk, Report Card) — each a spec, each gated by George, before Templates.</p>
+    </section>
+  </main>
+</div>
+<script>
+  document.querySelectorAll('.prompt__copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.closest('.prompt').querySelector('pre').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const old = btn.textContent; btn.textContent='✓ Copied'; btn.classList.add('done');
+        setTimeout(()=>{ btn.textContent=old; btn.classList.remove('done'); },1600);
+      });
+    });
+  });
+</script>
+</body>
+</html>

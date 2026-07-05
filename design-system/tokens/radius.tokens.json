@@ -1,0 +1,24 @@
+{
+  "radius": {
+    "primitive": {
+      "0":    { "$value": "0px",   "$type": "dimension" },
+      "1":    { "$value": "6px",   "$type": "dimension" },
+      "2":    { "$value": "8px",   "$type": "dimension" },
+      "3":    { "$value": "12px",  "$type": "dimension" },
+      "4":    { "$value": "16px",  "$type": "dimension" },
+      "5":    { "$value": "20px",  "$type": "dimension" },
+      "6":    { "$value": "28px",  "$type": "dimension" },
+      "full": { "$value": "999px", "$type": "dimension" }
+    },
+    "semantic": {
+      "button": { "$value": "{radius.primitive.full}", "$type": "dimension" },
+      "chip":   { "$value": "{radius.primitive.full}", "$type": "dimension" },
+      "badge":  { "$value": "{radius.primitive.full}", "$type": "dimension" },
+      "switch": { "$value": "{radius.primitive.full}", "$type": "dimension" },
+      "input":  { "$value": "{radius.primitive.3}",    "$type": "dimension" },
+      "card":   { "$value": "{radius.primitive.4}",    "$type": "dimension" },
+      "tile":   { "$value": "{radius.primitive.4}",    "$type": "dimension" },
+      "sheet":  { "$value": "{radius.primitive.5}",    "$type": "dimension" }
+    }
+  }
+}

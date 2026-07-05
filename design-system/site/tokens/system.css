@@ -1,0 +1,99 @@
+/* ============================================================
+   TIER 2 · SYSTEM TOKENS (semantic roles)  ·  Material 3 model
+   These are what most CSS should reference. White-label overrides
+   happen here (--sys-color-primary / -secondary) or one tier down.
+   ============================================================ */
+:root {
+
+  /* ---------- COLOR: primary (brand) ---------- */
+  --sys-color-primary:            var(--ref-pine-700);
+  --sys-color-primary-hover:      var(--ref-pine-600);
+  --sys-color-primary-pressed:    var(--ref-pine-900);
+  --sys-color-on-primary:         var(--ref-white);
+  --sys-color-primary-container:  var(--ref-pine-100);
+  --sys-color-on-primary-container: var(--ref-pine-900);
+
+  /* ---------- COLOR: secondary (sage accent) ---------- */
+  --sys-color-secondary:          var(--ref-sage-500);   /* fills/large only — not white text */
+  --sys-color-secondary-solid:    var(--ref-sage-600);   /* white text passes AA here */
+  --sys-color-secondary-hover:    var(--ref-sage-700);
+  --sys-color-on-secondary:       var(--ref-white);
+  --sys-color-secondary-container: var(--ref-sage-100);
+  --sys-color-on-secondary-container: var(--ref-sage-ontint);
+
+  /* ---------- COLOR: surfaces (elevation via warm-sand tint) ---------- */
+  --sys-color-surface:                  var(--ref-sand-50);   /* app background */
+  --sys-color-surface-container-lowest: var(--ref-white);     /* raised cards */
+  --sys-color-surface-container-low:    var(--ref-sand-50);
+  --sys-color-surface-container:        var(--ref-sand-100);  /* sunken/insets */
+  --sys-color-surface-container-high:   var(--ref-sand-200);
+  --sys-color-surface-bright:           var(--ref-white);
+
+  --sys-color-on-surface:          var(--ref-ink-900);   /* headings 15:1 */
+  --sys-color-on-surface-body:     var(--ref-ink-700);   /* body 10.3:1 */
+  --sys-color-on-surface-variant:  var(--ref-taupe-600); /* muted 5.7:1 */
+  --sys-color-on-surface-faint:    var(--ref-taupe-400); /* decorative only */
+  --sys-color-on-surface-accent:   #4F6635;              /* accent TEXT 6.4:1 */
+
+  /* ---------- COLOR: outline ---------- */
+  --sys-color-outline:          var(--ref-sand-300);
+  --sys-color-outline-variant:  var(--ref-sand-200);
+  --sys-color-outline-strong:   var(--ref-sand-400);
+
+  /* ---------- COLOR: functional roles (role / container / on-container) ---------- */
+  --sys-color-success: var(--ref-green-500); --sys-color-success-container: var(--ref-green-100); --sys-color-on-success-container: var(--ref-green-700);
+  --sys-color-warning: var(--ref-amber-500); --sys-color-warning-container: var(--ref-amber-100); --sys-color-on-warning-container: var(--ref-amber-700);
+  --sys-color-error:   var(--ref-red-500);   --sys-color-error-container:   var(--ref-red-100);   --sys-color-on-error-container:   var(--ref-red-700);
+  --sys-color-info:    var(--ref-teal-500);  --sys-color-info-container:    var(--ref-teal-100);  --sys-color-on-info-container:    var(--ref-teal-700);
+  --sys-color-neutral-container: var(--ref-sand-200); --sys-color-on-neutral-container: #5C554A;
+
+  --sys-color-focus-ring: rgba(31, 78, 68, 0.22);
+
+  /* ---------- SHAPE scale (single source for all corner rounding) ---------- */
+  --sys-shape-corner-none: var(--ref-radius-0);
+  --sys-shape-corner-xs:   var(--ref-radius-1);
+  --sys-shape-corner-sm:   var(--ref-radius-2);
+  --sys-shape-corner-md:   var(--ref-radius-3);
+  --sys-shape-corner-lg:   var(--ref-radius-4);
+  --sys-shape-corner-xl:   var(--ref-radius-5);
+  --sys-shape-corner-2xl:  var(--ref-radius-6);
+  --sys-shape-corner-full: var(--ref-radius-full);
+
+  /* ---------- SPACING (semantic pass-through of the grid) ---------- */
+  --sys-space-1: var(--ref-dim-1);  --sys-space-2: var(--ref-dim-2);  --sys-space-3: var(--ref-dim-3);
+  --sys-space-4: var(--ref-dim-4);  --sys-space-5: var(--ref-dim-5);  --sys-space-6: var(--ref-dim-6);
+  --sys-space-8: var(--ref-dim-8);  --sys-space-10: var(--ref-dim-10); --sys-space-12: var(--ref-dim-12);
+
+  /* ---------- TYPESCALE roles (font / size / line / weight / tracking) ---------- */
+  --sys-type-family-brand: var(--ref-font-sans);
+  --sys-type-family-mono:  var(--ref-font-mono);
+
+  --sys-type-display-size: var(--ref-fs-34); --sys-type-display-line: 1.08; --sys-type-display-weight: var(--ref-weight-black);    --sys-type-display-tracking: -0.02em;
+  --sys-type-headline-size: var(--ref-fs-27); --sys-type-headline-line: 1.14; --sys-type-headline-weight: var(--ref-weight-bold);  --sys-type-headline-tracking: -0.02em;
+  --sys-type-title-lg-size: var(--ref-fs-22); --sys-type-title-lg-line: 1.2; --sys-type-title-lg-weight: var(--ref-weight-bold);   --sys-type-title-lg-tracking: -0.01em;
+  --sys-type-title-size: var(--ref-fs-18); --sys-type-title-line: 1.3; --sys-type-title-weight: var(--ref-weight-semibold);        --sys-type-title-tracking: 0;
+  --sys-type-body-lg-size: var(--ref-fs-17); --sys-type-body-lg-line: 1.55; --sys-type-body-lg-weight: var(--ref-weight-regular);  --sys-type-body-lg-tracking: 0;
+  --sys-type-body-size: var(--ref-fs-15); --sys-type-body-line: 1.55; --sys-type-body-weight: var(--ref-weight-regular);           --sys-type-body-tracking: 0;
+  --sys-type-body-sm-size: var(--ref-fs-13); --sys-type-body-sm-line: 1.45; --sys-type-body-sm-weight: var(--ref-weight-regular);  --sys-type-body-sm-tracking: 0;
+  --sys-type-label-size: var(--ref-fs-12); --sys-type-label-line: 1.4; --sys-type-label-weight: var(--ref-weight-bold);            --sys-type-label-tracking: 0.14em;
+
+  /* ---------- ELEVATION (warm-tinted) ---------- */
+  --sys-elevation-0: none;
+  --sys-elevation-1: 0 1px 3px rgba(42,38,32,0.08), 0 1px 2px rgba(42,38,32,0.04);
+  --sys-elevation-2: 0 4px 14px rgba(42,38,32,0.08);
+  --sys-elevation-3: 0 12px 32px rgba(42,38,32,0.12);
+  --sys-elevation-nav: 0 -2px 16px rgba(42,38,32,0.06);
+
+  /* ---------- MOTION ---------- */
+  --sys-motion-easing-standard: cubic-bezier(0.2, 0, 0.2, 1);
+  --sys-motion-easing-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --sys-motion-duration-short: 120ms;
+  --sys-motion-duration-medium: 200ms;
+  --sys-motion-duration-long: 320ms;
+  --sys-state-pressed-scale: 0.97;
+
+  /* ---------- LAYOUT ---------- */
+  --sys-layout-screen-max: 440px;
+  --sys-layout-gutter: 20px;
+  --sys-z-sticky: 100; --sys-z-nav: 200; --sys-z-overlay: 900; --sys-z-modal: 1000; --sys-z-toast: 1100;
+}

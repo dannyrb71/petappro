@@ -41,8 +41,9 @@ design-system/
 ├── GOVERNANCE.md                ← operating model: roles, flow, gates, versioning
 ├── Petappro — Design System Governance.pdf   ← the charter (the standard)
 ├── CHANGELOG.md                 ← system-level changelog
-├── tokens/                      ← AUTHORED DTCG source (color, type, space, radius, elevation, motion…)
-│   └── *.tokens.json
+├── tokens/                      ← AUTHORED DTCG source (single source of truth)
+│   ├── README.md                ← how to use tokens + theming/tiers
+│   └── *.tokens.json            ← color (primitive·semantic·domain), type, space, radius, elevation, motion
 ├── tools/
 │   └── lint-tokens.mjs          ← mechanical gate (semantic-over-literal, alias integrity, naming)
 ├── specs/                       ← contracts, one file per component
@@ -50,6 +51,8 @@ design-system/
 │   ├── foundations/  atoms/  patterns/  domain/  templates/
 ├── records/                     ← per-component records
 │   └── _TEMPLATE.md
+├── docs/                        ← design notes (theming-and-tiers.md …)
+├── site/                        ← browsable bundle: previews + playbook + guidelines + charter.html + CSS mirror — NOT source
 └── assets/                      ← source logos / art
 ```
 

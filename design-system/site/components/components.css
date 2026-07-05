@@ -1,0 +1,132 @@
+/* ============================================================
+   Petappro — Component classes (built on tokens).
+   Framework-free; consumers can use these directly or via the
+   React components in components/**. White-label safe: everything
+   references --brand-* aliases.
+   ============================================================ */
+
+/* ---------- Buttons ---------- */
+.pp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  font-family: var(--font-sans); font-size: var(--comp-button-label-size); font-weight: var(--comp-button-label-weight);
+  line-height: 1; border: 1px solid transparent; border-radius: var(--comp-button-shape);
+  min-height: var(--comp-button-height); padding: 0 var(--comp-button-pad-x); cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-standard),
+              transform var(--dur-fast) var(--ease-standard),
+              border-color var(--dur-fast) var(--ease-standard);
+}
+.pp-btn:active { transform: scale(var(--press-scale)); }
+.pp-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.pp-btn--primary   { background: var(--comp-button-filled-container); color: var(--comp-button-filled-label); }
+.pp-btn--primary:hover   { background: var(--comp-button-filled-hover); }
+.pp-btn--secondary { background: var(--surface-card); color: var(--brand-primary); border-color: var(--border-default); }
+.pp-btn--secondary:hover { background: var(--surface-sunken); }
+.pp-btn--accent    { background: var(--brand-accent-solid); color: var(--white); }
+.pp-btn--accent:hover    { background: var(--brand-accent-hover); }
+.pp-btn--ghost     { background: transparent; color: var(--brand-primary); }
+.pp-btn--ghost:hover     { background: var(--pine-50); }
+.pp-btn--danger    { background: var(--error-500); color: var(--white); }
+.pp-btn--sm { min-height: 36px; padding: 0 15px; font-size: var(--fs-sm); }
+.pp-btn--lg { min-height: 52px; padding: 0 22px; font-size: var(--fs-body-lg); }
+.pp-btn--block { display: flex; width: 100%; }
+.pp-btn:disabled, .pp-btn[aria-disabled="true"] {
+  background: var(--sand-200); color: var(--text-faint); border-color: transparent;
+  cursor: not-allowed; pointer-events: none;
+}
+
+/* ---------- Inputs ---------- */
+.pp-field { display: flex; flex-direction: column; gap: var(--space-2); }
+.pp-label { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-body); }
+.pp-input, .pp-textarea, .pp-select {
+  font-family: var(--font-sans); font-size: var(--fs-body); color: var(--text-strong);
+  background: var(--comp-input-container); border: 1px solid var(--comp-input-outline);
+  border-radius: var(--comp-input-shape); padding: var(--comp-input-pad-y) var(--comp-input-pad-x); width: 100%;
+  transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+}
+.pp-input::placeholder, .pp-textarea::placeholder { color: var(--text-faint); }
+.pp-input:focus, .pp-textarea:focus, .pp-select:focus {
+  outline: none; border-color: var(--border-focus); box-shadow: var(--focus-ring);
+}
+.pp-textarea { resize: vertical; min-height: 92px; line-height: var(--lh-body); }
+.pp-hint { font-size: var(--fs-caption); color: var(--text-muted); }
+
+/* ---------- Card ---------- */
+.pp-card {
+  background: var(--comp-card-container); border: 1px solid var(--comp-card-outline);
+  border-radius: var(--comp-card-shape); box-shadow: var(--comp-card-elevation);
+}
+.pp-card--flat { box-shadow: none; }
+.pp-card__body { padding: var(--comp-card-pad); }
+
+/* ---------- Badge / status pill ---------- */
+.pp-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--fs-caption); font-weight: var(--fw-bold);
+  padding: 5px 10px; border-radius: var(--comp-badge-shape); line-height: 1;
+}
+.pp-badge--success { background: var(--success-100); color: var(--on-tint-success); }
+.pp-badge--warning { background: var(--warning-100); color: var(--on-tint-warning); }
+.pp-badge--error   { background: var(--error-100);   color: var(--on-tint-error); }
+.pp-badge--info    { background: var(--info-100);    color: var(--on-tint-info); }
+.pp-badge--neutral { background: var(--sand-200);    color: var(--on-tint-neutral); }
+.pp-badge--brand   { background: var(--sage-100);    color: var(--on-tint-brand); }
+
+/* ---------- Tag / chip (selectable) ---------- */
+.pp-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-body);
+  background: var(--surface-card); border: 1px solid var(--border-default);
+  padding: 8px 14px; border-radius: var(--comp-chip-shape); cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-standard);
+}
+.pp-tag[aria-pressed="true"], .pp-tag--selected {
+  background: var(--brand-primary); color: var(--on-brand); border-color: var(--brand-primary);
+}
+
+/* ---------- Switch ---------- */
+.pp-switch { position: relative; display: inline-block; width: 46px; height: 28px; }
+.pp-switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.pp-switch__track {
+  position: absolute; inset: 0; background: var(--sand-400); border-radius: var(--comp-switch-shape);
+  transition: background var(--dur-base) var(--ease-standard);
+}
+.pp-switch__thumb {
+  position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--white); box-shadow: var(--shadow-xs);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.pp-switch input:checked ~ .pp-switch__track { background: var(--comp-switch-on); }
+.pp-switch input:checked ~ .pp-switch__thumb { transform: translateX(18px); }
+
+/* ---------- List row ---------- */
+.pp-row {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--comp-tile-pad); background: var(--comp-tile-container);
+}
+.pp-row + .pp-row { border-top: 1px solid var(--border-subtle); }
+
+/* ---------- Eyebrow label ---------- */
+.pp-eyebrow {
+  font-family: var(--font-mono); font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--text-muted);
+}
+
+/* ---------- Bottom tab bar ---------- */
+.pp-tabbar {
+  display: flex; background: var(--comp-tabbar-container); border-top: 1px solid var(--border-subtle);
+  box-shadow: var(--comp-tabbar-elevation); padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+.pp-tabbar__item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: var(--fw-semibold); color: var(--text-muted);
+  background: none; border: none; cursor: pointer; padding: 4px;
+}
+.pp-tabbar__item--active { color: var(--brand-primary); }
+
+/* ---------- Accessibility: honor reduced-motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

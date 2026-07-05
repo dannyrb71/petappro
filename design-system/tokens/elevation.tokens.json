@@ -1,0 +1,40 @@
+{
+  "elevation": {
+    "primitive": {
+      "0": {
+        "$value": [],
+        "$type": "shadow",
+        "$extensions": { "ds": { "allowLiteral": "no-shadow level; empty by definition" } }
+      },
+      "1": {
+        "$value": [
+          { "color": "rgba(42,38,32,0.08)", "offsetX": "0px", "offsetY": "1px", "blur": "3px", "spread": "0px" },
+          { "color": "rgba(42,38,32,0.04)", "offsetX": "0px", "offsetY": "1px", "blur": "2px", "spread": "0px" }
+        ],
+        "$type": "shadow",
+        "$extensions": { "ds": { "allowLiteral": "warm-ink shadow; alpha values have no solid primitive equivalent" } }
+      },
+      "2": {
+        "$value": { "color": "rgba(42,38,32,0.08)", "offsetX": "0px", "offsetY": "4px", "blur": "14px", "spread": "0px" },
+        "$type": "shadow",
+        "$extensions": { "ds": { "allowLiteral": "warm-ink shadow; alpha values have no solid primitive equivalent" } }
+      },
+      "3": {
+        "$value": { "color": "rgba(42,38,32,0.12)", "offsetX": "0px", "offsetY": "12px", "blur": "32px", "spread": "0px" },
+        "$type": "shadow",
+        "$extensions": { "ds": { "allowLiteral": "warm-ink shadow; alpha values have no solid primitive equivalent" } }
+      },
+      "nav": {
+        "$value": { "color": "rgba(42,38,32,0.06)", "offsetX": "0px", "offsetY": "-2px", "blur": "16px", "spread": "0px" },
+        "$type": "shadow",
+        "$extensions": { "ds": { "allowLiteral": "upward warm-ink shadow for bottom nav; no solid primitive equivalent" } }
+      }
+    },
+    "semantic": {
+      "card":     { "$value": "{elevation.primitive.1}",   "$type": "shadow" },
+      "raised":   { "$value": "{elevation.primitive.2}",   "$type": "shadow" },
+      "modal":    { "$value": "{elevation.primitive.3}",   "$type": "shadow" },
+      "nav":      { "$value": "{elevation.primitive.nav}", "$type": "shadow" }
+    }
+  }
+}

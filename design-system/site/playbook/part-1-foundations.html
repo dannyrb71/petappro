@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Petappro — Figma Build Playbook · Part 1: Foundations</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--surface-app); color:var(--text-body); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
+  .shell { display:grid; grid-template-columns:264px 1fr; align-items:start; }
+  @media (max-width:900px){ .shell{ grid-template-columns:1fr; } .toc{ display:none; } }
+
+  /* TOC */
+  .toc { position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--surface-card); border-right:1px solid var(--border-subtle); padding:26px 22px; }
+  .toc img { height:38px; width:38px; object-fit:contain; margin-bottom:14px; }
+  .toc h1 { font-size:15px; font-weight:var(--fw-black); color:var(--text-strong); margin:0 0 2px; letter-spacing:var(--tracking-tight); }
+  .toc .sub { font-family:var(--font-mono); font-size:10.5px; font-weight:var(--fw-bold); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:22px; }
+  .toc a { display:block; font-size:13.5px; color:var(--text-body); text-decoration:none; padding:7px 10px; border-radius:var(--radius-sm); margin-bottom:2px; }
+  .toc a:hover { background:var(--surface-sunken); color:var(--text-strong); }
+  .toc a .n { font-family:var(--font-mono); font-size:11px; color:var(--text-faint); margin-right:8px; }
+  .toc .grouplbl { font-family:var(--font-mono); font-size:10px; font-weight:var(--fw-bold); text-transform:uppercase; letter-spacing:0.12em; color:var(--text-faint); margin:18px 0 8px 10px; }
+
+  main { padding:52px 48px 120px; max-width:920px; }
+  @media (max-width:640px){ main{ padding:32px 20px 80px; } }
+
+  .eyebrow { font-family:var(--font-mono); font-size:12px; font-weight:var(--fw-bold); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--text-muted); }
+  h2.sec { font-size:var(--fs-h1); font-weight:var(--fw-black); letter-spacing:var(--tracking-tight); color:var(--text-strong); margin:8px 0 6px; scroll-margin-top:24px; }
+  .lede { font-size:var(--fs-body-lg); line-height:1.6; color:var(--text-body); max-width:680px; margin:0 0 8px; }
+  section.block { margin-top:64px; }
+  section.block:first-of-type { margin-top:24px; }
+  h3.pt { font-size:var(--fs-h3); font-weight:var(--fw-bold); color:var(--text-strong); margin:34px 0 6px; scroll-margin-top:24px; }
+  p.note { font-size:var(--fs-sm); line-height:1.6; color:var(--text-muted); max-width:680px; }
+  .divider { height:1px; background:var(--border-subtle); margin:0; border:none; }
+
+  /* prompt card */
+  .prompt { background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; margin:16px 0 8px; }
+  .prompt__bar { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--pine-700); color:#fff; }
+  .prompt__bar .tag { font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); letter-spacing:0.1em; text-transform:uppercase; opacity:0.9; }
+  .prompt__bar .ttl { font-size:14px; font-weight:var(--fw-bold); }
+  .prompt__copy { margin-left:auto; font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); background:rgba(255,255,255,0.16); color:#fff; border:none; padding:7px 12px; border-radius:999px; cursor:pointer; transition:background .15s; }
+  .prompt__copy:hover { background:rgba(255,255,255,0.28); }
+  .prompt__copy.done { background:var(--sage-500); }
+  .prompt pre { margin:0; padding:18px 18px 20px; font-family:var(--font-mono); font-size:12.5px; line-height:1.62; color:var(--text-strong); white-space:pre-wrap; background:var(--surface-card); }
+  .prompt pre b { color:var(--pine-700); font-weight:var(--fw-bold); }
+
+  /* value reference tables */
+  .ref { margin:14px 0 4px; border:1px solid var(--border-subtle); border-radius:var(--radius-md); overflow:hidden; }
+  .ref table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  .ref th { text-align:left; font-family:var(--font-mono); font-size:10.5px; font-weight:var(--fw-bold); letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); background:var(--surface-sunken); padding:9px 12px; border-bottom:1px solid var(--border-subtle); }
+  .ref td { padding:8px 12px; border-bottom:1px solid var(--border-subtle); vertical-align:middle; color:var(--text-body); }
+  .ref tr:last-child td { border-bottom:none; }
+  .ref .mono { font-family:var(--font-mono); font-size:11.5px; }
+  .sw { display:inline-block; width:16px; height:16px; border-radius:4px; border:1px solid rgba(0,0,0,0.1); vertical-align:-3px; margin-right:7px; }
+  .callout { background:var(--sage-100); border:1px solid var(--sage-200); border-radius:var(--radius-md); padding:14px 16px; font-size:13.5px; line-height:1.55; color:#3A4A24; margin:14px 0; max-width:700px; }
+  .callout b { color:#2C3A18; }
+  .pillrow { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+  .pillrow span { font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); padding:6px 11px; border-radius:999px; background:var(--surface-sunken); border:1px solid var(--border-subtle); color:var(--text-body); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============ TOC ============ -->
+  <nav class="toc">
+    <img src="../assets/petappro-mark.png" alt="Petappro">
+    <h1>Figma Build Playbook</h1>
+    <div class="sub">Part 1 · Foundations</div>
+    <a href="#how"><span class="n">00</span>How to use this playbook</a>
+    <a href="#cover"><span class="n">01</span>File cover &amp; how-to statement</a>
+    <div class="grouplbl">Foundations / styling</div>
+    <a href="#arch"><span class="n">02</span>Variable architecture &amp; naming</a>
+    <a href="#prim"><span class="n">03</span>Primitives (reference)</a>
+    <a href="#themes"><span class="n">04</span>Themes via modes</a>
+    <a href="#type"><span class="n">05</span>Typography</a>
+    <a href="#space"><span class="n">06</span>Spacing scale</a>
+    <a href="#radius"><span class="n">07</span>Radius (shape)</a>
+    <a href="#elev"><span class="n">08</span>Elevation &amp; shadows</a>
+    <a href="#motion"><span class="n">09</span>Motion tokens</a>
+    <a href="#grid"><span class="n">10</span>Breakpoints &amp; grid</a>
+    <a href="#next"><span class="n">→</span>What's next</a>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+
+    <!-- 00 HOW TO USE -->
+    <section class="block" id="how">
+      <div class="eyebrow">Petappro Design System · Figma build</div>
+      <h2 class="sec">How to use this playbook</h2>
+      <p class="lede">This is Part 1 — <strong>Foundations</strong>. Each block below is a self-contained prompt you paste into ChatGPT to generate a piece of the Figma file, in order. The prompts define <strong>rules</strong>, not one-off objects, so what comes back scales.</p>
+      <div class="callout">
+        <b>Recommended workflow.</b> Install the <b>Tokens Studio for Figma</b> plugin first — several prompts ask ChatGPT to output token JSON you import directly (variables + theme modes land automatically). Prompts that build frames/components give step-by-step Figma instructions instead. Run them <b>top to bottom</b>; later prompts assume earlier variables exist.
+      </div>
+      <p class="note">Every prompt already contains our real values (hex, scale, type). Where ChatGPT needs judgment, the prompt tells it the rule to follow. After each result, our “design system lead” pass checks spacing consistency, variant necessity, missing states, accessibility, and Auto Layout before it joins the library. Dark mode is intentionally <strong>out of scope</strong> for now — the token structure supports adding it later as an extra mode without rework.</p>
+    </section>
+
+    <hr class="divider" style="margin-top:48px;">
+
+    <!-- 01 COVER -->
+    <section class="block" id="cover">
+      <div class="eyebrow">01 · File setup</div>
+      <h2 class="sec">Cover page &amp; how-to statement</h2>
+      <p class="lede">Sets up the file's first page: a branded cover and the “how this file works” statement every contributor reads before touching a layer.</p>
+
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Build the file cover frame</span><button class="prompt__copy">Copy</button></div>
+        <pre>You are helping assemble a Figma design-system file for <b>Petappro</b>, a white-label SaaS booking platform for pet-care providers (boarding, daycare, walks, grooming, training) that will expand to other service industries.
+
+Give me exact step-by-step Figma instructions to build a <b>Cover</b> page as the first page of the file.
+
+Rules and content:
+- Page name: "🏠 Cover". Create a frame 1920×1080 named "Cover".
+- Background: solid #FBF8F2 (our default surface).
+- Center a content column, max width 900, left-aligned text.
+- Title "Petappro Design System" — 72px, weight 800, color #2A2620, letter-spacing -0.02em.
+- Subtitle line "Foundations · Components · Templates" — 24px, weight 500, color #6E6659.
+- A version chip: pill, background #EDF1E1, text "v0.1 — Foundations" 14px weight 700 color #46632A.
+- A short 3-line description (18px, color #3C423F, line-height 1.6): "The single source of truth for the Petappro platform UI. Built on tiered design tokens so any provider can be re-themed by switching one mode. Middle-tier providers choose from 5 prebuilt themes; top-tier white-label providers get a custom theme + font."
+- Footer row (14px mono, color #6E6659): "Hanken Grotesk + Space Mono · Updated {today}".
+- Use Auto Layout for the content column (vertical, gap 20, padding 0). Typeface: Hanken Grotesk (fallback Inter). Mono: Space Mono.
+
+Return the steps as a numbered list I can follow, then a checklist of the layers that should exist.</pre>
+      </div>
+
+      <h3 class="pt">The “How this file works” statement</h3>
+      <p class="note">This is finished copy — place it as a text block on the Cover (or its own “Read me” frame). No prompt needed; paste it directly.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Copy</span><span class="ttl">How this file works</span><button class="prompt__copy">Copy</button></div>
+        <pre>HOW THIS FILE WORKS
+
+This is the single source of truth for the Petappro platform UI. Design with tokens, not raw values.
+
+TOKEN TIERS
+1. Primitives — raw palette ramps, type sizes, and the spacing scale. Never applied to a layer directly.
+2. Theme — semantic roles (primary, surface, on-surface, outline, status…). These change per brand via MODES. This is the layer you actually apply.
+3. Component — per-component hooks (button shape, card radius, input container) that map onto Theme roles, so a single edit re-tunes every instance.
+
+THEMING (WHITE-LABEL)
+The "Theme" variable collection has one mode per theme: Sage & Sand (default), Terracotta, Harbor, Dusk, Berry. Switch a frame's mode to re-skin it — never hardcode a hex. Middle-tier providers pick one mode. Top-tier white-label providers get a new custom mode (+ optional font family from the approved set).
+
+PAGES
+Cover · Foundations · Atoms · Molecules · Organisms · Templates.
+
+RULES
+- Apply Theme/Component variables to layers; never raw primitives or literal hex.
+- All components use Auto Layout and named component properties.
+- Every interactive component ships all states: default, hover, pressed, focus-visible, disabled, loading (where relevant).
+- Meet WCAG 2.1 AA: body text ≥ 4.5:1, large/UI ≥ 3:1, touch targets ≥ 44px.
+- Property + variant names are chosen to map cleanly onto the eventual React Native implementation.
+- Dark mode is not built yet; the token structure supports adding it later as an extra mode.</pre>
+      </div>
+    </section>
+
+    <hr class="divider" style="margin-top:48px;">
+
+    <!-- 02 ARCHITECTURE -->
+    <section class="block" id="arch">
+      <div class="eyebrow">02 · Foundations</div>
+      <h2 class="sec">Variable architecture &amp; naming</h2>
+      <p class="lede">Establishes the three collections and the naming convention every later prompt relies on. Run this before any other foundation prompt.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Set up variable collections &amp; naming rules</span><button class="prompt__copy">Copy</button></div>
+        <pre>Set up the Figma Variables architecture for the Petappro design system. Output as <b>Tokens Studio for Figma</b>-compatible JSON (token sets), plus a short written summary of the naming convention.
+
+Create THREE token sets (these map to Figma variable collections):
+
+1. "primitives" — raw values, no modes. Naming: category/scale.
+   Examples: color/pine/700, color/sage/500, color/sand/100, size/font/15, space/4, radius/4.
+
+2. "theme" — semantic roles that reference primitives. This set is MULTI-MODE (one mode per brand theme). Naming: role.subrole.state.
+   Groups: color.primary(.hover/.pressed/.container/.on/.on-container), color.secondary(...), color.surface(.container/.container-high), color.on-surface(.body/.variant/.accent), color.outline(.variant/.strong), color.focus-ring, plus status roles (see the business-logic prompt later).
+
+3. "component" — per-component hooks referencing theme roles. Naming: comp.<component>.<prop>.
+   Examples: comp.button.shape, comp.button.height, comp.card.shape, comp.card.elevation, comp.input.container.
+
+Rules:
+- Semantic first: components must reference "theme"/"component" tokens, never "primitives" directly.
+- Every color token stores a reference (alias) to a primitive, not a literal — except inside "primitives".
+- Token names use lowercase, dot/slash separators, and read as role → subrole → state so they translate directly to React Native style keys later.
+- Do not invent tokens beyond what I supply in later prompts; this prompt only creates the empty structure + naming rules + a couple of example tokens per set.
+
+Return: the JSON, then a 6-line naming cheat-sheet.</pre>
+      </div>
+    </section>
+
+    <!-- 03 PRIMITIVES -->
+    <section class="block" id="prim">
+      <h2 class="sec">03 · Primitives (reference)</h2>
+      <p class="lede">The raw palette ramps and scales. These never touch a layer — the theme layer aliases them.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Add primitive color + scale tokens</span><button class="prompt__copy">Copy</button></div>
+        <pre>Add these to the "primitives" token set (Tokens Studio JSON). All are raw values with no modes.
+
+COLOR RAMPS (color/&lt;name&gt;/&lt;step&gt;):
+pine:  900 #123A32, 800 #163A32, 700 #1F4E44, 600 #2A5B50, 500 #37695D, 100 #DCE7E2, 50 #ECF2EF
+sage:  700 #566E3C, 600 #647F45, 500 #7FA05A, 400 #97B277, 200 #DDE7CC, 100 #EDF1E1
+sand:  50 #FBF8F2, 100 #F6F1E9, 200 #EDE5D8, 300 #E0D6C5, 400 #CFC3AD
+taupe: 600 #6E6659, 500 #7A7264, 400 #8A8175
+ink:   700 #3C423F, 900 #2A2620
+white: #FFFFFF
+green: 500 #6E9247, 100 #EDF1E1, 700 #445F27
+amber: 500 #C98A3C, 100 #F6EBD9, 700 #7A4E12
+red:   500 #C05A45, 100 #F5E2DC, 700 #9B3F2C
+teal:  500 #4C8A86, 100 #DEEBEA, 700 #2E5F5C
+
+SIZE / FONT (size/font/&lt;px&gt;): 12, 13, 15, 17, 18, 22, 27, 34
+SPACE (space/&lt;step&gt;): 0=0, 1=4, 2=8, 3=12, 4=16, 5=20, 6=24, 8=32, 10=40, 12=48, 16=64  (px)
+RADIUS (radius/&lt;step&gt;): 0=0, 1=6, 2=8, 3=12, 4=16, 5=20, 6=28, full=999  (px)
+
+Rule: these are the ONLY hard-coded values in the system. Everything else references them. Return the JSON only.</pre>
+      </div>
+    </section>
+
+    <!-- 04 THEMES -->
+    <section class="block" id="themes">
+      <h2 class="sec">04 · Themes via modes</h2>
+      <p class="lede">The heart of white-label. One “theme” collection, five modes; semantic roles resolve per mode. This is what you apply to layers.</p>
+      <div class="callout"><b>Why modes.</b> Switching a frame's Theme mode reskins the entire UI with zero layer edits. Middle-tier = pick a mode. Top-tier white-label = duplicate a mode, retune primary/secondary, done.</div>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Create the 5 theme modes (semantic color roles)</span><button class="prompt__copy">Copy</button></div>
+        <pre>Add semantic color roles to the "theme" token set as a MULTI-MODE set. Create 5 modes in this order: <b>Sage & Sand</b> (default), <b>Terracotta</b>, <b>Harbor</b>, <b>Dusk</b>, <b>Berry</b>. Every role below gets a value in each mode. In "Sage & Sand", alias to the matching primitive where one exists; in other modes use the literal hex I give (add primitives for them if your setup requires references).
+
+Roles (per mode) — columns are: Sage&Sand | Terracotta | Harbor | Dusk | Berry
+
+color.primary:            #1F4E44 | #C08B6E | #0E3D42 | #3E4C7A | #6B4A7A
+color.primary.hover:      #2A5B50 | #B07C5D | #14535A | #4A5A8F | #7D5890
+color.primary.pressed:    #123A32 | #8A5E48 | #092A2E | #2C375C | #513860
+color.primary.on:         #FFFFFF | #FFFFFF | #FFFFFF | #FFFFFF | #FFFFFF
+color.primary.container:  #DCE7E2 | #E8CABB | #CFE3E2 | #DEE3F1 | #E8DCEF
+color.primary.on-container:#123A32| #5E3D2B | #0A2E31 | #29314F | #402C4C
+color.secondary:          #7FA05A | #7E9B6B | #46B36B | #C9994A | #B5657F
+color.secondary.solid:    #647F45 | #5F7A4E | #268A57 | #A87C30 | #97506A
+color.secondary.hover:    #566E3C | #506B41 | #1F7449 | #8F6826 | #7F4258
+color.secondary.on:       #FFFFFF | #FFFFFF | #FFFFFF | #FFFFFF | #FFFFFF
+color.secondary.container:#EDF1E1 | #E7EFE0 | #DCEFE5 | #F3E9D3 | #F3E0E7
+color.secondary.on-container:#46632A|#3C4F2C| #1B4D33 | #5E4413 | #6A3145
+color.surface:            #FBF8F2 | #F3F1EC | #F6F9F9 | #F7F8FB | #F9F6FA
+color.surface.container:  #F6F1E9 | #F1ECE6 | #EDF2F2 | #EEF0F5 | #F2ECF4
+color.surface.container-high:#EDE5D8|#E9E2D9| #E1E9E9 | #E2E5EE | #E8DEEC
+color.surface.bright:     #FFFFFF | #FFFFFF | #FFFFFF | #FFFFFF | #FFFFFF
+color.on-surface:         #2A2620 | #2E2A26 | #14201F | #1E2230 | #2A2230
+color.on-surface.body:    #3C423F | #4A443E | #33403F | #3A3F4E | #453C4C
+color.on-surface.variant: #6E6659 | #756B62 | #5A6867 | #656B7D | #726879
+color.on-surface.accent:  #4F6635 | #5F7A4E | #268A57 | #A87C30 | #97506A
+color.outline:            #E0D6C5 | #E0D8CF | #DBE3E3 | #DCE0EA | #E4DAE6
+color.outline.variant:    #EDE5D8 | #ECE6DF | #E9EFEF | #E9ECF3 | #EEE7F0
+color.outline.strong:     #CFC3AD | #CFC4B8 | #C6D1D1 | #C6CBDA | #D3C6D6
+
+Rule: components reference these roles only. Re-theming = switching mode. Return the JSON with all 5 modes populated.</pre>
+      </div>
+      <div class="ref">
+        <table>
+          <tr><th>Theme</th><th>Primary</th><th>Secondary</th><th>Surface</th><th>Personality</th></tr>
+          <tr><td><span class="sw" style="background:#1F4E44"></span>Sage &amp; Sand</td><td class="mono">#1F4E44</td><td class="mono">#7FA05A</td><td class="mono">#FBF8F2</td><td>Calm, earthy (default)</td></tr>
+          <tr><td><span class="sw" style="background:#C08B6E"></span>Terracotta</td><td class="mono">#C08B6E</td><td class="mono">#7E9B6B</td><td class="mono">#F3F1EC</td><td>Warm, handmade (your live app)</td></tr>
+          <tr><td><span class="sw" style="background:#0E3D42"></span>Harbor</td><td class="mono">#0E3D42</td><td class="mono">#46B36B</td><td class="mono">#F6F9F9</td><td>Cool, tech-forward</td></tr>
+          <tr><td><span class="sw" style="background:#3E4C7A"></span>Dusk</td><td class="mono">#3E4C7A</td><td class="mono">#C9994A</td><td class="mono">#F7F8FB</td><td>Professional, trusted</td></tr>
+          <tr><td><span class="sw" style="background:#6B4A7A"></span>Berry</td><td class="mono">#6B4A7A</td><td class="mono">#B5657F</td><td class="mono">#F9F6FA</td><td>Premium, distinctive</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- 05 TYPE -->
+    <section class="block" id="type">
+      <h2 class="sec">05 · Typography</h2>
+      <p class="lede">Hanken Grotesk across UI + display; Space Mono for data/labels. Cross-platform (iOS + Android) via bundled font files.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Create text styles + type-scale variables</span><button class="prompt__copy">Copy</button></div>
+        <pre>Create Figma <b>text styles</b> for the Petappro type scale using <b>Hanken Grotesk</b> (fallback Inter). Also create float variables in "primitives" for each size if not present. Name styles "Type/&lt;role&gt;".
+
+Scale — role: size / line-height / weight / letter-spacing:
+Display:   34 / 1.08 / 800 / -0.02em
+Headline:  27 / 1.14 / 700 / -0.02em
+Title Lg:  22 / 1.20 / 700 / -0.01em
+Title:     18 / 1.30 / 600 / 0
+Body Lg:   17 / 1.55 / 400 / 0
+Body:      15 / 1.55 / 400 / 0     (default)
+Body Sm:   13 / 1.45 / 400 / 0
+Label:     12 / 1.40 / 700 / 0.14em  (UPPERCASE eyebrows/section labels; Space Mono)
+
+Rules:
+- Label style uses Space Mono, all-caps intended; every other style uses Hanken Grotesk.
+- Minimum essential text size is 13; never smaller. Small mono labels must be weight 700.
+- Provide the 4 approved white-label font alternates as a note (Hanken Grotesk default; Manrope, Nunito Sans, Source Serif 4 as options) — all Google Fonts, licensed for iOS + Android bundling.
+Return the list of text styles to create with exact settings, then the font-alternate note.</pre>
+      </div>
+      <div class="pillrow">
+        <span>Hanken Grotesk — default</span><span>Manrope — geometric</span><span>Nunito Sans — friendly</span><span>Source Serif 4 — editorial</span>
+      </div>
+    </section>
+
+    <!-- 06 SPACE -->
+    <section class="block" id="space">
+      <h2 class="sec">06 · Spacing scale</h2>
+      <p class="lede">A 4px base grid. Applied through Auto Layout gaps and padding — never ad-hoc numbers.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Spacing variables + usage rules</span><button class="prompt__copy">Copy</button></div>
+        <pre>Confirm the "space" primitives (4px grid): 0,4,8,12,16,20,24,32,40,48,64 as space/0..16.
+
+Then write the SPACING RULES for the design system (as a text block for the Foundations page):
+- All padding, gaps, and margins use a space token; no arbitrary pixel values.
+- Auto Layout gap and padding must reference space tokens.
+- Default card padding = 20 (space/5). Default section gap = 20. Tight groups = 8/12.
+- Touch targets ≥ 44px regardless of spacing.
+Return the confirmed token list + the rules text.</pre>
+      </div>
+    </section>
+
+    <!-- 07 RADIUS -->
+    <section class="block" id="radius">
+      <h2 class="sec">07 · Radius (shape)</h2>
+      <p class="lede">Cards use 16px; buttons, chips, and pills are fully rounded (999px) per our locked rule. Exposed as component hooks so a global change cascades.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Shape scale + component radius hooks</span><button class="prompt__copy">Copy</button></div>
+        <pre>Create radius primitives radius/0=0, 1=6, 2=8, 3=12, 4=16, 5=20, 6=28, full=999.
+
+Then create these "component" tokens (they reference the radius primitives) so radius is editable per component from one place:
+comp.button.shape   = radius/full   (fully rounded — locked rule)
+comp.chip.shape     = radius/full
+comp.badge.shape    = radius/full
+comp.switch.shape   = radius/full
+comp.input.shape    = radius/3       (12)
+comp.card.shape     = radius/4       (16)
+comp.tile.shape     = radius/4       (16)
+comp.sheet.shape    = radius/5       (20)
+
+Rule: components bind their corner radius to these hooks, never to a primitive or literal. Changing comp.card.shape must reflow every card. Return the JSON.</pre>
+      </div>
+    </section>
+
+    <!-- 08 ELEVATION -->
+    <section class="block" id="elev">
+      <h2 class="sec">08 · Elevation &amp; shadows</h2>
+      <p class="lede">Warm-tinted, soft, low-contrast — shadows use warm ink (42,38,32), never neutral black.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Create effect styles for elevation</span><button class="prompt__copy">Copy</button></div>
+        <pre>Create Figma <b>effect styles</b> named "Elevation/&lt;level&gt;". All shadows use color rgba(42,38,32,α) (warm ink, never pure black).
+
+Elevation/0  none
+Elevation/1  drop 0 1 3 rgba(42,38,32,0.08) + drop 0 1 2 rgba(42,38,32,0.04)
+Elevation/2  drop 0 4 14 rgba(42,38,32,0.08)
+Elevation/3  drop 0 12 32 rgba(42,38,32,0.12)
+Elevation/Nav drop 0 -2 16 rgba(42,38,32,0.06)   (bottom tab bar)
+
+Then component hooks: comp.card.elevation = Elevation/1, comp.tabbar.elevation = Elevation/Nav, comp.modal.elevation = Elevation/3.
+Rule: cards use Elevation/1 at rest; raise one level on hover only for clickable cards. Return the effect-style specs + the hook mapping.</pre>
+      </div>
+    </section>
+
+    <!-- 09 MOTION -->
+    <section class="block" id="motion">
+      <h2 class="sec">09 · Motion tokens</h2>
+      <p class="lede">Gentle and quick — no bounce. Documented as tokens now so prototype interactions and the RN build share one language.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Motion duration + easing tokens</span><button class="prompt__copy">Copy</button></div>
+        <pre>Add MOTION tokens to the system (as variables where Figma allows, otherwise a documented text block on Foundations; these drive prototype Smart Animate settings and the future React Native implementation).
+
+Duration:  motion.duration.short = 120ms, .medium = 200ms, .long = 320ms
+Easing:    motion.easing.standard = cubic-bezier(0.2,0,0.2,1)
+           motion.easing.emphasized = cubic-bezier(0.16,1,0.3,1)
+State:     motion.press.scale = 0.97  (tap feedback on primary controls)
+
+Rules:
+- Default UI transitions: medium + standard easing.
+- Entrances/expansions: emphasized easing.
+- No spring/bounce. Honor reduced-motion (disable non-essential animation).
+Return the token list + the rules text.</pre>
+      </div>
+    </section>
+
+    <!-- 10 GRID -->
+    <section class="block" id="grid">
+      <h2 class="sec">10 · Breakpoints &amp; grid</h2>
+      <p class="lede">Matches the real app's layout kit: breakpoints at 640 / 768 / 1024, a mobile design width of 440, and the column layouts screens are composed from.</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Prompt</span><span class="ttl">Layout grid styles + breakpoint tokens</span><button class="prompt__copy">Copy</button></div>
+        <pre>Define the responsive foundation for Petappro.
+
+BREAKPOINT tokens (max-width): sm = 640, md = 768, lg = 1024. Mobile design width = 440 (primary target; iOS + Android).
+
+Create Figma <b>layout grid styles</b>:
+- "Grid/Mobile" — 4-column, margin 20, gutter 16, stretch (for 440-wide frames).
+- "Grid/Content" — max content width 1200, centered, 24px side padding.
+
+Document the standard page layouts (from our layout kit) as a text block:
+- layout-1col: single readable column, gap 20.
+- layout-2col: rail + main = 1fr / 2fr, gap 24; stacks below md (768).
+- layout-3col: 1fr / 2fr / 1fr (dashboard); stacks below lg (1024).
+- card-grid: auto-fill, min column 300, gap 16; 1 column below sm (640).
+Rules: flexible columns always use minmax(0, …) so wide content never overflows. Return grid-style specs + breakpoint tokens + the layout text.</pre>
+      </div>
+    </section>
+
+    <!-- NEXT -->
+    <section class="block" id="next">
+      <hr class="divider" style="margin-bottom:32px;">
+      <div class="eyebrow">Coming in Part 2</div>
+      <h2 class="sec">What's next: Atoms</h2>
+      <p class="lede">Once the foundation variables + styles exist, Part 2 builds the atoms as <strong>specifications</strong> (Objective → Requirements → Acceptance Criteria), gated by the Governance charter. Here's the Button spec:</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="tag">Spec</span><span class="ttl">Canonical Button component</span><button class="prompt__copy">Copy</button></div>
+        <pre>OBJECTIVE
+Create the canonical <b>Button</b> for the Petappro Design System.
+
+REQUIREMENTS
+- Semantic variants: Primary, Secondary, Tertiary/Ghost, Destructive, and Success (booking-green — used for booking-CREATION actions only).
+- Sizes: Lg 52 / Md 44 / Sm 36 / Xs 28 (px height); Md is the default and the standard tap target.
+- Icon slots: optional leading + trailing (Lucide, 1.9 stroke), sized to match the label.
+- States: default, hover, pressed, focus-visible (3px ring, ≥3:1), disabled, loading (spinner replaces label, button width locked).
+- Tokens: fill/label from theme color roles; corner radius bound to <b>comp.button.shape</b> (fully rounded); gap = space/2; height per size token.
+- Auto Layout: horizontal, hug contents, center-aligned, padding from space tokens.
+- React Native compatibility: expose component properties (variant, size, leadingIcon, trailingIcon, state, label) named to map onto the RN prop names.
+
+ACCEPTANCE CRITERIA
+- No hard-coded colors or literal hex; all variants use shared tokens.
+- No detached instances.
+- Meets WCAG AA (contrast + focus ring + 44px default target).
+- Minimal, well-named component properties.
+- One reusable component — no page-specific copies.
+
+DOCUMENTATION
+- Purpose · Usage · When not to use · Variant descriptions (incl. "booking-creation = Success green") · A11y notes · Dev notes.</pre>
+      </div>
+      <p class="note" style="margin-top:16px;">Then the rest of the atoms (Input, Avatar, Icon, Money, Status Badge, Service Pill), molecules (Section Header, Date Navigator, Dog Card, field groups, pricing row), organisms (Pricing table, Reservation card, Dashboard data tiles, Household card), and templates (Dashboard, Booking, Profile, Schedule). We'll also add a <strong>Business-logic</strong> foundation block — status, booking, payment, notification, and role colors — pulled from your live app.</p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.prompt__copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pre = btn.closest('.prompt').querySelector('pre');
+      const text = pre.innerText.replace(/\{today\}/g, new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}));
+      navigator.clipboard.writeText(text).then(() => {
+        const old = btn.textContent; btn.textContent = '✓ Copied'; btn.classList.add('done');
+        setTimeout(() => { btn.textContent = old; btn.classList.remove('done'); }, 1600);
+      });
+    });
+  });
+</script>
+</body>
+</html>

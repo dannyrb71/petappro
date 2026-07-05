@@ -1,0 +1,71 @@
+/* ============================================================
+   PETAPPRO THEMES  ·  Figma "Theme" collection = one MODE per theme.
+   Middle-tier providers pick one of these 5. Top-tier white-label
+   gets a custom mode (+ optional font family).
+
+   Each theme overrides only SYSTEM color roles (--sys-color-*).
+   Everything downstream (--comp-*, aliases, components) recolors
+   automatically. Default (:root, no attribute) = Sage & Sand.
+
+   Usage:  <html data-theme="terracotta">  ·  <body data-theme="harbor">
+   ============================================================ */
+
+/* ---- 1 · SAGE & SAND (default — also selectable explicitly) ---- */
+[data-theme="sage-sand"] {
+  --sys-color-primary: #1F4E44; --sys-color-primary-hover: #2A5B50; --sys-color-primary-pressed: #123A32;
+  --sys-color-on-primary: #FFFFFF; --sys-color-primary-container: #DCE7E2; --sys-color-on-primary-container: #123A32;
+  --sys-color-secondary: #7FA05A; --sys-color-secondary-solid: #647F45; --sys-color-secondary-hover: #566E3C;
+  --sys-color-on-secondary: #FFFFFF; --sys-color-secondary-container: #EDF1E1; --sys-color-on-secondary-container: #46632A;
+  --sys-color-surface: #FBF8F2; --sys-color-surface-container: #F6F1E9; --sys-color-surface-container-high: #EDE5D8;
+  --sys-color-on-surface: #2A2620; --sys-color-on-surface-body: #3C423F; --sys-color-on-surface-variant: #6E6659; --sys-color-on-surface-accent: #4F6635;
+  --sys-color-outline: #E0D6C5; --sys-color-outline-variant: #EDE5D8; --sys-color-outline-strong: #CFC3AD;
+  --sys-color-focus-ring: rgba(31,78,68,0.22);
+}
+
+/* ---- 2 · TERRACOTTA (warm camel — mirrors the shipping Woof Wetreats brand) ---- */
+[data-theme="terracotta"] {
+  --sys-color-primary: #C08B6E; --sys-color-primary-hover: #B07C5D; --sys-color-primary-pressed: #8A5E48;
+  --sys-color-on-primary: #FFFFFF; --sys-color-primary-container: #E8CABB; --sys-color-on-primary-container: #5E3D2B;
+  --sys-color-secondary: #7E9B6B; --sys-color-secondary-solid: #5F7A4E; --sys-color-secondary-hover: #506B41;
+  --sys-color-on-secondary: #FFFFFF; --sys-color-secondary-container: #E7EFE0; --sys-color-on-secondary-container: #3C4F2C;
+  --sys-color-surface: #F3F1EC; --sys-color-surface-container: #F1ECE6; --sys-color-surface-container-high: #E9E2D9;
+  --sys-color-on-surface: #2E2A26; --sys-color-on-surface-body: #4A443E; --sys-color-on-surface-variant: #756B62; --sys-color-on-surface-accent: #5F7A4E;
+  --sys-color-outline: #E0D8CF; --sys-color-outline-variant: #ECE6DF; --sys-color-outline-strong: #CFC4B8;
+  --sys-color-focus-ring: rgba(192,139,110,0.30);
+}
+
+/* ---- 3 · HARBOR (cool teal + spring green — clean, tech-forward) ---- */
+[data-theme="harbor"] {
+  --sys-color-primary: #0E3D42; --sys-color-primary-hover: #14535A; --sys-color-primary-pressed: #092A2E;
+  --sys-color-on-primary: #FFFFFF; --sys-color-primary-container: #CFE3E2; --sys-color-on-primary-container: #0A2E31;
+  --sys-color-secondary: #46B36B; --sys-color-secondary-solid: #268A57; --sys-color-secondary-hover: #1F7449;
+  --sys-color-on-secondary: #FFFFFF; --sys-color-secondary-container: #DCEFE5; --sys-color-on-secondary-container: #1B4D33;
+  --sys-color-surface: #F6F9F9; --sys-color-surface-container: #EDF2F2; --sys-color-surface-container-high: #E1E9E9;
+  --sys-color-on-surface: #14201F; --sys-color-on-surface-body: #33403F; --sys-color-on-surface-variant: #5A6867; --sys-color-on-surface-accent: #268A57;
+  --sys-color-outline: #DBE3E3; --sys-color-outline-variant: #E9EFEF; --sys-color-outline-strong: #C6D1D1;
+  --sys-color-focus-ring: rgba(14,61,66,0.28);
+}
+
+/* ---- 4 · DUSK (indigo + amber — calm, professional) ---- */
+[data-theme="dusk"] {
+  --sys-color-primary: #3E4C7A; --sys-color-primary-hover: #4A5A8F; --sys-color-primary-pressed: #2C375C;
+  --sys-color-on-primary: #FFFFFF; --sys-color-primary-container: #DEE3F1; --sys-color-on-primary-container: #29314F;
+  --sys-color-secondary: #C9994A; --sys-color-secondary-solid: #A87C30; --sys-color-secondary-hover: #8F6826;
+  --sys-color-on-secondary: #FFFFFF; --sys-color-secondary-container: #F3E9D3; --sys-color-on-secondary-container: #5E4413;
+  --sys-color-surface: #F7F8FB; --sys-color-surface-container: #EEF0F5; --sys-color-surface-container-high: #E2E5EE;
+  --sys-color-on-surface: #1E2230; --sys-color-on-surface-body: #3A3F4E; --sys-color-on-surface-variant: #656B7D; --sys-color-on-surface-accent: #A87C30;
+  --sys-color-outline: #DCE0EA; --sys-color-outline-variant: #E9ECF3; --sys-color-outline-strong: #C6CBDA;
+  --sys-color-focus-ring: rgba(62,76,122,0.28);
+}
+
+/* ---- 5 · BERRY (plum + rose — premium, distinctive) ---- */
+[data-theme="berry"] {
+  --sys-color-primary: #6B4A7A; --sys-color-primary-hover: #7D5890; --sys-color-primary-pressed: #513860;
+  --sys-color-on-primary: #FFFFFF; --sys-color-primary-container: #E8DCEF; --sys-color-on-primary-container: #402C4C;
+  --sys-color-secondary: #B5657F; --sys-color-secondary-solid: #97506A; --sys-color-secondary-hover: #7F4258;
+  --sys-color-on-secondary: #FFFFFF; --sys-color-secondary-container: #F3E0E7; --sys-color-on-secondary-container: #6A3145;
+  --sys-color-surface: #F9F6FA; --sys-color-surface-container: #F2ECF4; --sys-color-surface-container-high: #E8DEEC;
+  --sys-color-on-surface: #2A2230; --sys-color-on-surface-body: #453C4C; --sys-color-on-surface-variant: #726879; --sys-color-on-surface-accent: #97506A;
+  --sys-color-outline: #E4DAE6; --sys-color-outline-variant: #EEE7F0; --sys-color-outline-strong: #D3C6D6;
+  --sys-color-focus-ring: rgba(107,74,122,0.28);
+}

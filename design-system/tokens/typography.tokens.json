@@ -1,0 +1,53 @@
+{
+  "typography": {
+    "primitive": {
+      "family": {
+        "sans": { "$value": "Hanken Grotesk", "$type": "fontFamily" },
+        "mono": { "$value": "Space Mono", "$type": "fontFamily" }
+      },
+      "size": {
+        "12": { "$value": "12px", "$type": "dimension" },
+        "13": { "$value": "13px", "$type": "dimension" },
+        "15": { "$value": "15px", "$type": "dimension" },
+        "17": { "$value": "17px", "$type": "dimension" },
+        "18": { "$value": "18px", "$type": "dimension" },
+        "22": { "$value": "22px", "$type": "dimension" },
+        "27": { "$value": "27px", "$type": "dimension" },
+        "34": { "$value": "34px", "$type": "dimension" }
+      },
+      "weight": {
+        "regular":  { "$value": 400, "$type": "fontWeight" },
+        "medium":   { "$value": 500, "$type": "fontWeight" },
+        "semibold": { "$value": 600, "$type": "fontWeight" },
+        "bold":     { "$value": 700, "$type": "fontWeight" },
+        "black":    { "$value": 800, "$type": "fontWeight" }
+      },
+      "line": {
+        "display": { "$value": 1.08, "$type": "number" },
+        "tight":   { "$value": 1.14, "$type": "number" },
+        "snug":    { "$value": 1.2,  "$type": "number" },
+        "title":   { "$value": 1.3,  "$type": "number" },
+        "body":    { "$value": 1.55, "$type": "number" },
+        "compact": { "$value": 1.45, "$type": "number" },
+        "label":   { "$value": 1.4,  "$type": "number" }
+      },
+      "tracking": {
+        "tight":  { "$value": "-0.02em", "$type": "dimension" },
+        "snug":   { "$value": "-0.01em", "$type": "dimension" },
+        "normal": { "$value": "0em",     "$type": "dimension" },
+        "label":  { "$value": "0.14em",  "$type": "dimension" }
+      }
+    },
+
+    "semantic": {
+      "display":  { "$type": "typography", "$value": { "fontFamily": "{typography.primitive.family.sans}", "fontSize": "{typography.primitive.size.34}", "fontWeight": "{typography.primitive.weight.black}",    "lineHeight": "{typography.primitive.line.display}", "letterSpacing": "{typography.primitive.tracking.tight}" } },
+      "headline": { "$type": "typography", "$value": { "fontFamily": "{typography.primitive.family.sans}", "fontSize": "{typography.primitive.size.27}", "fontWeight": "{typography.primitive.weight.bold}",     "lineHeight": "{typography.primitive.line.tight}",   "letterSpacing": "{typography.primitive.tracking.tight}" } },
+      "title-lg": { "$type": "typography", "$value": { "fontFamily": "{typography.primitive.family.sans}", "fontSize": "{typography.primitive.size.22}", "fontWeight": "{typography.primitive.weight.bold}",     "lineHeight": "{typography.primitive.line.snug}",    "letterSpacing": "{typography.primitive.tracking.snug}" } },
+      "title":    { "$type": "typography", "$value": { "fontFamily": "{typography.primitive.family.sans}", "fontSize": "{typography.primitive.size.18}", "fontWeight": "{typography.primitive.weight.semibold}", "lineHeight": "{typography.primitive.line.title}",   "letterSpacing": "{typography.primitive.tracking.normal}" } },
+      "body-lg":  { "$type": "typography", "$value": { "fontFamily": "{typography.primitive.family.sans}", "fontSize": "{typography.primitive.size.17}", "fontWeight": "{typography.primitive.weight.regular}",  "lineHeight": "{typography.primitive.line.body}",    "letterSpacing": "{typography.primitive.tracking.normal}" } },
+      "body":     { "$type": "typography", "$value": { "fontFamily": "{typography.primitive.family.sans}", "fontSize": "{typography.primitive.size.15}", "fontWeight": "{typography.primitive.weight.regular}",  "lineHeight": "{typography.primitive.line.body}",    "letterSpacing": "{typography.primitive.tracking.normal}" } },
+      "body-sm":  { "$type": "typography", "$value": { "fontFamily": "{typography.primitive.family.sans}", "fontSize": "{typography.primitive.size.13}", "fontWeight": "{typography.primitive.weight.regular}",  "lineHeight": "{typography.primitive.line.compact}", "letterSpacing": "{typography.primitive.tracking.normal}" } },
+      "label":    { "$type": "typography", "$value": { "fontFamily": "{typography.primitive.family.mono}",  "fontSize": "{typography.primitive.size.12}", "fontWeight": "{typography.primitive.weight.bold}",     "lineHeight": "{typography.primitive.line.label}",   "letterSpacing": "{typography.primitive.tracking.label}" } }
+    }
+  }
+}

@@ -48,6 +48,27 @@ const files = process.argv.length > 2 ? process.argv.slice(2).map((p) => resolve
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/; // kebab-case; pure-number scales (100) pass
 const ALIAS_RE = /^\{([^}]+)\}$/;
 
+const isAlias = (v) => typeof v === "string" && ALIAS_RE.test(v.trim());
+const aliasRef = (v) => ALIAS_RE.exec(v.trim())[1];
+
+// A $value may be a scalar ("#fff", "16px") OR a composite object (DTCG typography,
+// shadow, border…) whose fields are themselves scalars or aliases. Walk it and
+// separate every leaf into an alias reference or a raw literal, tracking the field path.
+function analyzeValue(val, field = "") {
+  const aliases = [];
+  const literals = [];
+  if (isAlias(val)) aliases.push({ ref: aliasRef(val), field });
+  else if (typeof val === "string" || typeof val === "number") literals.push({ field, value: val });
+  else if (val && typeof val === "object") {
+    for (const [k, v] of Object.entries(val)) {
+      const sub = analyzeValue(v, field ? `${field}.${k}` : k);
+      aliases.push(...sub.aliases);
+      literals.push(...sub.literals);
+    }
+  }
+  return { aliases, literals };
+}
+
 const errors = [];
 const warnings = [];
 const err = (rule, path, msg) => errors.push({ rule, path, msg });
@@ -81,20 +102,30 @@ for (const { file, root } of roots) {
 
     if (isToken(node)) {
       const p = `${tag} :: ${path.join(".")}`;
-      const val = node.$value;
       const inSemantic = path.includes("semantic");
       const inPrimitive = path.includes("primitive");
-      const aliasMatch = typeof val === "string" && ALIAS_RE.exec(val.trim());
+      const { aliases, literals } = analyzeValue(node.$value);
 
       if (!type) err("R5", p, "token has no $type (own or inherited)");
 
-      if (inSemantic && !aliasMatch) {
+      // R1 — semantic tokens must be composed of aliases; any raw literal leaf fails.
+      // Composite tokens (typography/shadow) pass when every field aliases a primitive.
+      if (inSemantic && literals.length) {
+        const detail = literals.map((l) => (l.field ? `${l.field}=${JSON.stringify(l.value)}` : JSON.stringify(l.value))).join(", ");
         const allow = node.$extensions?.ds?.allowLiteral;
         if (allow) warn("R1", p, `literal allowed by governed exception — reason: ${allow}`);
-        else err("R1", p, `semantic token must alias a primitive, found literal ${JSON.stringify(val)}`);
+        else err("R1", p, `semantic token must alias primitives; raw literal(s): ${detail}`);
       }
-      if (inPrimitive && aliasMatch) err("R3", p, `primitive token must be a raw literal, found alias ${val}`);
-      if (aliasMatch && !resolveAlias(aliasMatch[1])) err("R2", p, `alias ${val} does not resolve to an existing token`);
+
+      // R3 — primitive tokens must hold raw literals; any alias leaf fails.
+      if (inPrimitive && aliases.length) {
+        err("R3", p, `primitive must be a raw literal, found alias(es): ${aliases.map((a) => `{${a.ref}}`).join(", ")}`);
+      }
+
+      // R2 — every alias (scalar or composite field) must resolve.
+      for (const a of aliases) {
+        if (!resolveAlias(a.ref)) err("R2", p, `alias {${a.ref}}${a.field ? ` (field ${a.field})` : ""} does not resolve to an existing token`);
+      }
       return;
     }
 

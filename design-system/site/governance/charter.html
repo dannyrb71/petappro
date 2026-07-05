@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Petappro — Design System Governance</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--surface-app); color:var(--text-body); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
+  .shell { display:grid; grid-template-columns:262px 1fr; align-items:start; }
+  @media (max-width:900px){ .shell{ grid-template-columns:1fr; } .toc{ display:none; } }
+  .toc { position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--surface-card); border-right:1px solid var(--border-subtle); padding:26px 22px; }
+  .toc img { height:38px; width:38px; object-fit:contain; margin-bottom:14px; }
+  .toc h1 { font-size:15px; font-weight:var(--fw-black); color:var(--text-strong); margin:0 0 2px; letter-spacing:var(--tracking-tight); }
+  .toc .sub { font-family:var(--font-mono); font-size:10.5px; font-weight:var(--fw-bold); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:22px; }
+  .toc a { display:block; font-size:13.5px; color:var(--text-body); text-decoration:none; padding:7px 10px; border-radius:var(--radius-sm); margin-bottom:2px; }
+  .toc a:hover { background:var(--surface-sunken); color:var(--text-strong); }
+  .toc a .n { font-family:var(--font-mono); font-size:11px; color:var(--text-faint); margin-right:8px; }
+
+  main { padding:52px 48px 120px; max-width:900px; }
+  @media (max-width:640px){ main{ padding:32px 20px 80px; } }
+  .eyebrow { font-family:var(--font-mono); font-size:12px; font-weight:var(--fw-bold); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--text-muted); }
+  h2.sec { font-size:var(--fs-h1); font-weight:var(--fw-black); letter-spacing:var(--tracking-tight); color:var(--text-strong); margin:8px 0 6px; scroll-margin-top:24px; }
+  .lede { font-size:var(--fs-body-lg); line-height:1.6; color:var(--text-body); max-width:700px; margin:0 0 8px; }
+  section.block { margin-top:60px; }
+  section.block:first-of-type { margin-top:20px; }
+  h3.pt { font-size:var(--fs-h3); font-weight:var(--fw-bold); color:var(--text-strong); margin:30px 0 10px; }
+  .divider { height:1px; background:var(--border-subtle); margin:0; border:none; }
+
+  /* roles */
+  .roles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:18px 0; }
+  @media (max-width:760px){ .roles{ grid-template-columns:1fr; } }
+  .role { background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:18px; }
+  .role .who { font-family:var(--font-mono); font-size:10.5px; font-weight:var(--fw-bold); text-transform:uppercase; letter-spacing:0.1em; color:var(--sage-600); margin-bottom:8px; }
+  .role .title { font-size:15px; font-weight:var(--fw-bold); color:var(--text-strong); margin-bottom:6px; }
+  .role p { font-size:13px; line-height:1.55; color:var(--text-muted); margin:0; }
+
+  /* checklist */
+  .checkgroup { background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; margin:14px 0; }
+  .checkgroup > .head { display:flex; align-items:center; gap:10px; padding:13px 18px; background:var(--surface-sunken); border-bottom:1px solid var(--border-subtle); }
+  .checkgroup > .head .num { font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); color:#fff; background:var(--pine-700); width:22px; height:22px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; }
+  .checkgroup > .head .lbl { font-size:14px; font-weight:var(--fw-bold); color:var(--text-strong); }
+  .checkgroup ul { list-style:none; margin:0; padding:10px 18px 14px; }
+  .checkgroup li { display:flex; gap:10px; font-size:13.5px; line-height:1.5; color:var(--text-body); padding:6px 0; }
+  .checkgroup li svg { flex:none; width:17px; height:17px; color:var(--sage-600); margin-top:1px; }
+  .checkgroup li .strike { color:var(--text-faint); }
+  .checkgroup li em { color:var(--text-muted); font-style:normal; font-size:12.5px; }
+
+  /* spec format */
+  .spec { background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; margin:16px 0; }
+  .spec .bar { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--pine-700); color:#fff; }
+  .spec .bar .tag { font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); letter-spacing:0.1em; text-transform:uppercase; opacity:.9; }
+  .spec .bar .ttl { font-size:14px; font-weight:var(--fw-bold); }
+  .spec .copy { margin-left:auto; font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold); background:rgba(255,255,255,.16); color:#fff; border:none; padding:7px 12px; border-radius:999px; cursor:pointer; }
+  .spec .copy:hover { background:rgba(255,255,255,.28); }
+  .spec .copy.done { background:var(--sage-500); }
+  .spec pre { margin:0; padding:18px; font-family:var(--font-mono); font-size:12.5px; line-height:1.62; color:var(--text-strong); white-space:pre-wrap; }
+  .spec pre b { color:var(--pine-700); }
+
+  /* domain grid */
+  .domain { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px; margin:16px 0; }
+  .dtile { background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:13px 14px; box-shadow:var(--shadow-xs); }
+  .dtile .nm { font-size:13.5px; font-weight:var(--fw-bold); color:var(--text-strong); }
+  .dtile .ds { font-size:11.5px; line-height:1.4; color:var(--text-muted); margin-top:3px; }
+
+  /* review questions */
+  .qs { counter-reset:q; margin:16px 0; }
+  .q { display:flex; gap:14px; background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:16px 18px; margin-bottom:10px; box-shadow:var(--shadow-xs); }
+  .q::before { counter-increment:q; content:counter(q); font-family:var(--font-mono); font-weight:var(--fw-bold); font-size:15px; color:var(--sage-600); background:var(--sage-100); width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; flex:none; }
+  .q .qt { font-size:15px; font-weight:var(--fw-semibold); color:var(--text-strong); }
+  .callout { background:var(--sage-100); border:1px solid var(--sage-200); border-radius:var(--radius-md); padding:14px 16px; font-size:13.5px; line-height:1.55; color:#3A4A24; margin:16px 0; max-width:720px; }
+  .callout b { color:#2C3A18; }
+  .flag { background:var(--warning-100); border:1px solid #EBD3A8; border-radius:var(--radius-md); padding:12px 15px; font-size:13px; line-height:1.5; color:#7A4E12; margin:14px 0; max-width:720px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="toc">
+    <img src="../assets/petappro-mark.png" alt="Petappro">
+    <h1>Governance Charter</h1>
+    <div class="sub">Design system · standard</div>
+    <a href="#intro"><span class="n">00</span>Purpose</a>
+    <a href="#roles"><span class="n">01</span>Roles &amp; RACI</a>
+    <a href="#layers"><span class="n">02</span>System layers</a>
+    <a href="#checklist"><span class="n">03</span>Acceptance checklist</a>
+    <a href="#spec"><span class="n">04</span>Prompts as specifications</a>
+    <a href="#domain"><span class="n">05</span>Domain system</a>
+    <a href="#review"><span class="n">06</span>Standing review</a>
+    <a href="#record"><span class="n">07</span>Component record &amp; versioning</a>
+  </nav>
+
+  <main>
+    <section class="block" id="intro">
+      <div class="eyebrow">Petappro Design System</div>
+      <h2 class="sec">Governance charter</h2>
+      <p class="lede">Petappro is a white-label SaaS platform spanning web and native mobile. To stay coherent for years — not just to MVP — every component earns its place. This charter is the standard: nothing enters the library until it passes. The goal is a system that <strong>strengthens</strong> with each addition instead of accruing design debt.</p>
+      <div class="callout"><b>Principle.</b> Treat the design system as a product in its own right. Composition over duplication; reusable over page-specific; semantic tokens over literals; documented over implied.</div>
+    </section>
+
+    <hr class="divider">
+
+    <section class="block" id="roles">
+      <div class="eyebrow">01</div>
+      <h2 class="sec">Roles</h2>
+      <p class="lede">Three complementary roles, one pipeline. Clear ownership keeps velocity high and the library clean.</p>
+      <div class="roles">
+        <div class="role">
+          <div class="who">Owns vision</div>
+          <div class="title">Product Design Director</div>
+          <p>You. Owns product vision, UX strategy, brand, and the user experience. Sets priorities and makes the final call.</p>
+        </div>
+        <div class="role">
+          <div class="who">Produces</div>
+          <div class="title">Production Designer</div>
+          <p>Claude. Builds components, pages, and layouts in Figma to spec — fast iteration, faithful to tokens and rules.</p>
+        </div>
+        <div class="role">
+          <div class="who">Governs</div>
+          <div class="title">Design System Governor</div>
+          <p>George. Ensures every new component strengthens the system: owns governance, implementation guidance, architecture, and quality control — running the acceptance checklist and standing review before anything is merged.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section class="block" id="layers">
+      <div class="eyebrow">02</div>
+      <h2 class="sec">System layers</h2>
+      <p class="lede">Five layers. The fourth — <strong>Domain System</strong> — is what makes this Petappro's system and not a generic kit.</p>
+      <h3 class="pt">1 · Foundations</h3>
+      <p style="font-size:14px;color:var(--text-muted);margin:0 0 6px;">Tokens: color (semantic, themed via modes), type, spacing, radius, elevation, motion, breakpoints, grid.</p>
+      <h3 class="pt">2 · Atoms &amp; components</h3>
+      <p style="font-size:14px;color:var(--text-muted);margin:0 0 6px;">Button, Input, Avatar, Icon, Money, Badge, Switch, Chip — generic, reusable primitives.</p>
+      <h3 class="pt">3 · Patterns</h3>
+      <p style="font-size:14px;color:var(--text-muted);margin:0 0 6px;">Section Header, Date Navigator, field groups, list rows, pricing rows — recurring compositions.</p>
+      <h3 class="pt">4 · Domain system <span style="font-family:var(--font-mono);font-size:12px;color:var(--sage-600);font-weight:700;">· pet-care first-class</span></h3>
+      <p style="font-size:14px;color:var(--text-muted);margin:0 0 6px;">Components that exist only because Petappro is a pet-care platform. They encapsulate visual treatment <em>and</em> business semantics. (See §05.)</p>
+      <h3 class="pt">5 · Templates</h3>
+      <p style="font-size:14px;color:var(--text-muted);margin:0 0 6px;">Full screens: Dashboard, Booking, Profile, Schedule, Reports — composed only from the layers above.</p>
+    </section>
+
+    <hr class="divider">
+
+    <section class="block" id="checklist">
+      <div class="eyebrow">03</div>
+      <h2 class="sec">Acceptance checklist</h2>
+      <p class="lede">Every component passes all five groups before it joins the library. The Governor signs off.</p>
+
+      <div class="checkgroup">
+        <div class="head"><span class="num">1</span><span class="lbl">Foundations</span></div>
+        <ul>
+          <li data-c>Uses semantic tokens, never hard-coded values.</li>
+          <li data-c>Follows the spacing &amp; sizing scales (4px grid).</li>
+          <li data-c>Meets accessibility requirements (WCAG 2.1 AA).</li>
+          <li data-c>Theme-ready across all 5 modes + custom white-label. <em>Dark mode deferred by decision; structure supports it later.</em></li>
+          <li data-c>Uses approved typography tokens.</li>
+        </ul>
+      </div>
+
+      <div class="checkgroup">
+        <div class="head"><span class="num">2</span><span class="lbl">Component quality</span></div>
+        <ul>
+          <li data-c>Correct Auto Layout (hug/fill deliberate).</li>
+          <li data-c>Logical variants — no redundant ones.</li>
+          <li data-c>Minimal, well-named properties.</li>
+          <li data-c>Consistent naming convention.</li>
+          <li data-c>Correct nested-component usage.</li>
+          <li data-c>Proper constraints &amp; resizing behavior.</li>
+        </ul>
+      </div>
+
+      <div class="checkgroup">
+        <div class="head"><span class="num">3</span><span class="lbl">UX quality</span></div>
+        <ul>
+          <li data-c>Complete interaction states (default, hover, pressed, focus-visible, disabled).</li>
+          <li data-c>Loading and empty states.</li>
+          <li data-c>Error &amp; validation states.</li>
+          <li data-c>Keyboard / focus behavior.</li>
+          <li data-c>Mobile considerations.</li>
+          <li data-c>Touch targets ≥ 44px.</li>
+        </ul>
+      </div>
+
+      <div class="checkgroup">
+        <div class="head"><span class="num">4</span><span class="lbl">Engineering readiness</span></div>
+        <ul>
+          <li data-c>Maps cleanly to React Native components.</li>
+          <li data-c>Avoids unnecessary complexity.</li>
+          <li data-c>Reusable rather than page-specific.</li>
+          <li data-c>Composition over duplication.</li>
+          <li data-c>Supports future white-label branding.</li>
+        </ul>
+      </div>
+
+      <div class="checkgroup">
+        <div class="head"><span class="num">5</span><span class="lbl">Documentation</span></div>
+        <ul>
+          <li data-c>Purpose.</li>
+          <li data-c>Usage.</li>
+          <li data-c>When <em>not</em> to use it.</li>
+          <li data-c>Variant descriptions.</li>
+          <li data-c>Accessibility notes.</li>
+          <li data-c>Developer implementation notes.</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section class="block" id="spec">
+      <div class="eyebrow">04</div>
+      <h2 class="sec">Prompts as specifications</h2>
+      <p class="lede">We write specs, not requests. Every component prompt follows <strong>Objective → Requirements → Acceptance Criteria</strong>, so what Claude produces is verifiable against a contract — the same artifact a mature design-systems team would maintain.</p>
+      <div class="spec">
+        <div class="bar"><span class="tag">Spec template</span><span class="ttl">Canonical component prompt</span><button class="copy">Copy</button></div>
+        <pre><b>OBJECTIVE</b>
+Create the canonical &lt;Component&gt; for the Petappro Design System.
+
+<b>REQUIREMENTS</b>
+- Semantic variants: …
+- Sizes: …
+- States: default, hover, pressed, focus-visible, disabled, loading/empty where relevant
+- Tokens: colors from theme roles; spacing from scale; radius from comp.&lt;component&gt;.shape
+- Accessibility: WCAG 2.1 AA — contrast, focus ring ≥3:1, touch target ≥44px
+- Auto Layout: direction, hug/fill, gap = space token
+- Slots: named content regions (leading/trailing/body …)
+- React Native compatibility: property + variant names map to RN prop names
+
+<b>ACCEPTANCE CRITERIA</b>
+- No hard-coded colors or literal hex.
+- No detached instances.
+- All variants use shared tokens.
+- Meets WCAG AA.
+- Uses component properties appropriately (minimal, well-named).
+- Reusable, not page-specific; composition over duplication.
+
+<b>DOCUMENTATION</b>
+- Purpose · Usage · When not to use · Variant descriptions · A11y notes · Dev notes.</pre>
+      </div>
+      <div class="flag"><b>Note:</b> Part 2 of the Build Playbook will render every atom, pattern, and domain component in this exact spec format. The example Button prompt has already been upgraded to match.</div>
+    </section>
+
+    <hr class="divider">
+
+    <section class="block" id="domain">
+      <div class="eyebrow">05</div>
+      <h2 class="sec">Domain system</h2>
+      <p class="lede">First-class citizens, not ad-hoc screen UI. Each encapsulates a pet-care concept — visual treatment plus business semantics — grounded in your live app's taxonomy.</p>
+      <div class="domain">
+        <div class="dtile"><div class="nm">Booking Card</div><div class="ds">Reservation summary: service, dates, pets, price, status.</div></div>
+        <div class="dtile"><div class="nm">Pet Avatar</div><div class="ds">Photo/fallback, gender-tinted ring, puppy indicator.</div></div>
+        <div class="dtile"><div class="nm">Multi-pet Avatar Stack</div><div class="ds">Overlapping avatars + overflow count for a household.</div></div>
+        <div class="dtile"><div class="nm">Boarding Status Badge</div><div class="ds">Upcoming · In-progress · Completed · Cancelled.</div></div>
+        <div class="dtile"><div class="nm">Vaccination Badge</div><div class="ds">Current / expiring / missing with date semantics.</div></div>
+        <div class="dtile"><div class="nm">Temperament Tag</div><div class="ds">Behavior labels (friendly, reactive, shy…).</div></div>
+        <div class="dtile"><div class="nm">Medication Chip</div><div class="ds">Med + dose + schedule for a stay.</div></div>
+        <div class="dtile"><div class="nm">Service Pill</div><div class="ds">Boarding · Daycare · Walk · Grooming · Training · M&amp;G.</div></div>
+        <div class="dtile"><div class="nm">Booking Timeline</div><div class="ds">Arrival → stay → departure milestones.</div></div>
+        <div class="dtile"><div class="nm">Calendar Availability Block</div><div class="ds">Open / limited / blocked capacity per day.</div></div>
+        <div class="dtile"><div class="nm">Capacity Meter</div><div class="ds">Occupancy vs. limit, with threshold colors.</div></div>
+        <div class="dtile"><div class="nm">Client Risk Indicator</div><div class="ds">Outstanding balance, incomplete M&amp;G, flags.</div></div>
+        <div class="dtile"><div class="nm">Payment Status Badge</div><div class="ds">Paid · Unpaid · Partial · Overridden.</div></div>
+        <div class="dtile"><div class="nm">Report Card Component</div><div class="ds">Dashboard/report metric tile with delta + drill-in.</div></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section class="block" id="review">
+      <div class="eyebrow">06</div>
+      <h2 class="sec">Standing review</h2>
+      <p class="lede">Every new component or pattern is reviewed against four questions. If any answer is “no,” we refine before it becomes part of the system.</p>
+      <div class="qs">
+        <div class="q"><div class="qt">Is this visually consistent?</div></div>
+        <div class="q"><div class="qt">Is this scalable?</div></div>
+        <div class="q"><div class="qt">Is this implementable without unnecessary engineering complexity?</div></div>
+        <div class="q"><div class="qt">Six months from now, will we be glad we built it this way?</div></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section class="block" id="record">
+      <div class="eyebrow">07</div>
+      <h2 class="sec">Component record &amp; versioning</h2>
+      <p class="lede">We treat the design system as its own product. Every component carries a <strong>record</strong> — so engineering can trust it and it can evolve without becoming chaotic. No record, not in the library.</p>
+      <div class="checkgroup">
+        <div class="head"><span class="num">▣</span><span class="lbl">Every component ships with</span></div>
+        <ul>
+          <li data-c>A clear <b style="color:var(--text-strong)">purpose</b> — one line on what it's for.</li>
+          <li data-c><b style="color:var(--text-strong)">Acceptance criteria</b> — the contract it was built against (§04).</li>
+          <li data-c>A <b style="color:var(--text-strong)">governance review</b> — checklist + four-question sign-off, dated, by George.</li>
+          <li data-c>An <b style="color:var(--text-strong)">implementation-ready spec</b> — tokens, props, states, RN mapping notes.</li>
+          <li data-c>A <b style="color:var(--text-strong)">version history</b> — changelog for any significant change.</li>
+        </ul>
+      </div>
+      <h3 class="pt">Versioning rule</h3>
+      <p style="font-size:14px;line-height:1.6;color:var(--text-body);max-width:720px;margin:0 0 8px;">Semantic-style versions per component and for the system as a whole:</p>
+      <div class="domain" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));">
+        <div class="dtile"><div class="nm">MAJOR · x.0.0</div><div class="ds">Breaking change — renamed/removed props or variants; consumers must update.</div></div>
+        <div class="dtile"><div class="nm">MINOR · 0.x.0</div><div class="ds">Additive — new variant/state/prop, backward compatible.</div></div>
+        <div class="dtile"><div class="nm">PATCH · 0.0.x</div><div class="ds">Fixes — spacing, color token, a11y tweak; no API change.</div></div>
+      </div>
+      <div class="callout" style="margin-top:16px;"><b>Where it lives.</b> Each Figma component gets a record frame beside it (purpose · criteria · review date · spec · changelog). The system keeps a top-level CHANGELOG on the Cover page. Version bumps are decided at governance review, not ad hoc.</div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+  // check icons in list items
+  document.querySelectorAll('li[data-c]').forEach(li => {
+    const i = document.createElement('i'); i.setAttribute('data-lucide','check'); li.prepend(i);
+  });
+  lucide.createIcons();
+  document.querySelectorAll('.spec .copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.closest('.spec').querySelector('pre').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const old = btn.textContent; btn.textContent = '✓ Copied'; btn.classList.add('done');
+        setTimeout(() => { btn.textContent = old; btn.classList.remove('done'); }, 1600);
+      });
+    });
+  });
+</script>
+</body>
+</html>

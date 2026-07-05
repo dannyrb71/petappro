@@ -1,0 +1,52 @@
+/* ============================================================
+   TIER 3 · COMPONENT TOKENS  (--comp-*)
+   Per-component hooks that map onto system tokens. This is the
+   cascade layer: retune ALL cards, buttons, or inputs from one
+   line here without touching component CSS.
+     e.g. --comp-card-shape: var(--sys-shape-corner-lg)  ->  round every card
+   ============================================================ */
+:root {
+
+  /* ---- Button (atom) ---- */
+  --comp-button-shape:        var(--sys-shape-corner-full);
+  --comp-button-height:       44px;           /* AA touch target */
+  --comp-button-pad-x:        20px;
+  --comp-button-label-size:   var(--sys-type-body-size);
+  --comp-button-label-weight: var(--ref-weight-bold);
+  --comp-button-filled-container: var(--sys-color-primary);
+  --comp-button-filled-hover:     var(--sys-color-primary-hover);
+  --comp-button-filled-label:     var(--sys-color-on-primary);
+
+  /* ---- Input / field (atom) ---- */
+  --comp-input-shape:     var(--sys-shape-corner-md);
+  --comp-input-container: var(--sys-color-surface-bright);
+  --comp-input-outline:   var(--sys-color-outline);
+  --comp-input-pad-y:     12px;
+  --comp-input-pad-x:     14px;
+
+  /* ---- Badge / status (atom) ---- */
+  --comp-badge-shape:  var(--sys-shape-corner-full);
+
+  /* ---- Chip / tag (atom) ---- */
+  --comp-chip-shape:   var(--sys-shape-corner-full);
+
+  /* ---- Card (organism container) ---- */
+  --comp-card-shape:     var(--sys-shape-corner-lg);
+  --comp-card-container: var(--sys-color-surface-bright);
+  --comp-card-outline:   var(--sys-color-outline-variant);
+  --comp-card-elevation: var(--sys-elevation-1);
+  --comp-card-pad:       var(--sys-space-5);
+
+  /* ---- Tile / list-row (molecule) ---- */
+  --comp-tile-shape:     var(--sys-shape-corner-lg);
+  --comp-tile-container: var(--sys-color-surface-bright);
+  --comp-tile-pad:       var(--sys-space-4);
+
+  /* ---- Bottom nav / tab bar (organism) ---- */
+  --comp-tabbar-container: var(--sys-color-surface-bright);
+  --comp-tabbar-elevation: var(--sys-elevation-nav);
+
+  /* ---- Switch (atom) ---- */
+  --comp-switch-shape:  var(--sys-shape-corner-full);
+  --comp-switch-on:     var(--sys-color-secondary-solid);
+}

@@ -1,0 +1,70 @@
+<!-- @dsCard group="Foundations" viewport="720x900" name="Accessibility & contrast" subtitle="ADA / WCAG 2.1 AA rules, verified ratios" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; padding:26px; background:var(--surface-card); color:var(--text-body); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
+  h3 { font-family:var(--font-mono); font-size:11px; letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--text-muted); margin:26px 0 12px; font-weight:var(--fw-bold); }
+  h3:first-of-type { margin-top:0; }
+  .rule { display:flex; gap:10px; font-size:13px; line-height:1.5; margin-bottom:8px; }
+  .rule b { color:var(--text-strong); }
+  .k { flex:none; width:18px; color:var(--sage-600); font-weight:var(--fw-bold); }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  td { padding:8px 10px; border-bottom:1px solid var(--border-subtle); vertical-align:middle; }
+  .chip { font-family:var(--font-mono); font-size:12px; padding:6px 10px; border-radius:var(--radius-sm); font-weight:var(--fw-bold); display:inline-block; }
+  .ratio { font-family:var(--font-mono); font-weight:var(--fw-bold); }
+  .pass { color:var(--on-tint-success); } .fail { color:var(--on-tint-error); }
+  .pill { font-size:11px; font-family:var(--font-mono); font-weight:var(--fw-bold); padding:3px 8px; border-radius:var(--radius-pill); }
+  .pill.ok { background:var(--success-100); color:var(--on-tint-success); }
+  .pill.no { background:var(--error-100); color:var(--on-tint-error); }
+</style>
+</head>
+<body>
+
+  <h3>Contrast targets — WCAG 2.1 AA (minimum)</h3>
+  <div class="rule"><span class="k">1</span><span><b>Body &amp; small text:</b> ≥ 4.5:1 against its background. Long-form: aim 7:1 (AAA).</span></div>
+  <div class="rule"><span class="k">2</span><span><b>Large text</b> (≥ 24px, or ≥ 18.7px at 700): ≥ 3:1.</span></div>
+  <div class="rule"><span class="k">3</span><span><b>UI &amp; graphics</b> (icons, borders, focus rings, control edges): ≥ 3:1.</span></div>
+
+  <h3>Approved text colors (on white / card)</h3>
+  <table>
+    <tr><td><span class="chip" style="background:#fff;border:1px solid var(--border-subtle);color:var(--text-strong)">Strong · ink-900</span></td><td class="ratio pass">15.0:1</td><td><span class="pill ok">AAA</span></td></tr>
+    <tr><td><span class="chip" style="background:#fff;border:1px solid var(--border-subtle);color:var(--text-body)">Body · ink-700</span></td><td class="ratio pass">10.3:1</td><td><span class="pill ok">AAA</span></td></tr>
+    <tr><td><span class="chip" style="background:#fff;border:1px solid var(--border-subtle);color:var(--text-muted)">Muted · #6E6659</span></td><td class="ratio pass">5.7:1</td><td><span class="pill ok">AA</span></td></tr>
+    <tr><td><span class="chip" style="background:#fff;border:1px solid var(--border-subtle);color:var(--text-accent)">Accent text · #4F6635</span></td><td class="ratio pass">6.4:1</td><td><span class="pill ok">AA</span></td></tr>
+    <tr><td><span class="chip" style="background:#fff;border:1px solid var(--border-subtle);color:var(--text-faint)">Faint · #8A8175</span></td><td class="ratio fail">3.8:1</td><td><span class="pill no">Decorative only</span></td></tr>
+  </table>
+
+  <h3>Fixed pitfalls</h3>
+  <table>
+    <tr>
+      <td><span class="chip" style="background:var(--sage-500);color:#fff">Aa sage-500</span></td>
+      <td class="ratio fail">2.97:1 <span class="pill no">FAIL</span></td>
+      <td style="font-size:12px;color:var(--text-muted)">→ use <b style="color:var(--text-strong)">accent-solid</b> (sage-600) for white text</td>
+    </tr>
+    <tr>
+      <td><span class="chip" style="background:var(--brand-accent-solid);color:#fff">Aa sage-600</span></td>
+      <td class="ratio pass">4.5:1 <span class="pill ok">AA</span></td>
+      <td style="font-size:12px;color:var(--text-muted)">accent button default</td>
+    </tr>
+    <tr>
+      <td><span class="pp-badge pp-badge--success">Confirmed</span></td>
+      <td class="ratio pass">6.3:1 <span class="pill ok">AA</span></td>
+      <td style="font-size:12px;color:var(--text-muted)">badge text darkened to <b style="color:var(--text-strong)">on-tint-*</b></td>
+    </tr>
+  </table>
+
+  <h3>Type minimums</h3>
+  <div class="rule"><span class="k">·</span><span>Default body <b>15px</b>. Never below <b>13px</b> for essential text.</span></div>
+  <div class="rule"><span class="k">·</span><span>Mono captions / eyebrows: min <b>12px</b> at weight <b>≥ 700</b> — thin small mono is the #1 legibility trap.</span></div>
+
+  <h3>Interaction</h3>
+  <div class="rule"><span class="k">·</span><span>Touch targets ≥ <b>44 × 44px</b> (iOS) / 48dp (Android).</span></div>
+  <div class="rule"><span class="k">·</span><span>Visible <b>focus ring</b> (3px, ≥ 3:1) on every interactive element.</span></div>
+  <div class="rule"><span class="k">·</span><span>Never signal state by <b>color alone</b> — always pair with icon or text (all badges carry a label).</span></div>
+  <div class="rule"><span class="k">·</span><span>Honor <b>prefers-reduced-motion</b> (built into the base CSS).</span></div>
+
+</body>
+</html>

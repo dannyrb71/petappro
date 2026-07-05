@@ -1,0 +1,64 @@
+/* ============================================================
+   PETAPPRO · BUSINESS-LOGIC COLOR TOKENS  (domain semantics)
+
+   THEME-INDEPENDENT ON PURPOSE. These encode meaning, not brand —
+   a "cancelled" red means cancelled in every theme. They live on
+   :root (not in the theme modes) so switching a provider's brand
+   NEVER changes what a status color communicates.
+
+   Grounded in the live app taxonomy (globals.css status colors +
+   StatusBadge / ServicePill), retuned to sit calmly beside any theme.
+   Pattern per role:  --biz-<group>-<state>            solid hue
+                      --biz-<group>-<state>-container   soft tint bg
+                      --biz-<group>-<state>-on          accessible text on tint (>=4.5:1)
+   ============================================================ */
+:root {
+
+  /* ---- Booking lifecycle ---- */
+  --biz-booking-upcoming:            #4C8A86; --biz-booking-upcoming-container:   #DEEBEA; --biz-booking-upcoming-on:   #2E5F5C;
+  --biz-booking-in-progress:         #6E9247; --biz-booking-in-progress-container:#EDF1E1; --biz-booking-in-progress-on:#445F27;
+  --biz-booking-completed:           #8A8175; --biz-booking-completed-container:  #EDE5D8; --biz-booking-completed-on:  #5C554A;
+  --biz-booking-cancelled:           #C05A45; --biz-booking-cancelled-container:  #F5E2DC; --biz-booking-cancelled-on:  #9B3F2C;
+
+  /* ---- Payment status ---- */
+  --biz-pay-paid:        #6E9247; --biz-pay-paid-container:        #EDF1E1; --biz-pay-paid-on:        #445F27;
+  --biz-pay-unpaid:      #C98A3C; --biz-pay-unpaid-container:      #F6EBD9; --biz-pay-unpaid-on:      #7A4E12;
+  --biz-pay-partial:     #B0704E; --biz-pay-partial-container:     #F2E3D9; --biz-pay-partial-on:     #6E4028;
+  --biz-pay-overridden:  #7B6EA8; --biz-pay-overridden-container:  #E8E4F1; --biz-pay-overridden-on:  #453C63;
+
+  /* ---- Service categories (categorical — distinct, recognizable hues) ---- */
+  --biz-svc-boarding:   #5A7A9E; --biz-svc-boarding-container:   #E4EBF1; --biz-svc-boarding-on:   #2E4459;
+  --biz-svc-daycare:    #C08A3C; --biz-svc-daycare-container:    #F5EAD6; --biz-svc-daycare-on:    #6E4E15;
+  --biz-svc-walk:       #6E9247; --biz-svc-walk-container:       #EDF1E1; --biz-svc-walk-on:       #445F27;
+  --biz-svc-sitting:    #B0704E; --biz-svc-sitting-container:    #F2E3D9; --biz-svc-sitting-on:    #6E4028;
+  --biz-svc-grooming:   #4C8A86; --biz-svc-grooming-container:   #DEEBEA; --biz-svc-grooming-on:   #2E5F5C;
+  --biz-svc-training:   #7B6EA8; --biz-svc-training-container:   #E8E4F1; --biz-svc-training-on:   #453C63;
+  --biz-svc-pickup:     #8A8150; --biz-svc-pickup-container:     #EFEBDA; --biz-svc-pickup-on:     #514B23;
+  --biz-svc-meet-greet: #4F9E87; --biz-svc-meet-greet-container: #E1F0EA; --biz-svc-meet-greet-on: #235847;
+
+  /* ---- Notification priority ---- */
+  --biz-notif-info:     #4C8A86; --biz-notif-info-container:     #DEEBEA; --biz-notif-info-on:     #2E5F5C;
+  --biz-notif-success:  #6E9247; --biz-notif-success-container:  #EDF1E1; --biz-notif-success-on:  #445F27;
+  --biz-notif-warning:  #C98A3C; --biz-notif-warning-container:  #F6EBD9; --biz-notif-warning-on:  #7A4E12;
+  --biz-notif-urgent:   #C05A45; --biz-notif-urgent-container:   #F5E2DC; --biz-notif-urgent-on:   #9B3F2C;
+
+  /* ---- Capacity / availability thresholds ---- */
+  --biz-capacity-available: #6E9247; --biz-capacity-available-container: #EDF1E1;
+  --biz-capacity-limited:   #C98A3C; --biz-capacity-limited-container:   #F6EBD9;
+  --biz-capacity-full:      #C05A45; --biz-capacity-full-container:      #F5E2DC;
+
+  /* ---- Risk indicator ---- */
+  --biz-risk-none:   #6E9247;   /* good standing */
+  --biz-risk-watch:  #C98A3C;   /* incomplete M&G, minor flag */
+  --biz-risk-high:   #C05A45;   /* outstanding balance / blocked */
+
+  /* ---- User-role indicators (THESE intentionally follow the brand theme) ---- */
+  --biz-role-owner:  var(--sys-color-primary);          --biz-role-owner-container:  var(--sys-color-primary-container);
+  --biz-role-staff:  var(--sys-color-secondary-solid);  --biz-role-staff-container:  var(--sys-color-secondary-container);
+  --biz-role-client: var(--sys-color-on-surface-variant);--biz-role-client-container: var(--sys-color-surface-container-high);
+
+  /* ---- Pet gender accent (name tint) ---- */
+  --biz-pet-male:   #4882AF;
+  --biz-pet-female: #AB5FB9;
+  --biz-pet-unknown: var(--sys-color-on-surface-variant);
+}

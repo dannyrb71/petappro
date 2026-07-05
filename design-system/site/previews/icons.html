@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Petappro — Iconography</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--surface-app); color:var(--text-body); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1040px; margin:0 auto; padding:48px 28px 96px; }
+  h1 { font-size:var(--fs-display); font-weight:var(--fw-black); letter-spacing:var(--tracking-tight); color:var(--text-strong); margin:6px 0 4px; }
+  .lead { color:var(--text-muted); max-width:600px; margin:0 0 8px; }
+  .group { margin-top:40px; }
+  .group h2 { font-family:var(--font-mono); font-size:var(--fs-caption); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--text-muted); margin:0 0 16px; }
+  .icons { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:12px; }
+  .icell { background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:18px 10px 12px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:var(--shadow-xs); }
+  .icell svg { width:26px; height:26px; color:var(--pine-700); stroke-width:1.9; }
+  .icell .lbl { font-size:11px; color:var(--text-muted); font-family:var(--font-mono); }
+  .demo { margin-top:44px; display:flex; gap:16px; flex-wrap:wrap; }
+  .swatchbox { background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:22px 26px; box-shadow:var(--shadow-sm); }
+  .swatchbox .row { display:flex; align-items:center; gap:14px; }
+  .swatchbox svg { width:22px; height:22px; stroke-width:1.9; }
+  .pp-eyebrow { display:block; margin-bottom:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="pp-eyebrow" style="margin-bottom:0;">Design System · Iconography</div>
+  <h1>Lucide — line icons</h1>
+  <p class="lead">Even 1.9px stroke, rounded joins, 24px grid. Calm and legible at mobile sizes; recedes under the brand rather than shouting. Rendered live below via Lucide.</p>
+
+  <div class="group">
+    <h2>Navigation</h2>
+    <div class="icons">
+      <div class="icell"><i data-lucide="house"></i><span class="lbl">house</span></div>
+      <div class="icell"><i data-lucide="calendar-days"></i><span class="lbl">calendar-days</span></div>
+      <div class="icell"><i data-lucide="dog"></i><span class="lbl">dog</span></div>
+      <div class="icell"><i data-lucide="menu"></i><span class="lbl">menu</span></div>
+      <div class="icell"><i data-lucide="search"></i><span class="lbl">search</span></div>
+      <div class="icell"><i data-lucide="bell"></i><span class="lbl">bell</span></div>
+      <div class="icell"><i data-lucide="user-round"></i><span class="lbl">user-round</span></div>
+      <div class="icell"><i data-lucide="settings"></i><span class="lbl">settings</span></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>Services</h2>
+    <div class="icons">
+      <div class="icell"><i data-lucide="moon"></i><span class="lbl">boarding</span></div>
+      <div class="icell"><i data-lucide="sun"></i><span class="lbl">daycare</span></div>
+      <div class="icell"><i data-lucide="footprints"></i><span class="lbl">dog walk</span></div>
+      <div class="icell"><i data-lucide="house-plus"></i><span class="lbl">in-home sit</span></div>
+      <div class="icell"><i data-lucide="scissors"></i><span class="lbl">grooming</span></div>
+      <div class="icell"><i data-lucide="graduation-cap"></i><span class="lbl">training</span></div>
+      <div class="icell"><i data-lucide="car-front"></i><span class="lbl">pickup</span></div>
+      <div class="icell"><i data-lucide="bone"></i><span class="lbl">treats/add-on</span></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>Booking &amp; status</h2>
+    <div class="icons">
+      <div class="icell"><i data-lucide="shield-check"></i><span class="lbl">verified</span></div>
+      <div class="icell"><i data-lucide="circle-check-big"></i><span class="lbl">confirmed</span></div>
+      <div class="icell"><i data-lucide="lock"></i><span class="lbl">locked/gated</span></div>
+      <div class="icell"><i data-lucide="clock"></i><span class="lbl">pending</span></div>
+      <div class="icell"><i data-lucide="handshake"></i><span class="lbl">meet &amp; greet</span></div>
+      <div class="icell"><i data-lucide="calendar-check"></i><span class="lbl">booked</span></div>
+      <div class="icell"><i data-lucide="clipboard-list"></i><span class="lbl">house rules</span></div>
+      <div class="icell"><i data-lucide="credit-card"></i><span class="lbl">payment</span></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>Profile &amp; care</h2>
+    <div class="icons">
+      <div class="icell"><i data-lucide="syringe"></i><span class="lbl">vaccinations</span></div>
+      <div class="icell"><i data-lucide="stethoscope"></i><span class="lbl">vet</span></div>
+      <div class="icell"><i data-lucide="pill"></i><span class="lbl">medication</span></div>
+      <div class="icell"><i data-lucide="utensils"></i><span class="lbl">food/diet</span></div>
+      <div class="icell"><i data-lucide="camera"></i><span class="lbl">photo updates</span></div>
+      <div class="icell"><i data-lucide="map-pin"></i><span class="lbl">location/ETA</span></div>
+      <div class="icell"><i data-lucide="triangle-alert"></i><span class="lbl">emergency</span></div>
+      <div class="icell"><i data-lucide="notebook-pen"></i><span class="lbl">care notes</span></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>Actions</h2>
+    <div class="icons">
+      <div class="icell"><i data-lucide="plus"></i><span class="lbl">plus</span></div>
+      <div class="icell"><i data-lucide="chevron-right"></i><span class="lbl">chevron</span></div>
+      <div class="icell"><i data-lucide="pencil"></i><span class="lbl">edit</span></div>
+      <div class="icell"><i data-lucide="x"></i><span class="lbl">close</span></div>
+      <div class="icell"><i data-lucide="check"></i><span class="lbl">check</span></div>
+      <div class="icell"><i data-lucide="message-circle"></i><span class="lbl">message</span></div>
+      <div class="icell"><i data-lucide="star"></i><span class="lbl">rating</span></div>
+      <div class="icell"><i data-lucide="share"></i><span class="lbl">share</span></div>
+    </div>
+  </div>
+
+  <div class="demo">
+    <div class="swatchbox">
+      <span class="pp-eyebrow">In brand colors</span>
+      <div class="row">
+        <i data-lucide="shield-check" style="color:var(--pine-700)"></i>
+        <i data-lucide="footprints" style="color:var(--sage-600)"></i>
+        <i data-lucide="clock" style="color:var(--warning-500)"></i>
+        <i data-lucide="circle-check-big" style="color:var(--success-500)"></i>
+        <i data-lucide="triangle-alert" style="color:var(--error-500)"></i>
+      </div>
+    </div>
+    <div class="swatchbox">
+      <span class="pp-eyebrow">Inline with buttons</span>
+      <div class="row">
+        <button class="pp-btn pp-btn--primary"><i data-lucide="handshake" style="width:18px;height:18px"></i> Request meet &amp; greet</button>
+        <button class="pp-btn pp-btn--secondary"><i data-lucide="clipboard-list" style="width:18px;height:18px"></i> House rules</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -8,7 +8,7 @@ You're the **Author** in a governed pipeline. Your design work is excellent; thi
 ## Roles
 - **You (Claude Design):** author token definitions and component specs. The thinking + the visual system.
 - **Claude (Cowork/Code):** the single writer — takes your *approved* work and builds it into Figma (via connector) and the app packages, then records it.
-- **ChatGPT:** independent reviewer, no write access. A second-model check.
+- **Codex:** independent reviewer, no write access. A second-model check. (Call it **Codex** — not "George.")
 - **Danny:** Director/Governor. Approves specs before build, signs off after. The only human gate.
 
 ## What you produce — two artifact types, exact homes
@@ -34,7 +34,7 @@ You're the **Author** in a governed pipeline. Your design work is excellent; thi
 - Domain components (the pet-care first-class citizens) name the concept they encapsulate.
 
 ## What happens after you hand off
-Your file lands in the repo → Claude pre-checks it against the charter → Danny approves (or sends back) → Claude builds it into Figma + code and writes a component record → ChatGPT audits the build against your acceptance criteria. Nothing builds before Danny approves.
+Your file lands in the repo → Claude pre-checks it against the charter → Danny approves (or sends back) → Claude builds it into Figma + code and writes a component record → Codex audits the build against your acceptance criteria. Nothing builds before Danny approves.
 
 ## Right now — the ask
 Deliver the **foundation tokens first** as DTCG files in `design-system/tokens/`: color (primitive scales + semantic roles), typography, spacing, radius, elevation, motion. That's the base everything composes from. Once they're in and lint-clean, we start components — atoms first, then patterns, then the domain layer.

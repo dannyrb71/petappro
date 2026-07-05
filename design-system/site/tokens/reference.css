@@ -1,0 +1,65 @@
+/* ============================================================
+   TIER 1 · REFERENCE TOKENS (primitives)
+   Raw values only. Never reference these directly in components —
+   go through the --sys-* / --comp-* layers. Change a brand hue or
+   the base scale here and it propagates everywhere above.
+   ============================================================ */
+:root {
+  /* ---- Typeface primitives ---- */
+  --ref-font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --ref-font-mono: 'Space Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* ---- Palette: Pine (brand primary) ---- */
+  --ref-pine-900: #123A32;
+  --ref-pine-800: #163A32;
+  --ref-pine-700: #1F4E44;
+  --ref-pine-600: #2A5B50;
+  --ref-pine-500: #37695D;
+  --ref-pine-100: #DCE7E2;
+  --ref-pine-50:  #ECF2EF;
+
+  /* ---- Palette: Sage (brand secondary/accent) ---- */
+  --ref-sage-700: #566E3C;
+  --ref-sage-600: #647F45;
+  --ref-sage-500: #7FA05A;
+  --ref-sage-400: #97B277;
+  --ref-sage-200: #DDE7CC;
+  --ref-sage-100: #EDF1E1;
+
+  /* ---- Palette: Sand (warm neutral) ---- */
+  --ref-sand-50:  #FBF8F2;
+  --ref-sand-100: #F6F1E9;
+  --ref-sand-200: #EDE5D8;
+  --ref-sand-300: #E0D6C5;
+  --ref-sand-400: #CFC3AD;
+  --ref-taupe-600: #6E6659;
+  --ref-taupe-500: #7A7264;
+  --ref-taupe-400: #8A8175;
+  --ref-ink-700:  #3C423F;
+  --ref-ink-900:  #2A2620;
+  --ref-white:    #FFFFFF;
+
+  /* ---- Palette: functional hues (base + tint + accessible on-tint) ---- */
+  --ref-green-500: #6E9247;  --ref-green-100: #EDF1E1;  --ref-green-700: #445F27;
+  --ref-amber-500: #C98A3C;  --ref-amber-100: #F6EBD9;  --ref-amber-700: #7A4E12;
+  --ref-red-500:   #C05A45;  --ref-red-100:   #F5E2DC;  --ref-red-700:   #9B3F2C;
+  --ref-teal-500:  #4C8A86;  --ref-teal-100:  #DEEBEA;  --ref-teal-700:  #2E5F5C;
+  --ref-sage-ontint: #46632A;   /* accessible text on sage tint */
+
+  /* ---- Dimension scale (4px grid) ---- */
+  --ref-dim-0:  0px;   --ref-dim-1: 4px;   --ref-dim-2: 8px;   --ref-dim-3: 12px;
+  --ref-dim-4: 16px;   --ref-dim-5: 20px;  --ref-dim-6: 24px;  --ref-dim-8: 32px;
+  --ref-dim-10: 40px;  --ref-dim-12: 48px; --ref-dim-16: 64px;
+
+  /* ---- Radius primitives ---- */
+  --ref-radius-0: 0px;  --ref-radius-1: 6px;  --ref-radius-2: 8px;  --ref-radius-3: 12px;
+  --ref-radius-4: 16px; --ref-radius-5: 20px; --ref-radius-6: 28px; --ref-radius-full: 999px;
+
+  /* ---- Type size primitives ---- */
+  --ref-fs-12: 12px; --ref-fs-13: 13px; --ref-fs-15: 15px; --ref-fs-17: 17px;
+  --ref-fs-18: 18px; --ref-fs-22: 22px; --ref-fs-27: 27px; --ref-fs-34: 34px;
+
+  /* ---- Weight primitives ---- */
+  --ref-weight-regular: 400; --ref-weight-medium: 500; --ref-weight-semibold: 600;
+  --ref-weight-bold: 700;    --ref-weight-black: 800;
+}
