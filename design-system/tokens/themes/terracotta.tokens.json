@@ -1,0 +1,174 @@
+{
+  "$description": "TERRACOTTA theme \u2014 one MODE over the semantic color layer (mid-tier white-label). Warm camel; mirrors the shipping Woof WeTreats brand. Values ported verbatim from site/tokens/themes.css. Only brand + neutral roles are overridden; status colors (success/warning/error/info) and surface.bright / on-surface.faint inherit the base (sage-sand) mode.",
+  "color": {
+    "$type": "color",
+    "primitive": {
+      "theme": {
+        "terracotta": {
+          "$description": "Tuned per-theme palette (literals). Interim representation \u2014 see docs/theming-and-tiers.md; pending Claude Design reconciliation with the base hue-scale primitives.",
+          "primary": {
+            "$value": "#C08B6E"
+          },
+          "primary-hover": {
+            "$value": "#B07C5D"
+          },
+          "primary-pressed": {
+            "$value": "#8A5E48"
+          },
+          "on-primary": {
+            "$value": "#FFFFFF"
+          },
+          "primary-container": {
+            "$value": "#E8CABB"
+          },
+          "on-primary-container": {
+            "$value": "#5E3D2B"
+          },
+          "secondary": {
+            "$value": "#7E9B6B"
+          },
+          "secondary-solid": {
+            "$value": "#5F7A4E"
+          },
+          "secondary-hover": {
+            "$value": "#506B41"
+          },
+          "on-secondary": {
+            "$value": "#FFFFFF"
+          },
+          "secondary-container": {
+            "$value": "#E7EFE0"
+          },
+          "on-secondary-container": {
+            "$value": "#3C4F2C"
+          },
+          "surface": {
+            "$value": "#F3F1EC"
+          },
+          "surface-container": {
+            "$value": "#F1ECE6"
+          },
+          "surface-container-high": {
+            "$value": "#E9E2D9"
+          },
+          "on-surface": {
+            "$value": "#2E2A26"
+          },
+          "on-surface-body": {
+            "$value": "#4A443E"
+          },
+          "on-surface-variant": {
+            "$value": "#756B62"
+          },
+          "on-surface-accent": {
+            "$value": "#5F7A4E"
+          },
+          "outline": {
+            "$value": "#E0D8CF"
+          },
+          "outline-variant": {
+            "$value": "#ECE6DF"
+          },
+          "outline-strong": {
+            "$value": "#CFC4B8"
+          }
+        }
+      }
+    },
+    "semantic": {
+      "primary": {
+        "default": {
+          "$value": "{color.primitive.theme.terracotta.primary}"
+        },
+        "hover": {
+          "$value": "{color.primitive.theme.terracotta.primary-hover}"
+        },
+        "pressed": {
+          "$value": "{color.primitive.theme.terracotta.primary-pressed}"
+        },
+        "on": {
+          "$value": "{color.primitive.theme.terracotta.on-primary}"
+        },
+        "container": {
+          "$value": "{color.primitive.theme.terracotta.primary-container}"
+        },
+        "on-container": {
+          "$value": "{color.primitive.theme.terracotta.on-primary-container}"
+        }
+      },
+      "secondary": {
+        "default": {
+          "$value": "{color.primitive.theme.terracotta.secondary}"
+        },
+        "solid": {
+          "$value": "{color.primitive.theme.terracotta.secondary-solid}"
+        },
+        "hover": {
+          "$value": "{color.primitive.theme.terracotta.secondary-hover}"
+        },
+        "on": {
+          "$value": "{color.primitive.theme.terracotta.on-secondary}"
+        },
+        "container": {
+          "$value": "{color.primitive.theme.terracotta.secondary-container}"
+        },
+        "on-container": {
+          "$value": "{color.primitive.theme.terracotta.on-secondary-container}"
+        }
+      },
+      "surface": {
+        "default": {
+          "$value": "{color.primitive.theme.terracotta.surface}"
+        },
+        "container": {
+          "$value": "{color.primitive.theme.terracotta.surface-container}"
+        },
+        "container-high": {
+          "$value": "{color.primitive.theme.terracotta.surface-container-high}"
+        }
+      },
+      "on-surface": {
+        "default": {
+          "$value": "{color.primitive.theme.terracotta.on-surface}"
+        },
+        "body": {
+          "$value": "{color.primitive.theme.terracotta.on-surface-body}"
+        },
+        "variant": {
+          "$value": "{color.primitive.theme.terracotta.on-surface-variant}"
+        },
+        "accent": {
+          "$value": "{color.primitive.theme.terracotta.on-surface-accent}"
+        }
+      },
+      "outline": {
+        "default": {
+          "$value": "{color.primitive.theme.terracotta.outline}"
+        },
+        "variant": {
+          "$value": "{color.primitive.theme.terracotta.outline-variant}"
+        },
+        "strong": {
+          "$value": "{color.primitive.theme.terracotta.outline-strong}"
+        }
+      },
+      "focus-ring": {
+        "$value": "rgba(192,139,110,0.30)",
+        "$extensions": {
+          "ds": {
+            "allowLiteral": "translucent focus ring; alpha overlay with no solid primitive equivalent (per-theme)"
+          }
+        }
+      }
+    }
+  },
+  "typography": {
+    "$type": "fontFamily",
+    "semantic": {
+      "font-family": {
+        "$value": "{typography.primitive.family.nunito-sans}",
+        "$description": "terracotta paired typeface (Tier 2)"
+      }
+    }
+  }
+}

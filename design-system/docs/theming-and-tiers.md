@@ -3,12 +3,25 @@
 How PetAppro's white-label theming maps onto the token system. This is a design-system
 architecture note; if it drives product/pricing behavior it should also get a decision record.
 
-## The tier model
-- **Low tier** — uses the **base theme** (default mode). No customization.
-- **Mid tier** — picks **one of 5 curated themes**, each a color + font pairing:
-  `sage-sand` (default/base) · `terracotta` · `harbor` · `dusk` · `berry`.
-- **Top tier** — full white-label: provider supplies **their own *n* base colors + logo**,
-  **or** adopts one of the 5 curated systems.
+## The tier model (approved by Danny, 2026-07-04)
+- **Tier 1 (lowest)** — fixed: **Sage & Sand** palette + **Hanken Grotesk**. No customization.
+- **Tier 2 (pseudo white-label)** — pick **one of 5 preset styles**, each a fixed **color + font** pairing (see below). No mixing.
+- **Top tier (full white-label)** — **mix and match** any font with any color palette, **and upload their own logo**.
+
+### Tier 2 preset pairings (approved)
+| Style | Palette | Font | Personality |
+|---|---|---|---|
+| Sage & Sand | `sage-sand` (base/default) | Hanken Grotesk | warm workhorse |
+| Terracotta | `terracotta` | Nunito Sans | soft, friendly (warm camel; Woof brand) |
+| Harbor | `harbor` | Lexend | open, highly legible (cool teal, tech-forward) |
+| Dusk | `dusk` | Manrope | geometric, composed (calm indigo, professional) |
+| Berry | `berry` | Source Serif 4 | editorial, premium (plum) |
+
+All five fonts are Google Fonts (SIL OFL), licensed to bundle on iOS + Android.
+
+### Logo / co-brand rule
+- **Tier 1 & Tier 2** — PetAppro logo with the lockup **"[Client name] by PetAppro."**
+- **Top tier** — client uploads **their own logo** (no PetAppro lockup).
 
 ## Why the token discipline makes this work
 Components bind to **semantic and domain roles only** — never raw colors. So a theme (or a
