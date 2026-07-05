@@ -14,7 +14,7 @@ Reference **semantic tokens**.
 - **Anatomy:** icon `pill` · med name · dose · schedule (e.g. "Apoquel · 16mg · 2×/day w/ food").
 - **Skin:** `color.semantic.surface.container` bg, `color.semantic.text.body` text, `color.semantic.text.accent` icon; radius `radius.semantic.chip` (or `tile` when multi-line).
 - **Emphasis:** med name semibold; dose/schedule `color.semantic.text.variant`.
-- **Optional "critical" flag:** for time-sensitive meds → `color.semantic.domain.notification.urgent` accent + `triangle-alert`.
+- **Optional "critical" flag:** for time-sensitive meds → `color.semantic.domain.notification.urgent.base` accent + `triangle-alert`.
 - **RN compatibility:** props `name`, `dose`, `schedule`, `withFood?`, `critical?`.
 
 ## Acceptance Criteria

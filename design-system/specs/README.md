@@ -13,7 +13,7 @@ Contracts for every component. Format: `Objective → Requirements → Acceptanc
 - *(Payment Badge = Status Badge `kind=payment`; Service Pill = atom — not duplicated here.)*
 
 ## Notes for build
-- **Token additions flagged in specs** (author with the component layer): `color.semantic.success-solid` (= `green.700`, for the AA-safe booking-green Button); `comp.*` hooks (button height/label, etc.).
+- **Token additions (resolved 2026-07-05 per Codex review):** `color.semantic.status.success-solid` (=`green.700`, AA-safe booking-green Button) and `color.semantic.text.on-solid` (=`white`, labels on solid fills) added to semantic; component dimensions now come from a `size.*` scale (control/icon/avatar/min-touch-target) + `breakpoint.*`, with genuine one-offs marked as governed exceptions. `risk.*` expanded to `.base/.container/.on`. No `comp.*` layer needed yet.
 - Templates (`templates/`) come after these are approved: Dashboard · Booking · Profile · Schedule · Reports.
 
 _All 23 specs: status `in-review`, v0.1.0._

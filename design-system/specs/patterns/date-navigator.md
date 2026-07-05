@@ -11,7 +11,7 @@ Prev/next + date field with a conditional "Today" pill. Identical on the staff d
 Reference **semantic tokens**; compose atoms.
 
 - **Anatomy:** `‹` prev button · date input (Field, type=date) · `›` next button; below, a long-form date label with a conditional Today pill.
-- **Nav buttons:** 38×38, circular (`radius.semantic.button`), `color.semantic.surface.bright` + `color.semantic.border.default`, glyph `color.semantic.text.default`. ≥44px effective target via padding.
+- **Nav buttons:** 38×38 (governed exception), circular (`radius.semantic.button`), `color.semantic.surface.bright` + `color.semantic.border.default`, glyph `color.semantic.text.default`. ≥ `size.min-touch-target` (44) effective via padding.
 - **Long date:** `typography.semantic.title`, `color.semantic.text.default`.
 - **Today pill:** shows ONLY when the selected date == today; `color.semantic.action.primary.container` bg / `color.semantic.action.primary.on-container` text; radius `radius.semantic.chip`.
 - **Layout:** column, center-aligned; row gap `spacing.primitive.2`.

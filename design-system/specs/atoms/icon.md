@@ -8,8 +8,8 @@
 One icon primitive and one curated set, so glyphs are consistent in weight, grid, and meaning across the platform.
 
 ## Requirements
-- **Library:** Lucide. Stroke 1.9, round caps/joins, 24px grid.
-- **Sizes:** 16 · 18 · 20 · 24 (default) · 28. Stroke stays optically consistent across sizes.
+- **Library:** Lucide. Stroke 1.9, round caps/joins, 24px design grid (governed exceptions — Lucide constants).
+- **Sizes:** from `size.icon.{xs,sm,md,lg,xl}` (16/18/20/24/28); `lg` (24) default. Stroke stays optically consistent across sizes.
 - **Color:** inherits `currentColor` by default; may be set to any `color.semantic.*` or `color.semantic.domain.*` role.
 - **Curated set (semantic → glyph):**
   - navigation: home→`house`, bookings→`calendar-days`, pet→`dog`, menu→`menu`, search→`search`, alerts→`bell`, profile→`user-round`, settings→`settings`

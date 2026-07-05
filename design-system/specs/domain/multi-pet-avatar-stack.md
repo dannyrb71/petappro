@@ -12,7 +12,7 @@ Show multiple Pet Avatars in a small footprint with a clear overflow count.
 Reference **semantic tokens**; compose the Pet Avatar.
 
 - **Anatomy:** N overlapping Pet Avatars (left-to-right, later ones behind) + an optional `+N` overflow chip when count exceeds `max`.
-- **Overlap:** each avatar offset by ~40% of its size; 2px `color.semantic.surface.bright` ring separates them.
+- **Overlap:** each avatar offset ~40% of its size (relative); 2px `color.semantic.surface.bright` ring separates them (2px governed exception).
 - **Overflow chip:** circular, `color.semantic.surface.container-high` bg / `color.semantic.text.variant` text, same diameter as the avatars.
 - **Sizes:** inherit Avatar sizes; default `sm`/`md` in lists.
 - **RN compatibility:** props `pets` (array), `size`, `max` (default 3).

@@ -12,7 +12,7 @@ Present one KPI consistently — value, label, optional delta vs a prior period,
 Reference **semantic + domain tokens**.
 
 - **Anatomy:** label (Section Header label style) · big value · optional delta (▲/▼ + %) · optional sublabel/period · optional trailing Icon.
-- **Value:** `typography.semantic.display` or `headline`, `color.semantic.text.default`.
+- **Value:** `typography.semantic.display` or `typography.semantic.headline`, `color.semantic.text.default`.
 - **Delta:** up = `color.semantic.domain.notification.success.on`, down = `color.semantic.domain.notification.urgent.on`; direction shown by arrow + sign, not color alone.
 - **Container:** `color.semantic.surface.bright`, radius `radius.semantic.card`, `elevation.semantic.card`, padding `spacing.semantic.card-padding`.
 - **Clickable variant:** hover bg `color.semantic.surface.container` + `elevation.semantic.raised`; pressed `motion.semantic.press-scale`; focus ring.
@@ -20,7 +20,7 @@ Reference **semantic + domain tokens**.
 
 ## Acceptance Criteria
 - [ ] Tokens only; delta direction shown by arrow/sign + color (not color alone).
-- [ ] Clickable tile meets 44px + focus/press states.
+- [ ] Clickable tile meets `size.min-touch-target` (44) + focus/press states.
 - [ ] Value uses a type token; no ad-hoc sizes.
 
 ## Documentation

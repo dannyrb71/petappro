@@ -12,14 +12,14 @@ Reference **semantic tokens**; compose atoms.
 
 - **Anatomy:** `leading` (Icon in a tinted square, or Avatar) · `body` (title + optional subtitle) · `trailing` slot (Status Badge, Money, chevron Icon, Switch…).
 - **Colors:** container `color.semantic.surface.bright`; title `color.semantic.text.default` (body type, semibold); subtitle `typography.semantic.body-sm`, `color.semantic.text.variant`.
-- **Leading square:** 40×40, `radius.semantic.input`, bg `color.semantic.action.secondary.container`, Icon `color.semantic.text.accent`.
+- **Leading square:** 40×40 (governed exception), `radius.semantic.input`, bg `color.semantic.action.secondary.container`, Icon `color.semantic.text.accent`.
 - **Layout:** flex row, `spacing.primitive.3` gap, padding `spacing.primitive.4`; dividers `color.semantic.border.variant` between stacked rows.
 - **Clickable variant:** hover bg `color.semantic.surface.container`; pressed scale `motion.semantic.press-scale`; focus ring `color.semantic.focus-ring`.
 - **Shape (as tile):** radius `radius.semantic.tile` when standalone.
 - **RN compatibility:** props `leading` (icon|avatar), `title`, `subtitle?`, `trailing?` (slot), `clickable`, `onPress`.
 
 ## Acceptance Criteria
-- [ ] Tokens only; ≥44px row height; clickable rows expose pressed/focus state.
+- [ ] Tokens only; ≥ `size.min-touch-target` (44) row height; clickable rows expose pressed/focus state.
 - [ ] Trailing slot accepts any atom without overrides.
 - [ ] Divider vs standalone-tile treatments both supported.
 

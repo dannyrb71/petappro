@@ -11,7 +11,7 @@ Give staff an at-a-glance signal of client risk, with the reason available, neve
 ## Requirements
 Reference **domain tokens** (theme-independent).
 
-- **Levels:** `none` (good standing) `color.semantic.domain.risk.none`; `watch` (incomplete M&G / minor flag) `color.semantic.domain.risk.watch`; `high` (outstanding balance / blocked) `color.semantic.domain.risk.high`.
+- **Levels:** `none` (good standing) `color.semantic.domain.risk.none.base`; `watch` (incomplete M&G / minor flag) `color.semantic.domain.risk.watch.base`; `high` (outstanding balance / blocked) `color.semantic.domain.risk.high.base`. Optional tint = matching `.container`; text on tint = `.on`.
 - **Forms:** compact dot (in lists) and full chip (dot + reason text) for detail; chip bg uses the matching container tint.
 - **Reason:** short text (e.g. "Balance $84", "M&G incomplete"); `typography.semantic.body-sm`.
 - **Icon:** `watch`→`clock`, `high`→`triangle-alert`.

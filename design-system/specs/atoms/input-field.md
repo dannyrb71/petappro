@@ -18,8 +18,8 @@ Reference **semantic tokens only**.
   - filled, read-only, disabled (`color.semantic.surface.container` fill, `color.semantic.text.faint` text).
   - error — border + message `color.semantic.domain.notification.urgent.base`/`.on`; NEVER color alone (pair with icon + message).
 - **Labels & hints:** label `typography.semantic.body-sm` weight semibold, `color.semantic.text.body`; hint `typography.semantic.label`-size, `color.semantic.text.variant`.
-- **Shape:** radius `radius.semantic.input`. Min height 44; textarea min 92. Padding from `spacing.primitive.3`/`4`.
-- **Motion:** border/ring transition `motion.semantic.duration-fast` + `easing-standard`.
+- **Shape:** radius `radius.semantic.input`. Min height `size.control.md` (44); textarea min 92 (governed exception). Padding from `spacing.primitive.3`/`4`.
+- **Motion:** border/ring transition `motion.semantic.duration-fast` + `motion.semantic.easing-standard`.
 - **RN compatibility:** props `label`, `type` (`text|number|date|textarea|select`), `value`, `placeholder`, `leadingIcon`, `trailingAffix`, `state` (`default|focus|error|disabled|readonly`), `hint`, `error`.
 
 ## Acceptance Criteria

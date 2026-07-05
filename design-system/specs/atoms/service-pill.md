@@ -11,9 +11,9 @@ The single source for every service/activity tag, with a selectable variant for 
 Reference **semantic tokens only** (service colors are theme-independent domain tokens).
 
 - **Services:** Boarding, Daycare, Walk, In-home Sitting, Grooming, Training, Pickup/Dropoff, Meet & Greet → `color.semantic.domain.service.<name>`.
-- **Skin (display):** solid fill = `service.<name>.base`, white label + leading Icon — EXCEPT **Meet & Greet**, the only OUTLINED pill (white/`surface.bright` bg, `service.meet-greet.base` stroke + text).
+- **Skin (display):** solid fill = `service.<name>.base`, label `color.semantic.text.on-solid` + leading Icon — EXCEPT **Meet & Greet**, the only OUTLINED pill (white/`surface.bright` bg, `service.meet-greet.base` stroke + text).
 - **Selectable variant (booking flows):** `unselected` = outline `color.semantic.border.default` + `color.semantic.text.body`; `selected` = fill `color.semantic.action.primary.default` + `color.semantic.action.primary.on`.
-- **Shape:** radius `radius.semantic.chip` (fully rounded). Height 22–28; icon = Icon atom.
+- **Shape:** radius `radius.semantic.chip` (fully rounded). Height `size.control.xs` (28), compact padding; icon = Icon atom.
 - **RN compatibility:** props `service`, `label?`, `selectable` (bool), `selected` (bool), `icon`.
 
 ## Acceptance Criteria
@@ -26,7 +26,7 @@ Reference **semantic tokens only** (service colors are theme-independent domain 
 - **Purpose:** label/select a service or activity.
 - **Usage:** display on cards/schedules; selectable in the booking form.
 - **When NOT to use:** lifecycle/payment state (Status Badge); generic filters unrelated to services.
-- **Accessibility:** selectable pills expose pressed/selected state to SR; solid-fill contrast AA for white label.
+- **Accessibility:** selectable pills expose pressed/selected state to SR; solid-fill contrast AA for the `text.on-solid` label.
 - **Dev notes:** replaces the app's inline `ServicePill`; service→token/icon map is the contract.
 
 ## Version history

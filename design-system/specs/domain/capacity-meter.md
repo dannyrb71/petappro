@@ -12,7 +12,7 @@ Show how full a day/service is, with threshold-driven color so overbooking risk 
 Reference **domain tokens** (theme-independent thresholds).
 
 - **Anatomy:** label · bar (fill vs track) · count "used / limit" (e.g. "6 / 8").
-- **Thresholds:** available (< ~70%) `color.semantic.domain.capacity.available`; limited (~70–99%) `color.semantic.domain.capacity.limited`; full (100%+) `color.semantic.domain.capacity.full`. Track `color.semantic.surface.container-high`.
+- **Thresholds:** available (< ~70%) `color.semantic.domain.capacity.available.base`; limited (~70–99%) `color.semantic.domain.capacity.limited.base`; full (100%+) `color.semantic.domain.capacity.full.base`. Track `color.semantic.surface.container-high`.
 - **Count text:** `typography.semantic.body-sm`, color matches the active threshold's base for emphasis.
 - **Shape:** bar radius `radius.semantic.chip`.
 - **RN compatibility:** props `used`, `limit`, `label?`.

@@ -1,0 +1,17 @@
+{
+  "breakpoint": {
+    "$type": "dimension",
+    "sm": {
+      "$value": "640px",
+      "$type": "dimension"
+    },
+    "md": {
+      "$value": "834px",
+      "$type": "dimension"
+    },
+    "lg": {
+      "$value": "1280px",
+      "$type": "dimension"
+    }
+  }
+}

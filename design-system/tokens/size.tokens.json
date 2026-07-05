@@ -1,0 +1,71 @@
+{
+  "size": {
+    "$type": "dimension",
+    "control": {
+      "xs": {
+        "$value": "28px",
+        "$type": "dimension"
+      },
+      "sm": {
+        "$value": "36px",
+        "$type": "dimension"
+      },
+      "md": {
+        "$value": "44px",
+        "$type": "dimension"
+      },
+      "lg": {
+        "$value": "52px",
+        "$type": "dimension"
+      }
+    },
+    "icon": {
+      "xs": {
+        "$value": "16px",
+        "$type": "dimension"
+      },
+      "sm": {
+        "$value": "18px",
+        "$type": "dimension"
+      },
+      "md": {
+        "$value": "20px",
+        "$type": "dimension"
+      },
+      "lg": {
+        "$value": "24px",
+        "$type": "dimension"
+      },
+      "xl": {
+        "$value": "28px",
+        "$type": "dimension"
+      }
+    },
+    "avatar": {
+      "xs": {
+        "$value": "24px",
+        "$type": "dimension"
+      },
+      "sm": {
+        "$value": "32px",
+        "$type": "dimension"
+      },
+      "md": {
+        "$value": "40px",
+        "$type": "dimension"
+      },
+      "lg": {
+        "$value": "64px",
+        "$type": "dimension"
+      },
+      "xl": {
+        "$value": "96px",
+        "$type": "dimension"
+      }
+    },
+    "min-touch-target": {
+      "$value": "44px",
+      "$type": "dimension"
+    }
+  }
+}

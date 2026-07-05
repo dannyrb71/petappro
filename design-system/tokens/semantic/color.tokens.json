@@ -74,6 +74,9 @@
         },
         "accent": {
           "$value": "{color.brand.on-surface-accent}"
+        },
+        "on-solid": {
+          "$value": "{color.primitive.white}"
         }
       },
       "border": {
@@ -114,6 +117,9 @@
         },
         "info-container": {
           "$value": "{color.primitive.teal.100}"
+        },
+        "success-solid": {
+          "$value": "{color.primitive.green.700}"
         }
       },
       "domain": {
@@ -439,16 +445,37 @@
         },
         "risk": {
           "none": {
-            "$value": "{color.primitive.green.500}",
-            "$type": "color"
+            "base": {
+              "$value": "{color.primitive.green.500}"
+            },
+            "container": {
+              "$value": "{color.primitive.green.100}"
+            },
+            "on": {
+              "$value": "{color.primitive.green.700}"
+            }
           },
           "watch": {
-            "$value": "{color.primitive.amber.500}",
-            "$type": "color"
+            "base": {
+              "$value": "{color.primitive.amber.500}"
+            },
+            "container": {
+              "$value": "{color.primitive.amber.100}"
+            },
+            "on": {
+              "$value": "{color.primitive.amber.700}"
+            }
           },
           "high": {
-            "$value": "{color.primitive.red.500}",
-            "$type": "color"
+            "base": {
+              "$value": "{color.primitive.red.500}"
+            },
+            "container": {
+              "$value": "{color.primitive.red.100}"
+            },
+            "on": {
+              "$value": "{color.primitive.red.700}"
+            }
           }
         },
         "role": {

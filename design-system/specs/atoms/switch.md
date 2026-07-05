@@ -13,8 +13,8 @@ Reference **semantic tokens only**.
 - **States:** off, on, disabled-off, disabled-on, focus-visible.
 - **Colors:** on track = `color.semantic.action.secondary.solid`; off track = `color.semantic.border.strong`; thumb = `color.semantic.surface.bright` with `elevation.semantic.card`; focus ring `color.semantic.focus-ring`.
 - **Shape:** radius `radius.semantic.switch` (fully rounded).
-- **Motion:** thumb slides `motion.semantic.duration-base` + `easing-standard`; honor reduced-motion.
-- **Size:** track 46×28, thumb 22; effective hit area ≥44px via padding.
+- **Motion:** thumb slides `motion.semantic.duration-base` + `motion.semantic.easing-standard`; honor reduced-motion.
+- **Size:** track 46×28, thumb 22 (governed exceptions — component-specific); effective hit area ≥ `size.min-touch-target` (44) via padding.
 - **RN compatibility:** props `checked` (bool), `disabled` (bool), `onChange`, `label?`.
 
 ## Acceptance Criteria

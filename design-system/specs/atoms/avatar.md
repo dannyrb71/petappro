@@ -11,8 +11,8 @@ A circular identity token for people and (as a base) pets. The Pet Avatar and Mu
 Reference **semantic tokens only**.
 
 - **Content:** image; or fallback = monogram initials or a Lucide glyph (e.g. `dog`).
-- **Sizes:** `xs` 24 · `sm` 32 · `md` 40 · `lg` 64 · `xl` 96. Fixed 1:1 ratio at every size.
-- **Ring (optional):** `none` (default) · `brand` (`color.semantic.action.primary.default`) · `gender` (`color.semantic.domain.pet.male` / `color.semantic.domain.pet.female` / `color.semantic.domain.pet.unknown`). Ring 2px.
+- **Sizes:** from `size.avatar.{xs,sm,md,lg,xl}` (24/32/40/64/96). Fixed 1:1 ratio at every size.
+- **Ring (optional):** `none` (default) · `brand` (`color.semantic.action.primary.default`) · `gender` (`color.semantic.domain.pet.male` / `color.semantic.domain.pet.female` / `color.semantic.domain.pet.unknown`). Ring 2px (governed exception — structural hairline).
 - **Fallback:** bg `color.semantic.surface.container-high`; monogram `color.semantic.text.variant`, `typography.semantic.body` weight bold.
 - **Optional add-ons (off by default):** status dot (bottom-right) and a corner badge slot (e.g. puppy) — expose as boolean/slot.
 - **Auto Layout / constraints:** image fills the circle; badge/dot pinned bottom-right.
