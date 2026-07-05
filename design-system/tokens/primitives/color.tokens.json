@@ -430,6 +430,102 @@
         "900": {
           "$value": "#2A2230"
         }
+      },
+      "clay": {
+        "100": {
+          "$value": "#F2E3D9",
+          "$type": "color"
+        },
+        "500": {
+          "$value": "#B0704E",
+          "$type": "color"
+        },
+        "700": {
+          "$value": "#6E4028",
+          "$type": "color"
+        }
+      },
+      "violet": {
+        "100": {
+          "$value": "#E8E4F1",
+          "$type": "color"
+        },
+        "500": {
+          "$value": "#7B6EA8",
+          "$type": "color"
+        },
+        "700": {
+          "$value": "#453C63",
+          "$type": "color"
+        }
+      },
+      "gold": {
+        "100": {
+          "$value": "#F5EAD6",
+          "$type": "color"
+        },
+        "500": {
+          "$value": "#C08A3C",
+          "$type": "color"
+        },
+        "700": {
+          "$value": "#6E4E15",
+          "$type": "color"
+        }
+      },
+      "olive": {
+        "100": {
+          "$value": "#EFEBDA",
+          "$type": "color"
+        },
+        "500": {
+          "$value": "#8A8150",
+          "$type": "color"
+        },
+        "700": {
+          "$value": "#514B23",
+          "$type": "color"
+        }
+      },
+      "jade": {
+        "100": {
+          "$value": "#E1F0EA",
+          "$type": "color"
+        },
+        "500": {
+          "$value": "#4F9E87",
+          "$type": "color"
+        },
+        "700": {
+          "$value": "#235847",
+          "$type": "color"
+        }
+      },
+      "azure": {
+        "500": {
+          "$value": "#4882AF",
+          "$type": "color"
+        }
+      },
+      "magenta": {
+        "500": {
+          "$value": "#AB5FB9",
+          "$type": "color"
+        }
+      },
+      "slate": {
+        "100": {
+          "$value": "#E4EBF1",
+          "$type": "color"
+        },
+        "500": {
+          "$value": "#5A7A9E",
+          "$type": "color"
+        },
+        "700": {
+          "$value": "#2E4459",
+          "$type": "color"
+        }
       }
     }
   }

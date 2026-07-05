@@ -17,7 +17,7 @@ Reference **semantic / domain tokens only** — never raw values.
 - **Variants:** …
 - **Sizes:** …
 - **States:** default, hover, pressed, focus-visible, disabled, loading/empty (as relevant)
-- **Tokens:** color → `color.semantic.*` / `color.domain.*`; radius → `radius.semantic.*`; spacing → `spacing.*`; type → `typography.semantic.*`; elevation → `elevation.semantic.*`; motion → `motion.semantic.*`
+- **Tokens:** color → `color.semantic.{action,surface,text,border,status,focus-ring}.*` + `color.semantic.domain.*`; radius → `radius.semantic.*`; spacing → `spacing.*`; type → `typography.semantic.*`; elevation → `elevation.semantic.*`; motion → `motion.semantic.*`
 - **Auto Layout:** direction, hug/fill, gap (space token), padding (space tokens)
 - **React Native compatibility:** prop + variant names that map onto the RN implementation
 

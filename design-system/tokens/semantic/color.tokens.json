@@ -115,6 +115,370 @@
         "info-container": {
           "$value": "{color.primitive.teal.100}"
         }
+      },
+      "domain": {
+        "booking": {
+          "upcoming": {
+            "base": {
+              "$value": "{color.primitive.teal.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.teal.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.teal.700}",
+              "$type": "color"
+            }
+          },
+          "in-progress": {
+            "base": {
+              "$value": "{color.primitive.green.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.green.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.green.700}",
+              "$type": "color"
+            }
+          },
+          "completed": {
+            "base": {
+              "$value": "{color.primitive.taupe.400}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.sand.200}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.taupe.700}",
+              "$type": "color"
+            }
+          },
+          "cancelled": {
+            "base": {
+              "$value": "{color.primitive.red.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.red.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.red.700}",
+              "$type": "color"
+            }
+          }
+        },
+        "payment": {
+          "paid": {
+            "base": {
+              "$value": "{color.primitive.green.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.green.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.green.700}",
+              "$type": "color"
+            }
+          },
+          "unpaid": {
+            "base": {
+              "$value": "{color.primitive.amber.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.amber.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.amber.700}",
+              "$type": "color"
+            }
+          },
+          "partial": {
+            "base": {
+              "$value": "{color.primitive.clay.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.clay.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.clay.700}",
+              "$type": "color"
+            }
+          },
+          "overridden": {
+            "base": {
+              "$value": "{color.primitive.violet.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.violet.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.violet.700}",
+              "$type": "color"
+            }
+          }
+        },
+        "service": {
+          "boarding": {
+            "base": {
+              "$value": "{color.primitive.slate.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.slate.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.slate.700}",
+              "$type": "color"
+            }
+          },
+          "daycare": {
+            "base": {
+              "$value": "{color.primitive.gold.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.gold.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.gold.700}",
+              "$type": "color"
+            }
+          },
+          "walk": {
+            "base": {
+              "$value": "{color.primitive.green.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.green.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.green.700}",
+              "$type": "color"
+            }
+          },
+          "sitting": {
+            "base": {
+              "$value": "{color.primitive.clay.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.clay.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.clay.700}",
+              "$type": "color"
+            }
+          },
+          "grooming": {
+            "base": {
+              "$value": "{color.primitive.teal.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.teal.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.teal.700}",
+              "$type": "color"
+            }
+          },
+          "training": {
+            "base": {
+              "$value": "{color.primitive.violet.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.violet.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.violet.700}",
+              "$type": "color"
+            }
+          },
+          "pickup": {
+            "base": {
+              "$value": "{color.primitive.olive.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.olive.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.olive.700}",
+              "$type": "color"
+            }
+          },
+          "meet-greet": {
+            "base": {
+              "$value": "{color.primitive.jade.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.jade.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.jade.700}",
+              "$type": "color"
+            }
+          }
+        },
+        "notification": {
+          "info": {
+            "base": {
+              "$value": "{color.primitive.teal.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.teal.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.teal.700}",
+              "$type": "color"
+            }
+          },
+          "success": {
+            "base": {
+              "$value": "{color.primitive.green.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.green.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.green.700}",
+              "$type": "color"
+            }
+          },
+          "warning": {
+            "base": {
+              "$value": "{color.primitive.amber.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.amber.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.amber.700}",
+              "$type": "color"
+            }
+          },
+          "urgent": {
+            "base": {
+              "$value": "{color.primitive.red.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.red.100}",
+              "$type": "color"
+            },
+            "on": {
+              "$value": "{color.primitive.red.700}",
+              "$type": "color"
+            }
+          }
+        },
+        "capacity": {
+          "available": {
+            "base": {
+              "$value": "{color.primitive.green.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.green.100}",
+              "$type": "color"
+            }
+          },
+          "limited": {
+            "base": {
+              "$value": "{color.primitive.amber.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.amber.100}",
+              "$type": "color"
+            }
+          },
+          "full": {
+            "base": {
+              "$value": "{color.primitive.red.500}",
+              "$type": "color"
+            },
+            "container": {
+              "$value": "{color.primitive.red.100}",
+              "$type": "color"
+            }
+          }
+        },
+        "risk": {
+          "none": {
+            "$value": "{color.primitive.green.500}",
+            "$type": "color"
+          },
+          "watch": {
+            "$value": "{color.primitive.amber.500}",
+            "$type": "color"
+          },
+          "high": {
+            "$value": "{color.primitive.red.500}",
+            "$type": "color"
+          }
+        },
+        "role": {
+          "owner": {
+            "$value": "{color.primitive.pine.700}",
+            "$type": "color"
+          },
+          "staff": {
+            "$value": "{color.primitive.sage.600}",
+            "$type": "color"
+          },
+          "client": {
+            "$value": "{color.primitive.taupe.600}",
+            "$type": "color"
+          }
+        },
+        "pet": {
+          "male": {
+            "$value": "{color.primitive.azure.500}",
+            "$type": "color"
+          },
+          "female": {
+            "$value": "{color.primitive.magenta.500}",
+            "$type": "color"
+          },
+          "unknown": {
+            "$value": "{color.primitive.taupe.600}",
+            "$type": "color"
+          }
+        }
       }
     }
   }

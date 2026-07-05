@@ -28,6 +28,13 @@ Format: system version · date · summary. Newest first.
   treats `brand` as must-alias. **360 tokens, lint-clean.** Chosen to serve the north star (adaptable
   multi-brand; add a brand = one new Themes mode, components untouched). Per-theme primitive
   names/tones proposed — Claude Design to bless (Decision 1).
+- **Domain layer restored** (regression from the restructure): `color.semantic.domain.*` (booking,
+  payment, service, notification, capacity, risk, role, pet) + its category-color primitives
+  (`slate`, `clay`, `violet`, `gold`, `olive`, `jade`, `azure`, `magenta`). **455 tokens, lint-clean.**
+- **Component specs v0.4 merged** (Claude Design): 23 contracts in `specs/` (8 atoms · 5 patterns ·
+  10 domain) + `specs/README.md` + `docs/theming-decision.md`. Token names reconciled old→4-tier;
+  all refs resolve except 2 flagged build-time additions: `color.semantic.success-solid` (=green.700)
+  and `comp.button.*` (Tier-4 component layer). Pending: Codex review → Danny approval → templates.
 
 <!--
 ## 0.1.0 — YYYY-MM-DD
