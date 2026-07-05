@@ -33,14 +33,24 @@ import { dirname, resolve, basename } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TOKENS_DIR = resolve(__dirname, "..", "tokens"); // design-system/tokens (authored source)
 
+function walkTokens(dir, acc) {
+  let entries = [];
+  try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return acc; }
+  for (const e of entries) {
+    const p = resolve(dir, e.name);
+    if (e.isDirectory()) walkTokens(p, acc);
+    else if (e.name.endsWith(".tokens.json")) acc.push(p);
+  }
+  return acc;
+}
+
 function discover() {
-  let hits = [];
-  try { hits = readdirSync(TOKENS_DIR).filter((f) => f.endsWith(".tokens.json")); } catch { /* dir absent */ }
+  const hits = walkTokens(TOKENS_DIR, []);
   if (hits.length === 0) {
-    console.error(`✗ No *.tokens.json found in ${TOKENS_DIR}\n  Add authored token files there, or pass a path: node lint-tokens.mjs <file>`);
+    console.error(`✗ No *.tokens.json found under ${TOKENS_DIR}\n  Add authored token files there, or pass a path: node lint-tokens.mjs <file>`);
     process.exit(1);
   }
-  return hits.map((f) => resolve(TOKENS_DIR, f));
+  return hits;
 }
 
 const files = process.argv.length > 2 ? process.argv.slice(2).map((p) => resolve(p)) : discover();
@@ -102,13 +112,14 @@ for (const { file, root } of roots) {
 
     if (isToken(node)) {
       const p = `${tag} :: ${path.join(".")}`;
-      const inSemantic = path.includes("semantic");
+      // "must alias" tiers: semantic (aliases brand/primitive) and brand/themes (aliases primitive).
+      const inSemantic = path.includes("semantic") || path.includes("brand");
       const inPrimitive = path.includes("primitive");
       const { aliases, literals } = analyzeValue(node.$value);
 
       if (!type) err("R5", p, "token has no $type (own or inherited)");
 
-      // R1 — semantic tokens must be composed of aliases; any raw literal leaf fails.
+      // R1 — semantic/brand tokens must be composed of aliases; any raw literal leaf fails.
       // Composite tokens (typography/shadow) pass when every field aliases a primitive.
       if (inSemantic && literals.length) {
         const detail = literals.map((l) => (l.field ? `${l.field}=${JSON.stringify(l.value)}` : JSON.stringify(l.value))).join(", ");

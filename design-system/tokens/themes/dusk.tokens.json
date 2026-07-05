@@ -1,162 +1,79 @@
 {
-  "$description": "DUSK theme \u2014 indigo + amber; calm, professional. One MODE over the semantic color layer (mid-tier white-label). Ported verbatim from site/tokens/themes.css. Only brand + neutral roles overridden; status colors and surface.bright / on-surface.faint inherit base (sage-sand).",
+  "$description": "Tier 2 \u00b7 Themes \u2014 dusk mode. Brand roles alias primitives; one file = one Figma mode.",
   "color": {
     "$type": "color",
-    "primitive": {
-      "theme": {
-        "dusk": {
-          "$description": "Tuned per-theme palette (literals). Interim representation \u2014 pending hue-scale reconciliation (docs/theming-and-tiers.md).",
-          "primary": {
-            "$value": "#3E4C7A"
-          },
-          "primary-hover": {
-            "$value": "#4A5A8F"
-          },
-          "primary-pressed": {
-            "$value": "#2C375C"
-          },
-          "on-primary": {
-            "$value": "#FFFFFF"
-          },
-          "primary-container": {
-            "$value": "#DEE3F1"
-          },
-          "on-primary-container": {
-            "$value": "#29314F"
-          },
-          "secondary": {
-            "$value": "#C9994A"
-          },
-          "secondary-solid": {
-            "$value": "#A87C30"
-          },
-          "secondary-hover": {
-            "$value": "#8F6826"
-          },
-          "on-secondary": {
-            "$value": "#FFFFFF"
-          },
-          "secondary-container": {
-            "$value": "#F3E9D3"
-          },
-          "on-secondary-container": {
-            "$value": "#5E4413"
-          },
-          "surface": {
-            "$value": "#F7F8FB"
-          },
-          "surface-container": {
-            "$value": "#EEF0F5"
-          },
-          "surface-container-high": {
-            "$value": "#E2E5EE"
-          },
-          "on-surface": {
-            "$value": "#1E2230"
-          },
-          "on-surface-body": {
-            "$value": "#3A3F4E"
-          },
-          "on-surface-variant": {
-            "$value": "#656B7D"
-          },
-          "on-surface-accent": {
-            "$value": "#A87C30"
-          },
-          "outline": {
-            "$value": "#DCE0EA"
-          },
-          "outline-variant": {
-            "$value": "#E9ECF3"
-          },
-          "outline-strong": {
-            "$value": "#C6CBDA"
-          }
-        }
-      }
-    },
-    "semantic": {
+    "brand": {
       "primary": {
-        "default": {
-          "$value": "{color.primitive.theme.dusk.primary}"
-        },
-        "hover": {
-          "$value": "{color.primitive.theme.dusk.primary-hover}"
-        },
-        "pressed": {
-          "$value": "{color.primitive.theme.dusk.primary-pressed}"
-        },
-        "on": {
-          "$value": "{color.primitive.theme.dusk.on-primary}"
-        },
-        "container": {
-          "$value": "{color.primitive.theme.dusk.primary-container}"
-        },
-        "on-container": {
-          "$value": "{color.primitive.theme.dusk.on-primary-container}"
-        }
+        "$value": "{color.primitive.dusk-brand.400}"
+      },
+      "primary-hover": {
+        "$value": "{color.primitive.dusk-brand.200}"
+      },
+      "primary-pressed": {
+        "$value": "{color.primitive.dusk-brand.700}"
+      },
+      "on-primary": {
+        "$value": "{color.primitive.white}"
+      },
+      "primary-container": {
+        "$value": "{color.primitive.dusk-brand.50}"
+      },
+      "on-primary-container": {
+        "$value": "{color.primitive.dusk-brand.900}"
       },
       "secondary": {
-        "default": {
-          "$value": "{color.primitive.theme.dusk.secondary}"
-        },
-        "solid": {
-          "$value": "{color.primitive.theme.dusk.secondary-solid}"
-        },
-        "hover": {
-          "$value": "{color.primitive.theme.dusk.secondary-hover}"
-        },
-        "on": {
-          "$value": "{color.primitive.theme.dusk.on-secondary}"
-        },
-        "container": {
-          "$value": "{color.primitive.theme.dusk.secondary-container}"
-        },
-        "on-container": {
-          "$value": "{color.primitive.theme.dusk.on-secondary-container}"
-        }
+        "$value": "{color.primitive.dusk-accent.200}"
+      },
+      "secondary-solid": {
+        "$value": "{color.primitive.dusk-accent.400}"
+      },
+      "secondary-hover": {
+        "$value": "{color.primitive.dusk-accent.700}"
+      },
+      "on-secondary": {
+        "$value": "{color.primitive.white}"
+      },
+      "secondary-container": {
+        "$value": "{color.primitive.dusk-accent.50}"
+      },
+      "on-secondary-container": {
+        "$value": "{color.primitive.dusk-accent.900}"
       },
       "surface": {
-        "default": {
-          "$value": "{color.primitive.theme.dusk.surface}"
-        },
-        "container": {
-          "$value": "{color.primitive.theme.dusk.surface-container}"
-        },
-        "container-high": {
-          "$value": "{color.primitive.theme.dusk.surface-container-high}"
-        }
+        "$value": "{color.primitive.dusk-neutral.50}"
+      },
+      "surface-container": {
+        "$value": "{color.primitive.dusk-neutral.100}"
+      },
+      "surface-container-high": {
+        "$value": "{color.primitive.dusk-neutral.300}"
       },
       "on-surface": {
-        "default": {
-          "$value": "{color.primitive.theme.dusk.on-surface}"
-        },
-        "body": {
-          "$value": "{color.primitive.theme.dusk.on-surface-body}"
-        },
-        "variant": {
-          "$value": "{color.primitive.theme.dusk.on-surface-variant}"
-        },
-        "accent": {
-          "$value": "{color.primitive.theme.dusk.on-surface-accent}"
-        }
+        "$value": "{color.primitive.dusk-neutral.900}"
+      },
+      "on-surface-body": {
+        "$value": "{color.primitive.dusk-neutral.800}"
+      },
+      "on-surface-variant": {
+        "$value": "{color.primitive.dusk-neutral.700}"
+      },
+      "on-surface-accent": {
+        "$value": "{color.primitive.dusk-accent.400}"
       },
       "outline": {
-        "default": {
-          "$value": "{color.primitive.theme.dusk.outline}"
-        },
-        "variant": {
-          "$value": "{color.primitive.theme.dusk.outline-variant}"
-        },
-        "strong": {
-          "$value": "{color.primitive.theme.dusk.outline-strong}"
-        }
+        "$value": "{color.primitive.dusk-neutral.400}"
+      },
+      "outline-variant": {
+        "$value": "{color.primitive.dusk-neutral.200}"
+      },
+      "outline-strong": {
+        "$value": "{color.primitive.dusk-neutral.600}"
       },
       "focus-ring": {
         "$value": "rgba(62,76,122,0.28)",
         "$extensions": {
           "ds": {
-            "allowLiteral": "translucent focus ring; alpha overlay with no solid primitive equivalent (per-theme)"
+            "allowLiteral": "translucent focus ring; alpha overlay, no solid primitive equivalent"
           }
         }
       }

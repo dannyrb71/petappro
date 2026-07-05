@@ -1,24 +1,17 @@
-# Theme modes
+# Themes (Tier 2)
 
-Each `*.tokens.json` here is **one theme = one mode** over the semantic color layer — the
-mid-tier white-label options. This is how Figma variables model theming ("one mode per theme"),
-so source, Figma, and app agree.
+Each `*.tokens.json` here is **one theme = one Figma mode**. A theme file holds the **brand roles**
+(`color.brand.primary`, `brand/surface`, `brand/outline`, `brand/focus-ring`, …) that **alias
+primitives**, plus the theme's paired font. This is the layer that switches; Semantic and components
+never change per theme. See [`../../docs/token-architecture.md`](../../docs/token-architecture.md).
 
-- **Default mode = base.** The `sage-sand` (default) values live in `../color.tokens.json`
-  (semantic layer). No separate file — base *is* the default mode.
-- **Alternate modes** (this folder): `terracotta` · `harbor` · `dusk` · `berry`. Each overrides only
-  the brand + neutral semantic roles; status colors (success/warning/error/info), `surface.bright`,
-  and `on-surface.faint` inherit the base mode.
-- **Values** are ported verbatim from `site/tokens/themes.css` (the tuned, shipping theme palettes).
-- **Top tier** (custom *n* colors + logo) is a runtime tenant mode over the same semantic contract —
-  not a static file here.
+- **`sage-sand.tokens.json`** — default mode; brand roles alias the base hue families (`pine`, `sage`,
+  `sand`, `ink`, `taupe`, `moss`) + Hanken Grotesk.
+- **`terracotta` · `harbor` · `dusk` · `berry`** — brand roles alias each theme's own hue-scale
+  families (`‹theme›-brand` / `‹theme›-accent` / `‹theme›-neutral` in `../primitives/`) + its paired font.
 
-## Interim representation (flagged for reconciliation)
-To stay lint-clean, each mode declares **role-named per-theme primitives**
-(`color.primitive.theme.<name>.primary` …) and aliases the semantic roles to them. This is faithful
-and reversible but a different shape than the base (which aliases hue-scale primitives like
-`pine.700`). The incomplete 3-step `clay`/`olive`/`jade`/`gold`/`azure`/`violet`/`magenta` families in
-`color.tokens.json` are **not yet used** by these modes. Reconciling the two (full tuned hue-scales vs
-role-named) is a Claude Design authoring decision — see `../../docs/theming-and-tiers.md`.
+**Proposed, pending Claude Design (Decision 1):** the per-theme primitive **family names and tone
+numbers** are auto-assigned by luminance (100 = lightest → 900 = darkest). The architecture is final;
+the labels are a rename away if Claude Design prefers different hue names.
 
-Lint all: `node design-system/tools/lint-tokens.mjs`.
+Lint all tiers: `node design-system/tools/lint-tokens.mjs`.

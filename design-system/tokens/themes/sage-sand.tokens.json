@@ -1,0 +1,91 @@
+{
+  "$description": "Tier 2 \u00b7 Themes \u2014 Sage & Sand (default) mode. Brand roles alias base primitives.",
+  "color": {
+    "$type": "color",
+    "brand": {
+      "primary": {
+        "$value": "{color.primitive.pine.700}"
+      },
+      "primary-hover": {
+        "$value": "{color.primitive.pine.600}"
+      },
+      "primary-pressed": {
+        "$value": "{color.primitive.pine.900}"
+      },
+      "on-primary": {
+        "$value": "{color.primitive.white}"
+      },
+      "primary-container": {
+        "$value": "{color.primitive.pine.100}"
+      },
+      "on-primary-container": {
+        "$value": "{color.primitive.pine.900}"
+      },
+      "secondary": {
+        "$value": "{color.primitive.sage.500}"
+      },
+      "secondary-solid": {
+        "$value": "{color.primitive.sage.600}"
+      },
+      "secondary-hover": {
+        "$value": "{color.primitive.sage.700}"
+      },
+      "on-secondary": {
+        "$value": "{color.primitive.white}"
+      },
+      "secondary-container": {
+        "$value": "{color.primitive.sage.100}"
+      },
+      "on-secondary-container": {
+        "$value": "{color.primitive.sage.800}"
+      },
+      "surface": {
+        "$value": "{color.primitive.sand.50}"
+      },
+      "surface-container": {
+        "$value": "{color.primitive.sand.100}"
+      },
+      "surface-container-high": {
+        "$value": "{color.primitive.sand.200}"
+      },
+      "on-surface": {
+        "$value": "{color.primitive.ink.900}"
+      },
+      "on-surface-body": {
+        "$value": "{color.primitive.ink.700}"
+      },
+      "on-surface-variant": {
+        "$value": "{color.primitive.taupe.600}"
+      },
+      "on-surface-accent": {
+        "$value": "{color.primitive.moss.600}"
+      },
+      "outline": {
+        "$value": "{color.primitive.sand.300}"
+      },
+      "outline-variant": {
+        "$value": "{color.primitive.sand.200}"
+      },
+      "outline-strong": {
+        "$value": "{color.primitive.sand.400}"
+      },
+      "focus-ring": {
+        "$value": "rgba(31,78,68,0.22)",
+        "$extensions": {
+          "ds": {
+            "allowLiteral": "translucent focus ring; alpha overlay, no solid primitive equivalent"
+          }
+        }
+      }
+    }
+  },
+  "typography": {
+    "$type": "fontFamily",
+    "semantic": {
+      "font-family": {
+        "$value": "{typography.primitive.family.sans}",
+        "$description": "Sage & Sand paired typeface (Hanken Grotesk)"
+      }
+    }
+  }
+}

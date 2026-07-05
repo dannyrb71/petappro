@@ -21,6 +21,13 @@ Format: system version · date · summary. Newest first.
   Tier 2 = 1 of 5 color+font presets — Terracotta/Nunito Sans · Harbor/Lexend · Dusk/Manrope ·
   Berry/Source Serif 4; Top tier = mix/match + own logo. Lockup "[Client] by PetAppro" for Tier 1&2.
 - **Still pending:** `--comp-*` component-token layer (CSS-only) → port when building the first atoms.
+- **Restructured color into the 4-tier model** (`docs/token-architecture.md`): `tokens/primitives/`
+  (raw hue-scales incl. clean per-theme families) → `tokens/themes/*` (brand tier, one file = one mode)
+  → `tokens/semantic/` (brand-agnostic: action/surface/text/border/status). Retired the interim
+  role-named theme primitives and the monolithic `color.tokens.json`. Linter now recurses tiers and
+  treats `brand` as must-alias. **360 tokens, lint-clean.** Chosen to serve the north star (adaptable
+  multi-brand; add a brand = one new Themes mode, components untouched). Per-theme primitive
+  names/tones proposed — Claude Design to bless (Decision 1).
 
 <!--
 ## 0.1.0 — YYYY-MM-DD

@@ -1,0 +1,121 @@
+{
+  "$description": "Tier 3 \u00b7 Semantic \u2014 brand-agnostic, one mode. Components bind here. Aliases brand (tier 2) + brand-invariant primitives (status/faint/bright).",
+  "color": {
+    "$type": "color",
+    "semantic": {
+      "action": {
+        "primary": {
+          "default": {
+            "$value": "{color.brand.primary}"
+          },
+          "hover": {
+            "$value": "{color.brand.primary-hover}"
+          },
+          "pressed": {
+            "$value": "{color.brand.primary-pressed}"
+          },
+          "on": {
+            "$value": "{color.brand.on-primary}"
+          },
+          "container": {
+            "$value": "{color.brand.primary-container}"
+          },
+          "on-container": {
+            "$value": "{color.brand.on-primary-container}"
+          }
+        },
+        "secondary": {
+          "default": {
+            "$value": "{color.brand.secondary}"
+          },
+          "solid": {
+            "$value": "{color.brand.secondary-solid}"
+          },
+          "hover": {
+            "$value": "{color.brand.secondary-hover}"
+          },
+          "on": {
+            "$value": "{color.brand.on-secondary}"
+          },
+          "container": {
+            "$value": "{color.brand.secondary-container}"
+          },
+          "on-container": {
+            "$value": "{color.brand.on-secondary-container}"
+          }
+        }
+      },
+      "surface": {
+        "default": {
+          "$value": "{color.brand.surface}"
+        },
+        "container": {
+          "$value": "{color.brand.surface-container}"
+        },
+        "container-high": {
+          "$value": "{color.brand.surface-container-high}"
+        },
+        "bright": {
+          "$value": "{color.primitive.white}"
+        }
+      },
+      "text": {
+        "default": {
+          "$value": "{color.brand.on-surface}"
+        },
+        "body": {
+          "$value": "{color.brand.on-surface-body}"
+        },
+        "variant": {
+          "$value": "{color.brand.on-surface-variant}"
+        },
+        "faint": {
+          "$value": "{color.primitive.taupe.400}"
+        },
+        "accent": {
+          "$value": "{color.brand.on-surface-accent}"
+        }
+      },
+      "border": {
+        "default": {
+          "$value": "{color.brand.outline}"
+        },
+        "variant": {
+          "$value": "{color.brand.outline-variant}"
+        },
+        "strong": {
+          "$value": "{color.brand.outline-strong}"
+        }
+      },
+      "focus-ring": {
+        "$value": "{color.brand.focus-ring}"
+      },
+      "status": {
+        "success": {
+          "$value": "{color.primitive.green.500}"
+        },
+        "success-container": {
+          "$value": "{color.primitive.green.100}"
+        },
+        "warning": {
+          "$value": "{color.primitive.amber.500}"
+        },
+        "warning-container": {
+          "$value": "{color.primitive.amber.100}"
+        },
+        "danger": {
+          "$value": "{color.primitive.red.500}"
+        },
+        "danger-container": {
+          "$value": "{color.primitive.red.100}"
+        },
+        "info": {
+          "$value": "{color.primitive.teal.500}"
+        },
+        "info-container": {
+          "$value": "{color.primitive.teal.100}"
+        }
+      }
+    }
+  }
+}
