@@ -2,7 +2,7 @@
 
 > Layer: `domain`
 > Status: `approved`
-> Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
+> Version: `0.1.1`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 > Concept: a single dashboard/report metric with value, context, and optional drill-in.
 
 ## Objective
@@ -15,7 +15,7 @@ Reference **semantic + domain tokens**.
 - **Value:** `typography.semantic.display` or `typography.semantic.headline`, `color.semantic.text.default`.
 - **Delta:** up = `color.semantic.domain.notification.success.on`, down = `color.semantic.domain.notification.urgent.on`; direction shown by arrow + sign, not color alone.
 - **Container:** `color.semantic.surface.bright`, radius `radius.semantic.card`, `elevation.semantic.card`, padding `spacing.semantic.card-padding`.
-- **Clickable variant:** hover bg `color.semantic.surface.container` + `elevation.semantic.raised`; pressed `motion.semantic.press-scale`; focus ring.
+- **Clickable variant:** pressed bg `color.semantic.surface.container` + `elevation.semantic.raised` + `motion.semantic.press-scale`; focus ring.
 - **RN compatibility:** props `label`, `value`, `delta?` (`{value, direction}`), `period?`, `icon?`, `onPress?`.
 
 ## Acceptance Criteria
@@ -34,3 +34,4 @@ Reference **semantic + domain tokens**.
 | Version | Date | Change |
 |---------|------|--------|
 | 0.1.0   | 2026-07-05 | Initial spec. |
+| 0.1.1   | 2026-07-05 | Replace hover state language with pressed-only mobile interaction model. |

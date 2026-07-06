@@ -2,7 +2,7 @@
 
 > Layer: `domain`
 > Status: `approved`
-> Version: `0.1.0`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
+> Version: `0.1.1`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 > Concept: a single reservation — its service, dates, pets, price, and lifecycle state.
 
 ## Objective
@@ -17,7 +17,7 @@ Reference **semantic + domain tokens**; compose atoms/patterns.
 - **Service:** Service Pill(s) for the booked service + add-ons.
 - **Dates:** `typography.semantic.body-sm`, `color.semantic.text.variant`; icon `calendar-days`.
 - **Price:** Money (`emphasis=strong`); struck when cancelled.
-- **Clickable variant:** hover `elevation.semantic.raised`; pressed `motion.semantic.press-scale`; focus ring.
+- **Clickable variant:** pressed `elevation.semantic.raised` + `motion.semantic.press-scale`; focus ring.
 - **RN compatibility:** props `services` (array), `status`, `startDate`, `endDate`, `pets` (array), `total`, `cancelled?`, `action?`, `onPress?`.
 
 ## Acceptance Criteria
@@ -37,3 +37,4 @@ Reference **semantic + domain tokens**; compose atoms/patterns.
 | Version | Date | Change |
 |---------|------|--------|
 | 0.1.0   | 2026-07-05 | Initial spec. |
+| 0.1.1   | 2026-07-05 | Replace hover state language with pressed-only mobile interaction model. |

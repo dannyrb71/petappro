@@ -1,16 +1,13 @@
 {
-  "$description": "Tier 2 \u00b7 Themes \u2014 dusk mode. Brand roles alias primitives; one file = one Figma mode.",
+  "$description": "Tier 2 · Themes — dusk mode. Brand roles alias primitives; one file = one Figma mode.",
   "color": {
     "$type": "color",
     "brand": {
       "primary": {
-        "$value": "{color.primitive.dusk-brand.400}"
-      },
-      "primary-hover": {
-        "$value": "{color.primitive.dusk-brand.200}"
+        "$value": "{color.primitive.dusk-brand.700}"
       },
       "primary-pressed": {
-        "$value": "{color.primitive.dusk-brand.700}"
+        "$value": "{color.primitive.dusk-brand.800}"
       },
       "on-primary": {
         "$value": "{color.primitive.white}"
@@ -22,13 +19,10 @@
         "$value": "{color.primitive.dusk-brand.900}"
       },
       "secondary": {
-        "$value": "{color.primitive.dusk-accent.200}"
-      },
-      "secondary-solid": {
         "$value": "{color.primitive.dusk-accent.400}"
       },
-      "secondary-hover": {
-        "$value": "{color.primitive.dusk-accent.700}"
+      "secondary-solid": {
+        "$value": "{color.primitive.dusk-accent.600}"
       },
       "on-secondary": {
         "$value": "{color.primitive.white}"
@@ -58,7 +52,7 @@
         "$value": "{color.primitive.dusk-neutral.700}"
       },
       "on-surface-accent": {
-        "$value": "{color.primitive.dusk-accent.400}"
+        "$value": "{color.primitive.dusk-accent.600}"
       },
       "outline": {
         "$value": "{color.primitive.dusk-neutral.400}"

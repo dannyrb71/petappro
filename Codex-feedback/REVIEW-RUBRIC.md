@@ -41,6 +41,9 @@ Per spec:
   either a `size.*`/`spacing.*` token or a **named, reasoned** governed exception (hybrid rule).
 - **Accessibility:** never color-only meaning (pair with icon/text/position); focus ring ≥3:1; touch
   target ≥ `size.min-touch-target` (44); SR treatment noted; contrast AA called out.
+- **Theme-mode contrast pairs:** after any alias repointing, contrast-check every semantic `*.solid` + `*.on`
+  pair and every `*.container` + intended-text pair **per theme mode** — a clean token resolve does NOT prove
+  the fill+text contract passes AA. (Added 2026-07-05 from the OKLCH alias repointing.)
 - **Composition:** composes from existing lower layers; no one-off subparts; reusable, not page-specific.
 - **RN mapping:** props/variants named and mapped to the React Native implementation.
 - **Domain:** domain components named for the concept; use `domain.*` tokens.
@@ -78,3 +81,4 @@ This is the mechanism that makes the loop improve. No learning note = review not
 | 2026-07-05 | "Literal" includes fixed **dimensions** (`1px`, `3px`, `0.14em`, `46×28`), not just colors — undeclared ones slipped past a color-only linter | lint-specs **S7** (unit-bearing dimensions) |
 | 2026-07-05 | A governed exception must be **reasoned**, not just labeled `(governed exception)` — the phrase alone was a loophole | lint-specs **S7** now requires "exception — <reason>" |
 | 2026-07-05 | Script/rubric parity: S5-missing is an **error** (was emitted as a warning); warnings = S3 only. Guide docs (README/AUTHORING-GUIDE) excluded from spec-lint | lint-specs + rubric §1 |
+| 2026-07-05 | Repointed accent aliases resolved cleanly but failed AA (`secondary-solid`+white; `container`+`on-surface-accent`) per theme — the mechanical gate doesn't check cross-mode fill+text contrast | rubric §2 (theme-mode contrast pairs); candidate for a future contrast linter |

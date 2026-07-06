@@ -1,5 +1,5 @@
 {
-  "$description": "Tier 3 \u00b7 Semantic \u2014 brand-agnostic, one mode. Components bind here. Aliases brand (tier 2) + brand-invariant primitives (status/faint/bright).",
+  "$description": "Tier 3 · Semantic — brand-agnostic, one mode. Components bind here. Aliases brand (tier 2) + brand-invariant primitives (status/faint/bright).",
   "color": {
     "$type": "color",
     "semantic": {
@@ -7,9 +7,6 @@
         "primary": {
           "default": {
             "$value": "{color.brand.primary}"
-          },
-          "hover": {
-            "$value": "{color.brand.primary-hover}"
           },
           "pressed": {
             "$value": "{color.brand.primary-pressed}"
@@ -30,9 +27,6 @@
           },
           "solid": {
             "$value": "{color.brand.secondary-solid}"
-          },
-          "hover": {
-            "$value": "{color.brand.secondary-hover}"
           },
           "on": {
             "$value": "{color.brand.on-secondary}"
@@ -480,7 +474,7 @@
         },
         "role": {
           "owner": {
-            "$value": "{color.primitive.pine.700}",
+            "$value": "{color.primitive.pine.800}",
             "$type": "color"
           },
           "staff": {

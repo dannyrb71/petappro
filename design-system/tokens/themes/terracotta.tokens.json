@@ -1,13 +1,10 @@
 {
-  "$description": "Tier 2 \u00b7 Themes \u2014 terracotta mode. Brand roles alias primitives; one file = one Figma mode.",
+  "$description": "Tier 2 · Themes — terracotta mode. Brand roles alias primitives; one file = one Figma mode.",
   "color": {
     "$type": "color",
     "brand": {
       "primary": {
-        "$value": "{color.primitive.terracotta-brand.200}"
-      },
-      "primary-hover": {
-        "$value": "{color.primitive.terracotta-brand.400}"
+        "$value": "{color.primitive.terracotta-brand.600}"
       },
       "primary-pressed": {
         "$value": "{color.primitive.terracotta-brand.700}"
@@ -22,13 +19,10 @@
         "$value": "{color.primitive.terracotta-brand.900}"
       },
       "secondary": {
-        "$value": "{color.primitive.terracotta-accent.200}"
+        "$value": "{color.primitive.terracotta-accent.500}"
       },
       "secondary-solid": {
-        "$value": "{color.primitive.terracotta-accent.400}"
-      },
-      "secondary-hover": {
-        "$value": "{color.primitive.terracotta-accent.700}"
+        "$value": "{color.primitive.terracotta-accent.600}"
       },
       "on-secondary": {
         "$value": "{color.primitive.white}"
@@ -58,7 +52,7 @@
         "$value": "{color.primitive.terracotta-neutral.700}"
       },
       "on-surface-accent": {
-        "$value": "{color.primitive.terracotta-accent.400}"
+        "$value": "{color.primitive.terracotta-accent.700}"
       },
       "outline": {
         "$value": "{color.primitive.terracotta-neutral.400}"

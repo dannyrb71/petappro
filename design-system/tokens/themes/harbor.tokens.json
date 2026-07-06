@@ -1,13 +1,10 @@
 {
-  "$description": "Tier 2 \u00b7 Themes \u2014 harbor mode. Brand roles alias primitives; one file = one Figma mode.",
+  "$description": "Tier 2 · Themes — harbor mode. Brand roles alias primitives; one file = one Figma mode.",
   "color": {
     "$type": "color",
     "brand": {
       "primary": {
-        "$value": "{color.primitive.harbor-brand.400}"
-      },
-      "primary-hover": {
-        "$value": "{color.primitive.harbor-brand.200}"
+        "$value": "{color.primitive.harbor-brand.800}"
       },
       "primary-pressed": {
         "$value": "{color.primitive.harbor-brand.900}"
@@ -19,16 +16,13 @@
         "$value": "{color.primitive.harbor-brand.50}"
       },
       "on-primary-container": {
-        "$value": "{color.primitive.harbor-brand.700}"
+        "$value": "{color.primitive.harbor-brand.900}"
       },
       "secondary": {
-        "$value": "{color.primitive.harbor-accent.200}"
-      },
-      "secondary-solid": {
         "$value": "{color.primitive.harbor-accent.400}"
       },
-      "secondary-hover": {
-        "$value": "{color.primitive.harbor-accent.700}"
+      "secondary-solid": {
+        "$value": "{color.primitive.harbor-accent.600}"
       },
       "on-secondary": {
         "$value": "{color.primitive.white}"
@@ -58,7 +52,7 @@
         "$value": "{color.primitive.harbor-neutral.700}"
       },
       "on-surface-accent": {
-        "$value": "{color.primitive.harbor-accent.400}"
+        "$value": "{color.primitive.harbor-accent.700}"
       },
       "outline": {
         "$value": "{color.primitive.harbor-neutral.400}"

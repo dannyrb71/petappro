@@ -41,6 +41,10 @@ with linter errors is not ready for review.
 ## Judgment (the linter can't check these — Codex will)
 - **Accessibility:** never color-only meaning (pair with icon/text/position); focus ring ≥3:1; touch
   target ≥ `size.min-touch-target`; screen-reader treatment noted; contrast AA called out.
+- **Light-accent AA rule:** an accent's *visible default* (`secondary`, `on-surface-accent`) may sit at a
+  light step (400/500), but any **solid fill with white text must use `color.semantic.action.secondary.solid`**
+  (the AA-safe darker step), and **tonal accent text** on a light container uses `on-surface-accent` — both
+  verified ≥ 4.5:1 in every theme mode. Never put white text on the light accent default.
 - **Composition:** compose from existing lower layers; no one-off subparts; reusable, not page-specific.
 - **RN mapping:** props/variants named and mapped to the React Native implementation.
 - **Domain:** name domain components for the concept; use `domain.*` tokens.

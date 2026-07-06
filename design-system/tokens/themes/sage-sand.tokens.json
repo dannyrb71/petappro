@@ -1,13 +1,10 @@
 {
-  "$description": "Tier 2 \u00b7 Themes \u2014 Sage & Sand (default) mode. Brand roles alias base primitives.",
+  "$description": "Tier 2 · Themes — Sage & Sand (default) mode. Brand roles alias base primitives.",
   "color": {
     "$type": "color",
     "brand": {
       "primary": {
-        "$value": "{color.primitive.pine.700}"
-      },
-      "primary-hover": {
-        "$value": "{color.primitive.pine.600}"
+        "$value": "{color.primitive.pine.800}"
       },
       "primary-pressed": {
         "$value": "{color.primitive.pine.900}"
@@ -16,7 +13,7 @@
         "$value": "{color.primitive.white}"
       },
       "primary-container": {
-        "$value": "{color.primitive.pine.100}"
+        "$value": "{color.primitive.pine.50}"
       },
       "on-primary-container": {
         "$value": "{color.primitive.pine.900}"
@@ -27,17 +24,14 @@
       "secondary-solid": {
         "$value": "{color.primitive.sage.600}"
       },
-      "secondary-hover": {
-        "$value": "{color.primitive.sage.700}"
-      },
       "on-secondary": {
         "$value": "{color.primitive.white}"
       },
       "secondary-container": {
-        "$value": "{color.primitive.sage.100}"
+        "$value": "{color.primitive.sage.50}"
       },
       "on-secondary-container": {
-        "$value": "{color.primitive.sage.800}"
+        "$value": "{color.primitive.sage.900}"
       },
       "surface": {
         "$value": "{color.primitive.sand.50}"
@@ -58,7 +52,7 @@
         "$value": "{color.primitive.taupe.600}"
       },
       "on-surface-accent": {
-        "$value": "{color.primitive.moss.600}"
+        "$value": "{color.primitive.sage.700}"
       },
       "outline": {
         "$value": "{color.primitive.sand.300}"
