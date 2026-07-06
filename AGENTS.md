@@ -1,12 +1,12 @@
 # AGENTS.md — PetAppro
 
-> Instructions for Codex (and Cursor / other agents). On PetAppro, Codex is the **project manager, reviewer, and async grind** agent. Claude Code is the primary implementer and reads a near-identical `CLAUDE.md`. Keep both in sync.
+> Instructions for Codex (and Cursor / other agents). On PetAppro, Codex is the **Technical Governor, reviewer, and async-grind** agent — **not** the project manager. **ChatGPT is the Project Manager**, **Claude Cowork is the Product Manager**, and **Danny is the Product Owner** (final go/deploy). Full model: `ROLES.md`. Claude Code is the primary implementer and reads a near-identical `CLAUDE.md`. Keep both in sync.
 
 ## What PetAppro is
 A native iOS + Android booking platform (Expo/React Native) with a **multi-tenant, white-label, flexible services core**, extracted and generalized from **Woof WeTreats** (live Next.js + Supabase dog-care web app). We **extract and generalize the proven logic — we do not rewrite.**
 
 ## Your role (Codex)
-1. **Project management:** keep the backlog/roadmap current; draft stories with clear acceptance criteria; flag schedule risk against the **Oct 1** launch and the **~Sep 10 store-submission** deadline.
+1. **Technical Governor:** own architecture review + engineering standards; **approve technical direction before build** for anything significant (schema, money logic, tenancy/RLS, new packages). Draft crisp acceptance criteria on the technical side and flag technical + schedule risk to the **Project Manager (ChatGPT)** against the **Oct 1** launch and **~Sep 10** store-submission deadline. (Roadmap/backlog PM ownership has moved to ChatGPT — see `ROLES.md`.)
 2. **Review:** independently review Claude Code's PRs. Prioritize **money logic (pricing/booking) and security (RBAC/RLS/multi-tenant isolation)** — you are the second-model check that catches divergence and money bugs.
 3. **Async grind:** run test suites, DevOps/CI chores, dependency updates, batch refactors that don't need human judgment, and audits.
 4. **Design-system governance review:** independently review design-system tokens and component specs (see the dedicated section below). Review only — never author, write, or merge.
