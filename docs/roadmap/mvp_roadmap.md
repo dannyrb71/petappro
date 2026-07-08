@@ -30,6 +30,9 @@ Woof Wetreats (`reference/woof-wetreats-reference`) is the behavioral reference 
 | 4 | MVP Specification | Not started |
 | 5 | Build Planning | Not started |
 | 6 | MVP Build | Future / not started |
+| **LR** | **Launch Readiness (parallel track)** | **Not started — runs alongside P1–P6; gates Oct 1** |
+
+Phases 0–6 are the **product-build spine** (sequential, gate-driven). **Launch Readiness (LR)** is a **parallel track**, not a later phase: its items are hard dependencies for the Oct 1 launch (store listings literally cannot be submitted without live legal/support URLs), so they must be worked concurrently with the build — not deferred to post-launch. See the dedicated **Launch Readiness Track** section below.
 
 ---
 
@@ -54,7 +57,7 @@ Woof Wetreats (`reference/woof-wetreats-reference`) is the behavioral reference 
 | P1→build: monorepo + extract pricing/booking packages (tested) | Jul 7–18 | Sprint 1 |
 | Tenant-aware schema + RBAC/RLS | Jul 21 – Aug 15 | Sprints 2–3 |
 | P2 UX flows + P3 design system | overlaps Aug | Reuse Woof design tokens |
-| P4 specs + P6 build: Expo MVP (auth→onboarding→booking→dashboard, Stripe Connect) | Aug 4 – Sep 5 | Sprints 3–4 |
+| P4 specs + P6 build: Expo MVP (auth→onboarding→booking→dashboard; manual payments) | Aug 4 – Sep 5 | Sprints 3–4 |
 | Business/app-store track (LLC, D-U-N-S, accounts, listing) | Aug 1 – Sep 8 | Parallel — Danny owns |
 | P6 beta + submit | Aug 25 – Sep 12 | Sprint 5 — **submit ~Sep 10** |
 | Review buffer + GTM + launch | Sep 12 – Oct 1 | Sprint 6 + launch week |
@@ -69,6 +72,29 @@ Full week-by-week sprints, milestones, and the de-scope order (what to cut first
 3. **~Sep 1:** beta build working on a real device? Yes → submit ~Sep 10. No → store clock decides.
 
 The **~Sept 10 submission window is the one deadline that cannot flex** — before it, pivoting is a controlled choice; after it, a slip is forced.
+
+---
+
+## Launch Readiness Track (parallel — gates Oct 1)
+
+**Why this is a track, not post-launch work:** the app cannot be *submitted* — let alone launched — without several of these items live. Apple and Google both require a **privacy-policy URL** and a **support URL** in the listing, so those pages must exist **before the ~Sep 10 store submission**, not at launch week. Marketing/company pages and store-account setup have long lead times (D-U-N-S, org enrollment, review cycles) that also front-load into August. Treating any of this as "after we ship" would miss the launch. These items are therefore first-class launch dependencies, tracked here and cross-linked to the MKT/BIZ tracks in `../../TASKS.md`.
+
+**Ownership:** content/legal/site drafts by Cowork → Danny/attorney review; build/deploy by Claude Code; store accounts + listings by Danny. Detailed workstreams and hosting live in `website-and-store-launch-plan.md`; dated targets in the annex `PetAppro-Roadmap-and-Project-Plan.md` §7.5.
+
+| LR item | What it covers | Hard-live by | Blocks | Status |
+|---|---|---|---|---|
+| **LR-1 — Legal pages** | Privacy Policy + Terms & Conditions on petappro.com (`/privacy`, `/terms`) | **~Sep 5** (pre-submission) | Store submission (Apple + Google) | Not started |
+| **LR-2 — Support page** | `/support` — contact route + basic help/FAQ; the store-listing "support URL" | **~Sep 5** (pre-submission) | Store submission | Not started |
+| **LR-3 — Contact page** | Reachable contact (form/email) on both petappro.com and base509.com | **~Sep 5** | Store submission (support/contact expected); trust | Not started |
+| **LR-4 — App landing page(s)** | PetAppro product/download page (value prop, features, App Store + Play badge links; badges are placeholders until approval) | **~Sep 25** | Launch-day conversion | Not started |
+| **LR-5 — Base509 marketing website** | base509.com company hub — what Base509 is + product list linking to PetAppro + contact; structured to grow with future "Appro" apps | **~Sep 25** (before launch) | Brand/company credibility at launch | Not started |
+| **LR-6 — Apple App Store preparation** | Apple Developer org account ($99), App Store Connect record + bundle ID, privacy nutrition labels, in-app account-deletion flow, screenshots/icon, TestFlight beta | **Submit ~Sep 10** | Public launch | Blocked on D-U-N-S (BIZ-4/5) |
+| **LR-7 — Google Play preparation** | Play Console org account ($25), closed-testing track, Data Safety form, store listing + graphics | **Submit ~Sep 10** | Public launch | Blocked on D-U-N-S (BIZ-4/6) |
+| **LR-8 — App Store review buffer** | Explicit calendar buffer between ~Sep 10 submission and Oct 1 launch to absorb one rejection + resubmit on each store; set release date = Oct 1 and hold | **Sep 12 – Oct 1** | The launch date itself | Not started |
+
+**Dependency chain (the binding path):** D-U-N-S (BIZ-4) → Apple/Google org accounts (LR-6/7) → live legal + support + contact URLs (LR-1/2/3) → create store listings → **submit ~Sep 10** → **review buffer (LR-8)** → **launch Oct 1**. Legal/support/contact URLs and the store accounts are on the critical path; the fuller marketing site (LR-4/5) can trail slightly but must be live before launch day.
+
+**Gate — Launch Readiness exit criteria:** legal, support, and contact pages live at stable petappro.com paths; both org accounts active; both listings created with privacy/data-safety forms complete and URLs pasted; account-deletion flow shipped (Apple); builds submitted with release gated to Oct 1; review buffer reserved on the calendar.
 
 ---
 
@@ -298,7 +324,7 @@ Turn approved flows and architecture into build-ready feature specs with accepta
 - Prioritized MVP feature backlog
 - Feature specs for each MVP slice (using a consistent template)
 - Platform spec refinements (notifications, activity history — partial exists)
-- Payment spec (manual tracking minimum; Stripe Connect if in MVP)
+- Payment spec (manual tracking only for MVP; Stripe Connect deferred post-MVP per D-007)
 - Terms/policy spec (business-specific client terms + platform terms)
 - Launch checklist draft
 - Claude Code / Cursor build prompts per major feature
@@ -402,15 +428,15 @@ Implement the MVP in dependency order inside `app/`, with local testing first, t
 4. **Client experience** — profile, pets, booking (boarding/daycare), pricing preview, confirmation
 5. **Staff operations** — household directory, daily schedule, booking management, staff notes
 6. **Notifications and activity** — in-app notification center, activity history date picker
-7. **Payments** — manual payment tracking; Stripe Connect if scoped for MVP
+7. **Payments** — manual payment tracking only (Stripe Connect deferred post-MVP, D-007)
 8. **Launch hardening** — bug fixes, acceptance testing, first-tenant onboarding, deploy when approved
 
 ### Key questions (to resolve before starting)
 
-- Final go/no-go on Stripe Connect for MVP
+- ~~Final go/no-go on Stripe Connect for MVP~~ → **Resolved: deferred post-MVP (D-007).** Manual tracking is the MVP payment path.
 - Final go/no-go on SMS alert add-on for MVP
 - Web-only launch or parallel mobile work
-- First design partner business and success metrics
+- First **test tenant** = Danny + Marco's own business (not a recruited customer); success metrics per the MVP-complete gate below
 
 ### Deliverables
 
@@ -419,6 +445,14 @@ Implement the MVP in dependency order inside `app/`, with local testing first, t
 - Test coverage for pricing engine and critical tenant boundaries
 - Deploy preview (when approved)
 - First-tenant onboarding runbook
+
+### MVP Complete — the feature-freeze line (decision D-028, Decided 2026-07-07)
+
+> **MVP Complete = Danny + Marco's own business runs a genuine booking end-to-end** — client onboarding → booking → server-validated pricing → staff schedule → history/notifications — **on physical iOS *and* Android builds, with tenant isolation verified. Payment tracked manually; Stripe Connect deferred.**
+
+When this single event is true, **feature development pauses.** Everything after the freeze is bug-fixing, polish, accessibility, and store prep — not new features. The freeze bar uses the **own business as the first test tenant** (not a recruited customer), because that removes a recruiting dependency from the freeze while still forcing every core system — tenant schema + RLS, RBAC, business setup, onboarding, the booking + pricing engine — to be real at once on-device.
+
+The **5–6 PCSP beta testers** (recruited via the local Facebook group + Danny's network) are the milestone *after* the freeze — real-world validation on TestFlight/closed track — and store submission runs in parallel on the Launch Readiness track. They are not part of the freeze bar.
 
 ### Exit criteria
 
@@ -452,18 +486,18 @@ Use this as the default in/out scope anchor during Phases 0 and 4. Adjust only t
 - Business setup
 - Invite-code onboarding (client and staff)
 - Client onboarding and pet profiles
-- Boarding and daycare bookings (schema should allow future service types)
+- Boarding, daycare, and dog-walking bookings (walking = service only, **no GPS/live tracking**; schema should allow future service types)
 - Staff dashboard and daily schedule
 - Pricing engine with server authority and stored breakdowns
 - Blocked dates with server enforcement
 - Activity history date picker (completed/cancelled only)
 - In-app notification center
-- Manual payment tracking
-- Stripe Connect setup (if feasible and decided)
+- Manual payment tracking (the **only** MVP payment path — cash/check/Venmo/Zelle/other + staff confirmation)
 - SMS alert add-on or owner/staff SMS alerts (if decided)
 
 ### Defer beyond MVP
 
+- **Stripe Connect (client → provider online payments)** — deferred to post-MVP (decision D-007, Decided 2026-07-07). Nice-to-have, not launch-critical; MVP tracks payments manually. *Note: this is distinct from SaaS subscription billing (provider → Base509) via Stripe **Billing** on the web, which stays in scope — see MKT-6 / D-001.*
 - Full in-app messaging
 - SMS conversation bridge
 - Multiple non-pet verticals
@@ -490,9 +524,13 @@ Phase 4  MVP Specification
 Phase 5  Build Planning
    ↓
 Phase 6  MVP Build         ← future / not started
+
+  ══ Launch Readiness (LR) ═════════════════════════  ← PARALLEL, starts now (Aug front-load)
+     D-U-N-S → store org accounts → legal/support/contact URLs →
+     store listings → submit ~Sep 10 → review buffer → launch Oct 1
 ```
 
-Phases 2 and 3 may run with light overlap after Phase 1 exit criteria are met, but specs (Phase 4) should not begin until flows and design foundations are review-ready.
+Phases 2 and 3 may run with light overlap after Phase 1 exit criteria are met, but specs (Phase 4) should not begin until flows and design foundations are review-ready. **Launch Readiness runs across the whole timeline** — its store-clock items (D-U-N-S, org accounts, review buffer) are the binding external constraint and must not wait on the build phases.
 
 ---
 

@@ -434,3 +434,41 @@ This doc is ready for Phase 1 (architecture) when:
 2. Reference this doc in Phase 1 `docs/planning/technical_architecture.md`
 3. Map each MVP spec (Phase 4) to matrix rows for acceptance criteria
 4. Cross-check against `docs/planning/woof-wetreats-reference-review.md` for workflow coverage
+
+---
+
+## Team permission levels — simplified model (Revised 2026-07-07, Danny)
+
+Supersedes the Owner/Admin/Staff specifics above where they conflict. The PCSP invites a member and **assigns a named level**; "co-provider" is not a separate role — it's simply someone assigned **Admin**. Target users are mostly solo operators or life-partners, so the model is intentionally lean.
+
+**Levels** (creator is Owner; assignable = Admin / Manager / Staff):
+
+| Capability | Owner | Admin (co-provider) | Manager | Staff |
+|---|---|---|---|---|
+| Edit financial connections (Stripe, billing/subscription), ownership transfer/delete | Yes | No | No | No |
+| See financials / payouts / reports | Yes | Yes | No | No |
+| Business config (services, pricing tables, policies, branding) | Yes | Yes | No | No |
+| Manage team members | Yes | Yes | No | No |
+| Price-override a booking | Yes | Yes | No | No |
+| Add a booking | Yes | Yes | Yes | Yes |
+| Edit / delete / reschedule bookings | Yes | Yes | Yes | No |
+| View bookings & clients | Yes | Yes | Yes | Yes |
+| Set up meet & greets | Yes | Yes | Yes | Yes |
+| Care execution (check-in/out, notes, report cards) | Yes | Yes | Yes | Yes |
+| SMS (when added) | Yes | Yes | Yes | Yes |
+
+**Owner vs Admin:** functionally identical **except Admin cannot edit financial connections, billing/subscription, or ownership.** Kept distinct (not merged) so a small business can hand a partner Admin without exposing money-movement/billing controls. At least one Owner always remains.
+
+**Manager:** full day-to-day operations but **no financial visibility at all** and **no price-override**.
+
+**Staff:** view bookings/clients, add a booking, set up M&Gs, care execution, SMS — but **cannot edit/delete bookings or price-override**. Staff still cannot invite clients (D-002).
+
+Adds **Manager** as a new tier to the prior Owner/Admin/Staff model. Seats/tiers per D-020; the invite flow shows level capabilities + an "Admin sees financials" disclaimer + a seat/tier check. Flow drawn on the FigJam board: "Provider · Staff / team management".
+
+---
+
+## App IA & role nesting (Danny 2026-07-07) — see D-033
+
+The roles are **nested capability sets, not separate apps:** **Staff subset of Manager subset of Admin subset of Owner.** Staff is the operational core (visits, check-in/out, report cards, daily schedule); each higher level adds on top (Manager adds broader ops but no financials; Admin adds financials/settings/team; Owner adds billing/ownership). Nothing a lower role does is absent from a higher role.
+
+**IA consequence:** the app is one binary that forks after login into **Client** or **Provider-side**. The provider-side is a **single permission-gated experience** (progressive disclosure), not distinct admin/staff apps. A solo provider is Owner-level doing Staff-level work — same screens, fully unlocked. Design provider screens for the base (Staff) capability and layer higher-level controls as permission-gated additions. The fork resolves per **active business context** (a user may be Client at one business, Staff at another — D-012).

@@ -226,6 +226,8 @@ Planned capabilities (not MVP):
 - Message history tied to client/household and `business_id`
 - Usage-based cost → priced as add-on (see packaging in Section 10)
 
+**Requirement — sender attribution (from competitor review mining, R-002).** **Chat/SMS always shows the sender's first name on every message — no conditional logic.** This covers the multi-user cases (provider owner/admin/staff/backups; client multi-owner "add a partner") without special-casing them. Rover's top messaging complaint is exactly this: only one name shows, so people sign each message manually. Applies to in-app chat and any SMS bridge. Ties to `docs/planning/feature-ideas-log.md` F-015 (client partners) and F-020 (provider backups).
+
 **Principle:** Messaging add-on is a **conversation channel**. Notifications are **system events**. Do not merge the two data models at MVP.
 
 ---

@@ -29,8 +29,8 @@ Companion to **PetAppro-Strategy-and-Business-Plan.md**. Everything here is stru
 | **P0 — Foundations** | Jul 7 – Jul 25 | Monorepo, extract + test pricing/booking packages, tenant-aware schema on a branch, CI |
 | **P1 — Platform layer** | Jul 28 – Aug 15 | RBAC/RLS, typed data access, generated types, Edge Functions consolidated, white-label config |
 | **P2 — Mobile MVP build** | Aug 4 – Sep 5 (overlaps) | Expo app: auth → onboarding → booking → dashboard, reusing shared packages |
-| **P3 — Store + business prep** | Aug 11 – Sep 8 | Entity, D-U-N-S, Apple/Google org accounts, listing assets, Stripe Connect |
-| **P4 — Beta & submit** | Aug 25 – Sep 12 | Design-partner beta (TestFlight/closed track), fix, **submit by ~Sep 10** |
+| **P3 — Store + business prep** | Aug 11 – Sep 8 | Entity, D-U-N-S, Apple/Google org accounts, listing assets |
+| **P4 — Beta & submit** | Aug 25 – Sep 12 | PCSP beta-tester beta (TestFlight/closed track), fix, **submit by ~Sep 10** |
 | **P5 — Review buffer & launch** | Sep 12 – Oct 1 | Clear review (+ rejection cycle), marketing site, **public launch Oct 1** |
 
 > **Critical path:** Pricing extraction → tenant schema → Expo booking flow → beta → submit. Store accounts (D-U-N-S) run in parallel and must start in **early August**.
@@ -50,7 +50,7 @@ Companion to **PetAppro-Strategy-and-Business-Plan.md**. Everything here is stru
 | D-U-N-S obtained | Aug 15 | P3 | Danny | Not started |
 | Apple + Google org accounts active | Aug 22 | P3 | Danny | Not started |
 | Expo MVP: booking flow end-to-end | Aug 29 | P2 | Danny | Not started |
-| Stripe Connect onboarding working | Aug 29 | P2 | Danny | Not started |
+| ~~Stripe Connect onboarding working~~ → **deferred post-MVP (D-007)** | Post-launch | — | Danny | Deferred |
 | Beta live (TestFlight + closed track) | Sep 1 | P4 | Danny | Not started |
 | Store listing assets complete | Sep 5 | P3 | Danny | Not started |
 | **App submitted to both stores** | **Sep 10** | P4 | Danny | Not started |
@@ -85,13 +85,13 @@ Companion to **PetAppro-Strategy-and-Business-Plan.md**. Everything here is stru
 - Parallel (business): file entity, EIN, start D-U-N-S.
 
 ### Sprint 4 (Aug 18–29) — Mobile MVP vertical slices
-- Onboarding (provider + client + pet/profile), booking flow with live server-validated pricing, staff dashboard + daily schedule, payments via **Stripe Connect**.
+- Onboarding (provider + client + pet/profile), booking flow with live server-validated pricing, staff dashboard + daily schedule, **manual payment tracking** (Stripe Connect deferred post-MVP — D-007).
 - Generalized capacity engine wired (overlap/concurrency/travel buffers).
 - Push notifications (Expo Push).
-- Parallel (business): Apple + Google org accounts; Stripe Connect enablement; begin listing assets.
+- Parallel (business): Apple + Google org accounts; begin listing assets.
 
 ### Sprint 5 (Sep 1–12) — Beta, polish, submit
-- TestFlight + Google closed track to design partners; triage feedback.
+- TestFlight + Google closed track to the 5–6 PCSP beta testers; triage feedback.
 - Accessibility pass; empty/error states; account-deletion flow (Apple requirement).
 - Finalize store listings (screenshots, privacy labels, Data Safety form, policies).
 - **Submit to both stores by ~Sep 10.**
@@ -133,7 +133,7 @@ Columns to create in Notion: **Story · Epic · Phase · Priority · Effort · S
 | Client + pet onboarding (HEIC handling) | Mobile | P2 | P0 | M |
 | Booking flow + live pricing | Mobile | P2 | P0 | L |
 | Staff dashboard + daily schedule | Mobile | P2 | P0 | L |
-| Stripe Connect onboarding + charges | Payments | P2 | P0 | L |
+| Stripe Connect onboarding + charges | Payments | Post-launch | P2 | L |
 | Paid/unpaid + balance tracking | Payments | P2 | P1 | M |
 | Push notifications (Expo Push) | Notifications | P2 | P1 | M |
 | Reports + CSV export | Reporting | P2 | P1 | M |
@@ -232,7 +232,7 @@ Carry `business_id`, `service_id`, `client_id`, `resource_id`, dates/times, `pay
 - [ ] In-app account deletion flow
 - [ ] Screenshots (all required device sizes) + icon
 - [ ] Privacy policy + support URLs
-- [ ] TestFlight beta with design partners
+- [ ] TestFlight beta with the 5–6 PCSP beta testers
 - [ ] Submit by ~Sep 10 (budget a rejection cycle)
 
 **Google Play**
@@ -244,7 +244,7 @@ Carry `business_id`, `service_id`, `client_id`, `resource_id`, dates/times, `pay
 
 **Shared**
 - [ ] Age rating, content declarations
-- [ ] Confirm booking payments use Stripe (services exemption); SaaS subscription sold on web only
+- [ ] MVP booking payments are **manual-tracked** (no in-app charge; Stripe Connect deferred post-MVP, D-007). When Connect ships, booking payments use Stripe under the real-world-services exemption. SaaS subscription sold on web only.
 
 ---
 
@@ -257,7 +257,7 @@ Carry `business_id`, `service_id`, `client_id`, `resource_id`, dates/times, `pay
 - [ ] ToS, Privacy Policy, provider/merchant agreement, DPA (lawyer review)
 - [ ] Trademark clearance search + file "PetAppro" (+ "Appro" family)
 - [ ] Register domains (petappro.com + defensive vertical names)
-- [ ] Stripe platform account + Connect enablement
+- [ ] Stripe **Billing** account (SaaS subscriptions — launch-critical). **Connect enablement deferred post-MVP** (D-007)
 - [ ] Sales-tax / economic-nexus review with accountant
 
 ---
@@ -282,14 +282,14 @@ Carry `business_id`, `service_id`, `client_id`, `resource_id`, dates/times, `pay
 |---|---|---|
 | Reserve handles (Instagram, Facebook, Threads, TikTok, LinkedIn) — consistent @petappro | Aug 15 | Grab early even if idle |
 | Brand kit: logo, profile/banner art, palette | Aug 15 | Adobe Express/Canva + existing tokens |
-| Pre-launch content calendar (build-in-public, pet-care tips, design-partner teasers) | Sep 1 | 3–4 posts/wk ramp |
+| Pre-launch content calendar (build-in-public, pet-care tips, PCSP beta-tester teasers) | Sep 1 | 3–4 posts/wk ramp |
 | Demo/sizzle video (Adobe Quick Cut) | Sep 20 | Reuse on site + stores |
 | Launch posts + App Store/Play links | Oct 1 | Coordinated with public launch |
 | Ongoing: testimonials, case studies, ASO review push | post-launch | Growth loop |
 
 **Approved platforms (social pages + targeted advertising):** Meta (Instagram, Facebook, Threads), TikTok, and LinkedIn only. **Do not use X/Twitter or any Elon Musk platform** — standing brand policy.
 
-**Primary channels for the pet-care beachhead:** Instagram + Facebook (owners), local SF pet groups + r/dogboarding (demand), LinkedIn + Facebook groups (provider acquisition). Paid ads on Meta, TikTok, and LinkedIn only after organic + design-partner proof.
+**Primary channels for the pet-care beachhead:** Instagram + Facebook (owners), local SF pet groups + r/dogboarding (demand), LinkedIn + Facebook groups (provider acquisition). Paid ads on Meta, TikTok, and LinkedIn only after organic + PCSP-beta proof.
 
 ---
 

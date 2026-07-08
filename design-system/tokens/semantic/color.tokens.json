@@ -39,6 +39,30 @@
           }
         }
       },
+      "brand": {
+        "$description": "Theme-invariant PetAppro product/identity brand (Core family) — logo, app chrome, marketing. Distinct from action.* (the per-theme white-label brand).",
+        "primary": {
+          "$value": "{color.primitive.core-brand.800}"
+        },
+        "primary-strong": {
+          "$value": "{color.primitive.core-brand.900}"
+        },
+        "primary-container": {
+          "$value": "{color.primitive.core-brand.50}"
+        },
+        "on-primary": {
+          "$value": "{color.primitive.white}"
+        },
+        "accent": {
+          "$value": "{color.primitive.core-accent.600}"
+        },
+        "accent-container": {
+          "$value": "{color.primitive.core-accent.50}"
+        },
+        "on-accent": {
+          "$value": "{color.primitive.white}"
+        }
+      },
       "surface": {
         "default": {
           "$value": "{color.brand.surface}"
