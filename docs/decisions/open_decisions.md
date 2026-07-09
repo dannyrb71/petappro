@@ -43,7 +43,7 @@ When a decision is resolved, update its status to **Decided**, add the outcome a
 | D-004 | Can clients belong to multiple businesses? | Working Default | Yes — separate client profile per business | Auth, business picker, onboarding | Phase 1 |
 | D-005 | Pet profiles: business-scoped vs shared across businesses | Working Default | Business-scoped per client profile | Data model, storage paths, client UX | Phase 1 |
 | D-006 | Meet-and-greet: global rule vs business/service configurable | Working Default | Configurable per business (on/off); required when enabled | Onboarding gates, booking eligibility | Phase 1 → 2 |
-| D-007 | Payments: manual first vs Stripe Connect in MVP | **Decided (revised)** | **Revised 2026-07-07 (pm): Stripe Connect is MVP-if-feasible** — include by Oct 1 if the store clock allows; otherwise first post-MVP release. **Manual tracking remains the guaranteed fallback so payments never block launch.** Feasibility assessed by Codex + Claude Code against D-023. SaaS Stripe **Billing** (MKT-6) unaffected | Build scope, compliance, owner setup flow, checkout/tip design scope | Revised 2026-07-07 |
+| D-007 | Payments: manual first vs Stripe Connect in MVP | **Decided** | **2026-07-08 (Option A): ship WITH in-app client→provider payments (Stripe Connect) in MVP.** Launch date flexes a few weeks to include it (D-023, ~late Oct). Manual tracking = safety-net fallback only if payments derail near the store deadline. SaaS Stripe **Billing** (MKT-6) always in. **Un-holds the pricing engine (critical path). Deposits stay OUT (D-015 — no deposits, Danny 2026-07-08).** See current-decision block in the detailed record | Build scope, timeline, pricing/deposits/checkout | Decided 2026-07-08 |
 | D-008 | SMS alerts: MVP vs post-MVP add-on | Working Default | Post-MVP add-on; in-app notifications in MVP | Notification infra, cost, urgency handling | Phase 4 |
 | D-009 | Terms/policies: template-based vs fully editable | Working Default | Template-based with editable sections | Business setup complexity, legal review | Phase 2 → 4 |
 | D-010 | Multi-location support in MVP | Deferred | Deferred — single location per business | Data model, schedule, pricing, staff assignment | Phase 1 (document only) |
@@ -51,7 +51,7 @@ When a decision is resolved, update its status to **Decided**, add the outcome a
 | D-012 | Client of Business A and staff of Business B (different businesses) | Working Default | Yes — with business context switching | Multi-tenant auth, session context | Phase 1 |
 | D-013 | Invite codes: single-use vs reusable | Proposed | Reusable until revoked; optional max uses TBD | Onboarding ops, security | Phase 2 |
 | D-014 | Invite codes: expiration | Proposed | Optional expiration; owner sets or never expires | Security vs convenience | Phase 2 |
-| D-015 | Deposits at MVP | Working Default | No deposits — full booking total + manual paid status | Payments spec, pricing engine | Phase 4 |
+| D-015 | Deposits at MVP | **Decided** | **No deposits** — full booking total (charged at confirmation via Connect). Unchanged even with Connect in MVP (Danny, 2026-07-08); revisit only if customers ask for it | Payments spec, pricing engine | Decided 2026-07-08 |
 | D-016 | Staff can block/unblock clients | Working Default | No — owner/admin only | Permission matrix, abuse prevention | Phase 0 → 2 |
 | D-017 | Staff can confirm manual payments | Working Default | No — owner/admin only | Financial integrity | Phase 4 |
 | D-018 | Staff can override booking prices | Working Default | Yes — with audit trail | Operations flexibility vs control | Phase 4 |
@@ -59,15 +59,20 @@ When a decision is resolved, update its status to **Decided**, add the outcome a
 | D-020 | First SaaS pricing and launch add-ons | Proposed | TBD — document after design partner confirmed | GTM, scope for Stripe/SMS | Phase 0 → 5 |
 | D-021 | First test tenant + beta testers + target launch date | **Decided (structure)** | **First test tenant = Danny + Marco's own business** (the MVP-complete freeze bar, D-028). **Beta testers = 5–6 PCSPs** recruited via local Facebook group + Danny's network (post-freeze validation). Launch target Oct 1 (D-023). Specific PCSP names still TBD | Prioritization, success criteria, freeze bar | Decided 2026-07-07 (names TBD) |
 | D-022 | Service catalog in MVP (which service types ship) | **Decided** | **MVP ships boarding + daycare + dog walking** (walking = bookable service; **no GPS/live route tracking** in MVP). Schema supports more; sitting/training/hair/massage designed-for, not built. Walking adds per-session/duration pricing, time-of-day scheduling (F-001), recurring walks, and group concurrency/capacity | Build scope; pulls capacity engine into MVP | Decided 2026-07-07 |
-| D-023 | Delivery approach: deadline-driven vs gate-driven | **Decided** | **Hybrid** — gates on the foundation, flex scope to hold Oct 1; ~Aug 15 go/no-go (see detailed record) | Whether Sprint 1 starts now; how slippage is absorbed | Phase 0 (now) |
+| D-023 | Delivery approach: deadline-driven vs gate-driven | **Decided** | **Hybrid** — gates on the foundation, flex scope; ~Aug 15 go/no-go (see detailed record). **Update 2026-07-08:** to keep in-app payments in MVP (D-007 Option A), the launch **date now flexes** — target moves from Oct 1 toward **~late October** (payments are allowed to move the date). Store-clock items (D-U-N-S→accounts→submit→review buffer) still gate the outer bound | Whether Sprint 1 starts now; how slippage is absorbed; launch date | Phase 0 (now) |
 | D-024 | PetAppro-side support / break-glass role (incl. outsourced help/eng) | Proposed | Platform role with least-privilege: financial + PII redacted, access logged, time-boxed, tenant-consented | Trust/security; the only sanctioned cross-tenant access | Schema-aware in Phase 1; build post-MVP |
 | D-025 | Multi-currency (provider prices in own currency) | Proposed | Per-business `currency`; money stored as minor units; tax (GST/VAT) + subscription currency deferred | International providers; pricing engine; billing | Schema in Phase 1; tax later |
 | D-026 | How customers connect to a provider | Proposed | Invite code + QR only; **never** search-by-business-name | Client onboarding UX; privacy (no provider directory) | Phase 2 invite spec |
 | D-027 | Primary JTBD anchor for design research | **Decided** | **Owner/PCSP is the primary JTBD anchor** (buyer + operator); client + staff are first-class supporting jobs that rise to primary within their own flows. Anchor governs prioritization, not attention | Research framing, archetype priority, flow ownership, trade-off calls near Oct 1 | Decided 2026-07-06 |
-| D-028 | MVP-complete / feature-freeze definition | **Decided** | **Danny + Marco's own business runs a genuine booking end-to-end (onboarding → booking → server-validated pricing → staff schedule → history/notifications) on physical iOS *and* Android, tenant isolation verified, payment tracked manually.** When true, features freeze; only bug-fix/polish/store-prep after. Own business is the freeze bar (no recruiting dependency); PCSP beta is the next milestone | Defines "done" for the build; governs scope cuts near Oct 1 | Decided 2026-07-07 |
+| D-028 | MVP-complete / feature-freeze definition | **Decided** | **Danny + Marco's own business runs a genuine booking end-to-end (onboarding → booking → server-validated pricing → staff schedule → history/notifications) on physical iOS *and* Android, tenant isolation verified, with a REAL PAID BOOKING via Stripe Connect** (updated 2026-07-08 per D-007 Option A; manual tracking only if payments derail). When true, features freeze; only bug-fix/polish/store-prep after. Own business is the freeze bar; PCSP beta is the next milestone | Defines "done" for the build; governs scope cuts near launch | Decided 2026-07-07 (freeze bar updated 2026-07-08) |
 | D-029 | Platform stance: booking software, never a marketplace/broker | **Decided** | **PetAppro is booking software the PCSP runs — it never intermediates the PCSP↔client relationship.** No provider directory/discovery (aligns D-026), no lead-gen marketplace, **no take-rate/commission on client→provider payments** (aligns D-007), no platform-set or platform-guaranteed pricing, never holds the client relationship. Revenue = PCSP subscription only (Stripe Billing, D-001). Community-building (social accounts, in-person events to connect PCSPs) is allowed; brokering their money/service exchange is not | Core differentiator vs Wag/Rover; legal/positioning guardrail (software vendor, not agency/broker/marketplace/employer); app-store classification; forecloses commission monetization | Decided 2026-07-07 |
 | D-030 | White-label model + Enterprise isolation tier | **Decided** | **Product = pseudo white-label**: one shared app + one shared DB (RLS), runtime per-tenant theming; provider resolved by invite code / QR / deep link (D-026); one federated client identity + account switcher (D-004). **True white-label = bespoke Enterprise**: separate app + separate DB + separate deployment, fully isolated, higher setup + recurring, custom-contracted, **post-MVP**. Cold open is the only PetAppro-branded surface | Full white-label ("opens already branded") is impossible in one multi-tenant app at cold open; tiering resolves it and protects launch scope (D-023); vindicates DS per-tenant theming; aligns D-004/D-011/D-026/D-029 | Decided 2026-07-07 |
-| D-031 | Login security / step-up MFA (payments + PII) | **Proposed** | **Risk-based step-up auth, not blanket 2FA every login**: biometric app lock (Face ID/Touch ID/Android); TOTP MFA for email/password; social sign-in (Apple/Google) as a baseline factor; **step-up required for sensitive actions** (change payment method, change email/password, provider financials/payouts/refunds); **mandatory MFA for owner/admin**. Driver = account-takeover (off-session charges + PII), NOT card data (Stripe vaults cards; we never store them) | Protects money-moving actions + PII; shapes Supabase Auth config + RBAC; Codex to bless | Phase 1 auth model; before payments ship |
+| D-031 | Login security / step-up MFA (payments + PII) | **Decided** | **Risk-based step-up auth, not blanket 2FA every login**: biometric app lock (Face ID/Touch ID/Android); TOTP MFA for email/password; social sign-in (Apple/Google) as a baseline factor; **step-up required for sensitive actions** (change payment method, change email/password, provider financials/payouts/refunds); **mandatory MFA for owner/admin**. Driver = account-takeover (off-session charges + PII), NOT card data (Stripe vaults cards; we never store them) | Protects money-moving actions + PII; shapes Supabase Auth config + RBAC; pending Danny final lock | Phase 1 auth model; before payments ship |
+| D-034 | Base509 master / per-app operational isolation | **Decided** | Thin Base509 master layer for account, product entitlement, SaaS billing, operator audit/support; PetAppro operational data remains isolated and tenant-scoped by `business_id`; no per-row `app_id` in PetAppro tables | Prevents cross-product coupling and RLS complexity while preserving future multi-product seam | Phase 1 architecture |
+| D-035 | Stable Base509 account id | **Decided** | App relationships reference `base509_account_id`, not raw `auth.uid()`; Supabase Auth subjects are mapped through an identity table/helper | Makes later central identity extraction mechanical and keeps RLS from binding to provider-specific auth ids | Before migrations |
+| D-036 | Auth path for MVP | **Decided** | PetAppro uses Supabase Auth in the PetAppro project for MVP; central IdP/external IdP deferred until app #2 or cross-product SSO is concrete | Avoids IdP migration/build risk before Oct 1 while preserving a clean seam | Phase 1 auth model |
+| D-037 | Shared account-service boundary | **Decided** | Shared Base509 layer stores account identity and Base509 billing relationship only; app-specific provider/client records stay in each app operational DB | Avoids a coupled mega-DB and keeps provider/client concepts app-contextual | Phase 1 architecture |
+| D-038 | Passwordless-first and step-up implementation | **Decided** | Apple/Google/magic-link primary, password fallback; owner/admin MFA before sensitive provider actions; biometric app lock is local protection, not server-side auth replacement | Protects money/PII without blanket login friction; clarifies Supabase/Auth/RLS responsibilities | Before payments/billing-sensitive flows |
 
 ---
 
@@ -209,7 +214,9 @@ When a decision is resolved, update its status to **Decided**, add the outcome a
 
 ### D-007 — Manual payments first vs Stripe Connect in MVP
 
-**Status:** Decided (2026-07-07)
+**Status:** Decided (2026-07-08) — **payments IN the MVP (Option A).** Supersedes the 2026-07-07 "manual-only / MVP-if-feasible" language below.
+
+**CURRENT DECISION (2026-07-08, Danny — supersedes all prior D-007 language):** **Ship PetAppro WITH in-app client→provider payments (Stripe Connect) in the MVP (Option A).** Danny chose to include payments even at the cost of flexing the launch date a few weeks (→ D-023; realistic target ~late October). **Manual tracking remains only as a safety-net fallback if payments genuinely derail near the store deadline** — it is no longer the *planned* MVP path. Consequences: the **pricing engine is un-held and on the critical path** (automated charging requires correct totals); **deposits stay OUT (D-015 — no deposits, Danny 2026-07-08; revisit only on customer feedback)**; the MVP-complete freeze bar (**D-028**) becomes a *real paid booking via Connect*. Still applies only to client→provider booking payments; SaaS Billing (provider→Base509) was always in.
 
 **Question:** Does MVP include Stripe Connect, or only manual payment status tracking?
 
@@ -378,7 +385,7 @@ Customers **never browse a directory** of providers. They connect only via a pro
 
 **Decision:**
 
-> **MVP Complete = Danny + Marco's own business runs a genuine booking end-to-end** — client onboarding → booking → server-validated pricing → staff schedule → history/notifications — **on physical iOS *and* Android builds, with tenant isolation verified. Payment tracked manually; Stripe Connect deferred (D-007).**
+> **MVP Complete = Danny + Marco's own business runs a genuine booking end-to-end** — client onboarding → booking → server-validated pricing → staff schedule → history/notifications — **on physical iOS *and* Android builds, with tenant isolation verified, and a REAL PAID BOOKING via Stripe Connect** (updated 2026-07-08 per D-007 Option A — payments are now in the MVP; manual tracking is only the safety-net fallback if payments derail).
 
 When this is true, **features freeze.** Everything after is bug-fixing, polish, accessibility, and store prep — no new features without an explicit scope decision.
 
@@ -438,7 +445,7 @@ When this is true, **features freeze.** Everything after is bug-fixing, polish, 
 
 ### D-031 — Login security / step-up MFA
 
-**Status:** Proposed (Phase 1 auth model; finalize before payments ship)
+**Status:** Proposed — Codex ratified (Phase 1 auth model; finalize before payments ship), pending Danny final lock. **Passwordless-first stance Decided by Danny 2026-07-08.**
 
 **Question:** Given the app can move money and holds PII, what extra login security do we require — and how much friction?
 
@@ -449,10 +456,11 @@ When this is true, **features freeze.** Everything after is bug-fixing, polish, 
 - **Risk-based step-up auth, not blanket 2FA on every login** (avoids mobile friction on everyday booking).
 - **Biometric app lock** (Face ID / Touch ID / Android biometric) as the mobile-native second factor.
 - **TOTP MFA** for email/password accounts (Supabase Auth supports it); **social sign-in (Apple/Google)** counts as a baseline factor (carries the IdP's own MFA).
+- **Passwordless-first (Decided — Danny, 2026-07-08):** strongly prefer/offer **Apple, Google, and magic-link** sign-in; email+password only as a fallback where needed. Better mobile UX *and* de-risks the future central-identity migration (no password-hash portability problem — see `docs/planning/base509-operator-admin-console.md`).
 - **Step-up required for sensitive actions:** add/change payment method, change email/password, and provider financials/payouts/refunds.
 - **Providers > clients:** **mandatory MFA for owner/admin** (touch money + client PII); clients can be step-up only.
 
-**Why it matters:** Shapes Supabase Auth configuration and the RBAC/permission matrix; must be blessed by Codex (Technical Governor) as an architecture item; gates the payment surface (ties to D-007). Protects money-moving actions and PII regardless of whether Stripe lands in MVP.
+**Why it matters:** Shapes Supabase Auth configuration and the RBAC/permission matrix; gates the payment surface (ties to D-007). Protects money-moving actions and PII regardless of whether Stripe lands in MVP.
 
 ---
 
@@ -544,7 +552,7 @@ Phase 0 (Product Definition) can close when:
 
 **Status:** Decided (2026-07-07)
 
-Four named levels; the PCSP invites a member and assigns one. "Co-provider" = someone assigned **Admin** (not a separate role). **Owner** (creator) has everything incl. editing financial connections + billing + ownership. **Admin** = Owner minus editing financial connections / billing / ownership (kept distinct so a partner can be Admin safely). **Manager** = full operations but no financial visibility and no price-override. **Staff** = view bookings/clients, add a booking, set up M&Gs, care execution, SMS; cannot edit/delete bookings or price-override (and cannot invite clients, D-002). Price-override + financial reports are Owner/Admin-only; SMS is all levels. Adds **Manager** to the prior Owner/Admin/Staff model. See `docs/planning/user_roles_and_permissions.md` (Team permission levels) + FigJam "Provider · Staff / team management". Ties to D-020 (seats/tiers). Codex to bless RBAC/RLS shape.
+Four named levels; the PCSP invites a member and assigns one. "Co-provider" = someone assigned **Admin** (not a separate role). **Owner** (creator) has everything incl. editing financial connections + billing + ownership. **Admin** = Owner minus editing financial connections / billing / ownership (kept distinct so a partner can be Admin safely). **Manager** = full operations but no financial visibility and no price-override. **Staff** = view bookings/clients, add a booking, set up M&Gs, care execution, SMS; cannot edit/delete bookings or price-override (and cannot invite clients, D-002). Price-override + financial reports are Owner/Admin-only; SMS is all levels. Adds **Manager** to the prior Owner/Admin/Staff model. See `docs/planning/user_roles_and_permissions.md` (Team permission levels) + FigJam "Provider · Staff / team management". Ties to D-020 (seats/tiers); implement through membership-backed RBAC/RLS.
 
 ### D-033 — App IA: single app, Client / Provider(graded) fork; roles are nested
 
@@ -557,3 +565,41 @@ One app, one auth. After login the app **forks by role within the active busines
 - **Build implication:** design each provider screen for the **base (Staff) capability** and layer higher-level controls as **permission-gated additions** — do NOT build admin vs staff separately. Client is its own branch (most users; validates the core booking loop, so wireframe it first).
 - **Context, not global account:** a person can be Client at business A and Staff at B (D-012), so the fork resolves per active business context, not per account.
 - Aligns D-001 (single native app), D-004/D-012 (multi-business context), D-019 (admin optional), D-027 (provider = primary anchor), D-030 (pseudo-WL theming lives in the shared shell), D-032 (role levels).
+
+### D-034 — Base509 master / per-app operational isolation
+
+**Status:** Decided (Danny locked 2026-07-08; Codex ratified).
+
+Base509 owns a thin shared master layer for account identity, product entitlement, SaaS billing, operator support/audit, and cross-product metadata. PetAppro operational data remains in the PetAppro operational store, tenant-scoped by `business_id`; do **not** add per-row `app_id` across PetAppro tables.
+
+When app #2 becomes real, prefer separate operational Supabase projects per app. Separate schemas inside one project are acceptable only as an interim internal boundary, not a true isolation boundary. One mega-project with `app_id` on every row is rejected because it adds RLS complexity and cross-product leak risk.
+
+### D-035 — Stable Base509 account id
+
+**Status:** Decided (Danny locked 2026-07-08; Codex ratified).
+
+PetAppro app relationships reference a stable `base509_account_id`, not raw `auth.uid()`. Supabase Auth ids are provider-specific login subjects and are mapped through an identity table/helper. RLS policies should call `current_base509_account_id()` and membership helpers rather than embedding raw auth ids throughout app tables.
+
+Minimum migration hygiene: create `base509_accounts` + `auth_identities` (or equivalent names) before tenant tables depend on identity, and use `base509_account_id` in `business_memberships`, `clients`, actor/audit columns, notifications, and support logs.
+
+### D-036 — Auth path for MVP
+
+**Status:** Decided (Danny locked 2026-07-08; Codex ratified).
+
+PetAppro ships with Supabase Auth in the PetAppro project. The account model remains product-agnostic so central identity can be extracted later if app #2 or cross-product SSO becomes concrete. Do not buy Clerk/WorkOS/Auth0 for the Oct 1 MVP, and do not hand-roll central auth.
+
+**Implementation note (Danny, 2026-07-08):** name and structure the auth/account data fields so they **map cleanly to prepackaged authentication systems** (e.g., standard concepts like `provider`, `subject`, `email`, `account_id`). This keeps a later swap to an external IdP low-friction — the extraction is a mapping exercise, not a redesign.
+
+### D-037 — Shared account-service boundary
+
+**Status:** Decided (Danny locked 2026-07-08; Codex ratified).
+
+The shared Base509 layer stores account identity and the Base509 billing relationship only. App-specific provider/client records stay in each app's operational database and link back by stable Base509 account id. "Provider" and "client" are app-context roles, not global Base509 person types.
+
+### D-038 — Passwordless-first and step-up implementation
+
+**Status:** Decided (Danny locked 2026-07-08; Codex ratified). Passwordless-first itself was already decided by Danny and belongs with D-031.
+
+Apple, Google, and magic-link/passwordless login are primary; email/password is fallback. Owner/admin users must satisfy MFA/step-up before sensitive provider actions such as billing, financial settings, refunds, exports, team permission changes, and break-glass consent. Client users can remain risk-based step-up only.
+
+Biometric app lock is local device protection and improves mobile safety, but it is not a server-side authorization factor. Sensitive mutations must still route through Edge Functions/RPCs that check role, auth assurance where available, and audit the action.

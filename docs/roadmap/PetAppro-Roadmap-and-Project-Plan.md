@@ -2,7 +2,9 @@
 
 > **Role of this file:** the canonical roadmap is `docs/roadmap/mvp_roadmap.md` (phases, gates, exit criteria). This annex supplies the **dated delivery schedule (sprints/milestones), the paste-ready backlog database, and the tenant-aware schema starter** referenced from there. If the two ever disagree on scope, `mvp_roadmap.md` wins; this file owns the calendar and the schema tables.
 
-Companion to **PetAppro-Strategy-and-Business-Plan.md**. Everything here is structured to paste straight into Notion — the tables become Notion databases, the checklists become to-do items. Timeline is back-planned from a **hard app-store submission date of ~Sept 10** so the **Oct 1 public launch** clears review.
+Companion to **PetAppro-Strategy-and-Business-Plan.md**. Everything here is structured to paste straight into Notion — the tables become Notion databases, the checklists become to-do items. Timeline is back-planned from a **hard app-store submission date of ~Sept 10**.
+
+> **Launch targets (updated 2026-07-08, D-023):** **Target 1 = Oct 1** (aggressive), **Target 2 = Oct 21** (realistic, to ship *with* in-app payments — Stripe Connect, D-007 Option A). The dated calendar below is Target-1-based; add ~3 weeks for the Target-2 payments-included path. **Stripe Connect is now IN the MVP** (reversed from the earlier "deferred" language throughout).
 
 ---
 
@@ -50,7 +52,7 @@ Companion to **PetAppro-Strategy-and-Business-Plan.md**. Everything here is stru
 | D-U-N-S obtained | Aug 15 | P3 | Danny | Not started |
 | Apple + Google org accounts active | Aug 22 | P3 | Danny | Not started |
 | Expo MVP: booking flow end-to-end | Aug 29 | P2 | Danny | Not started |
-| ~~Stripe Connect onboarding working~~ → **deferred post-MVP (D-007)** | Post-launch | — | Danny | Deferred |
+| Stripe Connect onboarding + client→provider charges working | ~Sep (Target 2 window) | P2 | Danny | In MVP (D-007 Option A) |
 | Beta live (TestFlight + closed track) | Sep 1 | P4 | Danny | Not started |
 | Store listing assets complete | Sep 5 | P3 | Danny | Not started |
 | **App submitted to both stores** | **Sep 10** | P4 | Danny | Not started |
@@ -85,7 +87,7 @@ Companion to **PetAppro-Strategy-and-Business-Plan.md**. Everything here is stru
 - Parallel (business): file entity, EIN, start D-U-N-S.
 
 ### Sprint 4 (Aug 18–29) — Mobile MVP vertical slices
-- Onboarding (provider + client + pet/profile), booking flow with live server-validated pricing, staff dashboard + daily schedule, **manual payment tracking** (Stripe Connect deferred post-MVP — D-007).
+- Onboarding (provider + client + pet/profile), booking flow with live server-validated pricing, staff dashboard + daily schedule, **Stripe Connect client→provider payments (D-007 Option A, in MVP)** — manual tracking as fallback only.
 - Generalized capacity engine wired (overlap/concurrency/travel buffers).
 - Push notifications (Expo Push).
 - Parallel (business): Apple + Google org accounts; begin listing assets.
@@ -133,7 +135,7 @@ Columns to create in Notion: **Story · Epic · Phase · Priority · Effort · S
 | Client + pet onboarding (HEIC handling) | Mobile | P2 | P0 | M |
 | Booking flow + live pricing | Mobile | P2 | P0 | L |
 | Staff dashboard + daily schedule | Mobile | P2 | P0 | L |
-| Stripe Connect onboarding + charges | Payments | Post-launch | P2 | L |
+| Stripe Connect onboarding + charges | Payments | P2 | P0 | L |
 | Paid/unpaid + balance tracking | Payments | P2 | P1 | M |
 | Push notifications (Expo Push) | Notifications | P2 | P1 | M |
 | Reports + CSV export | Reporting | P2 | P1 | M |
@@ -244,7 +246,7 @@ Carry `business_id`, `service_id`, `client_id`, `resource_id`, dates/times, `pay
 
 **Shared**
 - [ ] Age rating, content declarations
-- [ ] MVP booking payments are **manual-tracked** (no in-app charge; Stripe Connect deferred post-MVP, D-007). When Connect ships, booking payments use Stripe under the real-world-services exemption. SaaS subscription sold on web only.
+- [ ] MVP booking payments use **Stripe Connect** (client→provider, in MVP — D-007 Option A) under the real-world-services exemption; manual tracking is the fallback only. SaaS subscription sold on web only (Stripe Billing).
 
 ---
 
@@ -257,7 +259,7 @@ Carry `business_id`, `service_id`, `client_id`, `resource_id`, dates/times, `pay
 - [ ] ToS, Privacy Policy, provider/merchant agreement, DPA (lawyer review)
 - [ ] Trademark clearance search + file "PetAppro" (+ "Appro" family)
 - [ ] Register domains (petappro.com + defensive vertical names)
-- [ ] Stripe **Billing** account (SaaS subscriptions — launch-critical). **Connect enablement deferred post-MVP** (D-007)
+- [ ] Stripe **Billing** account (SaaS subscriptions — launch-critical) **+ Stripe Connect enablement** (client→provider payments, in MVP — D-007 Option A)
 - [ ] Sales-tax / economic-nexus review with accountant
 
 ---

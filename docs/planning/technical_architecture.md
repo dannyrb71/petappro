@@ -59,7 +59,7 @@ The concrete "what we build on." Choices follow D-001 (native/Expo) and the exis
 | **Marketing + billing web** | **Next.js** | `apps/web`; marketing pages + provider subscription checkout only |
 | **Web hosting** | Vercel or Netlify (TBD) | Marketing/checkout surface; low complexity |
 | **Backend / DB** | **Supabase — Postgres 15** | One shared DB, RLS-enforced tenancy |
-| **Auth** | **Supabase Auth** | One account per person; membership rows grant business access |
+| **Auth** | **Supabase Auth** | PetAppro project auth for MVP; mapped to stable Base509 account ids |
 | **Server logic** | **Supabase Edge Functions** (Deno/TS) | Server-authoritative booking + pricing paths |
 | **File storage** | **Supabase Storage** | Tenant-prefixed paths, signed URLs |
 | **Shared pricing** | `packages/pricing` (TS) | Single source of truth, server authority |
@@ -84,10 +84,10 @@ Items marked TBD are non-blocking infrastructure choices (hosting, workspace too
 
 ### 2.1 Identity vs. tenancy
 
-One `auth.users` row per person. A person's *relationship* to a business is expressed by rows, not by their account:
+Supabase Auth proves the current login, but app data must not directly depend on raw `auth.uid()`. Each person gets a stable, product-agnostic `base509_account_id`; Supabase identities map to it through an identity table/helper. A person's *relationship* to a business is expressed by rows, not by their auth account:
 
-- **Staff/owner/admin** → a `business_memberships` row (`user_id`, `business_id`, `role`).
-- **Client** → a `clients` row (`user_id`, `business_id`, profile fields).
+- **Staff/owner/admin/manager** → a `business_memberships` row (`base509_account_id`, `business_id`, `role`).
+- **Client** → a `clients` row (`base509_account_id`, `business_id`, profile fields).
 
 This supports the multi-business scenarios in `user_roles_and_permissions.md` §8:
 - Client at A **and** staff at B → allowed; two rows, two contexts (D-012, default Yes).
@@ -109,7 +109,8 @@ The active business is passed to the server on every request (JWT claim or expli
 
 ## 3. Auth & membership
 
-- **Auth:** Supabase Auth (email/password + provider logins as needed). One account per person across all businesses.
+- **Auth:** Supabase Auth in the PetAppro project for MVP. Apple, Google, and magic-link/passwordless are primary; email/password is fallback (D-031). The app maps `auth.uid()` to a stable `base509_account_id`; app tables and RLS use that stable id.
+- **Future shared identity seam:** A central Base509 IdP is deferred until app #2 or cross-product SSO is concrete. Do not hand-roll auth, and do not buy an external IdP for the Oct 1 MVP.
 - **Onboarding via invite codes** (`user_roles_and_permissions.md` §9): a code is tied to exactly one `business_id` and a type (staff vs client). Redeeming a code creates the membership or client profile. Owner is created by the business-bootstrap flow (no code).
 - **Roles:** `owner`, `admin`, `staff`, `client` (rebuild plan; roles doc §2). Hierarchy owner → admin → staff; client is outside the staff hierarchy.
 - **Code mechanics** (single-use vs reusable, expiration) are D-013/D-014 (Proposed) — build the `business_invite_codes` table to carry `max_uses`, `uses_count`, and `expires_at` now so the decision is a config change, not a migration.
@@ -120,7 +121,7 @@ The active business is passed to the server on every request (JWT claim or expli
 
 RLS is the enforcement layer for the permission matrix in `user_roles_and_permissions.md` §10. UI hiding is convenience; the database is authority (product principle 3).
 
-**Core helper (security-definer function):** `current_membership(business_id)` returns the caller's role for a business (or null). RLS policies call it rather than embedding email checks.
+**Core helpers (security-definer functions):** `current_base509_account_id()` maps the caller's Supabase Auth subject to the stable Base509 account id. `current_membership(business_id)` returns that account's role for a business (or null). RLS policies call these helpers rather than embedding email checks or raw `auth.uid()` predicates.
 
 **Policy shape per operational table:**
 - **Read:** row visible only if the caller has a membership (owner/admin/staff) in `row.business_id`, or — for client-owned rows — is the owning client in that business.
@@ -129,6 +130,7 @@ RLS is the enforcement layer for the permission matrix in `user_roles_and_permis
 
 **Non-negotiables (D-023 foundation):**
 - Every business-specific table has RLS enabled and a `business_id` column.
+- App relationships reference `base509_account_id`; raw `auth.uid()` stays inside auth mapping/helpers only.
 - No policy relies on a global email or a hardcoded id (`pricing_rates.id = 1`, `ADMIN_EMAIL` — explicitly retired, rebuild plan "What Must Be Rebuilt").
 - A dedicated **RLS regression test suite** proves no cross-tenant read/write (Sprint 3 exit; Aug 15 go/no-go).
 

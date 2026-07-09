@@ -4,7 +4,7 @@ Phased planning roadmap for PetAppro as a multi-tenant SaaS platform for indepen
 
 Woof Wetreats (`reference/woof-wetreats-reference`) is the behavioral reference for proven booking, staff, and client workflows. PetAppro must rebuild those patterns with tenant separation from day one — not copy single-business architecture.
 
-**Status:** Planning phase transitioning to build, with a **target launch of October 1, 2026**. See "Launch Timeline & Store Clock" below for how the gate-driven phases map onto that calendar.
+**Status:** Planning phase transitioning to build. **Launch targets (D-023): Target 1 = Oct 1, 2026; Target 2 = Oct 21, 2026** — the date flexes to Target 2 to ship *with* in-app payments (Stripe Connect, D-007 Option A). See "Launch Timeline & Store Clock" below.
 
 **Canonical roadmap:** this file. The dated delivery schedule, sprint breakdown, and paste-ready schema/backlog tables live in the annex `docs/roadmap/PetAppro-Roadmap-and-Project-Plan.md`. Business strategy, framework choice, and GTM live in `docs/planning/PetAppro-Strategy-and-Business-Plan.md`.
 
@@ -316,7 +316,7 @@ Turn approved flows and architecture into build-ready feature specs with accepta
 - For each feature: roles affected, tables touched, RLS impact, UI states, notifications, payment/legal impact?
 - Which specs depend on others (e.g., booking requires business setup + client onboarding)?
 - What are acceptance criteria and test scenarios per feature?
-- What remains deferred: Stripe Connect, SMS add-on, advanced services, analytics?
+- What remains deferred: SMS add-on, advanced services, analytics? (Stripe Connect is now IN MVP — D-007 Option A)
 - How is terms version stamping applied at booking and meet-and-greet time?
 
 ### Deliverables
@@ -324,7 +324,7 @@ Turn approved flows and architecture into build-ready feature specs with accepta
 - Prioritized MVP feature backlog
 - Feature specs for each MVP slice (using a consistent template)
 - Platform spec refinements (notifications, activity history — partial exists)
-- Payment spec (manual tracking only for MVP; Stripe Connect deferred post-MVP per D-007)
+- Payment spec (**Stripe Connect client→provider payments IN MVP — D-007 Option A**; manual tracking is fallback only)
 - Terms/policy spec (business-specific client terms + platform terms)
 - Launch checklist draft
 - Claude Code / Cursor build prompts per major feature
@@ -428,12 +428,12 @@ Implement the MVP in dependency order inside `app/`, with local testing first, t
 4. **Client experience** — profile, pets, booking (boarding/daycare), pricing preview, confirmation
 5. **Staff operations** — household directory, daily schedule, booking management, staff notes
 6. **Notifications and activity** — in-app notification center, activity history date picker
-7. **Payments** — manual payment tracking only (Stripe Connect deferred post-MVP, D-007)
+7. **Payments** — **Stripe Connect client→provider payments (D-007 Option A, in MVP)**; manual tracking as fallback only
 8. **Launch hardening** — bug fixes, acceptance testing, first-tenant onboarding, deploy when approved
 
 ### Key questions (to resolve before starting)
 
-- ~~Final go/no-go on Stripe Connect for MVP~~ → **Resolved: deferred post-MVP (D-007).** Manual tracking is the MVP payment path.
+- ~~Final go/no-go on Stripe Connect for MVP~~ → **Resolved: Stripe Connect IS in MVP (D-007 Option A, 2026-07-08).** Manual tracking is fallback only; date flexes to Target 2 (~Oct 21) to include payments.
 - Final go/no-go on SMS alert add-on for MVP
 - Web-only launch or parallel mobile work
 - First **test tenant** = Danny + Marco's own business (not a recruited customer); success metrics per the MVP-complete gate below
@@ -448,7 +448,7 @@ Implement the MVP in dependency order inside `app/`, with local testing first, t
 
 ### MVP Complete — the feature-freeze line (decision D-028, Decided 2026-07-07)
 
-> **MVP Complete = Danny + Marco's own business runs a genuine booking end-to-end** — client onboarding → booking → server-validated pricing → staff schedule → history/notifications — **on physical iOS *and* Android builds, with tenant isolation verified. Payment tracked manually; Stripe Connect deferred.**
+> **MVP Complete = Danny + Marco's own business runs a genuine booking end-to-end** — client onboarding → booking → server-validated pricing → staff schedule → history/notifications — **on physical iOS *and* Android builds, with tenant isolation verified, and a REAL PAID BOOKING via Stripe Connect (D-007 Option A). Manual tracking only if payments derail.**
 
 When this single event is true, **feature development pauses.** Everything after the freeze is bug-fixing, polish, accessibility, and store prep — not new features. The freeze bar uses the **own business as the first test tenant** (not a recruited customer), because that removes a recruiting dependency from the freeze while still forcing every core system — tenant schema + RLS, RBAC, business setup, onboarding, the booking + pricing engine — to be real at once on-device.
 
@@ -492,12 +492,12 @@ Use this as the default in/out scope anchor during Phases 0 and 4. Adjust only t
 - Blocked dates with server enforcement
 - Activity history date picker (completed/cancelled only)
 - In-app notification center
-- Manual payment tracking (the **only** MVP payment path — cash/check/Venmo/Zelle/other + staff confirmation)
+- **Stripe Connect — in-app client→provider payments (D-007 Option A, 2026-07-08)**; manual tracking (cash/check/Venmo/Zelle + staff confirmation) is the fallback only
 - SMS alert add-on or owner/staff SMS alerts (if decided)
 
 ### Defer beyond MVP
 
-- **Stripe Connect (client → provider online payments)** — deferred to post-MVP (decision D-007, Decided 2026-07-07). Nice-to-have, not launch-critical; MVP tracks payments manually. *Note: this is distinct from SaaS subscription billing (provider → Base509) via Stripe **Billing** on the web, which stays in scope — see MKT-6 / D-001.*
+- ~~Stripe Connect~~ → **moved INTO MVP (D-007 Option A, 2026-07-08)** — see the Include list above. (SaaS subscription billing, provider → Base509, via Stripe **Billing** on the web was always in scope — MKT-6 / D-001.)
 - Full in-app messaging
 - SMS conversation bridge
 - Multiple non-pet verticals

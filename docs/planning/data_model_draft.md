@@ -12,17 +12,19 @@ First-pass tenant-scoped schema for the shared Supabase (Postgres) database. Ext
 
 - **PK:** `id uuid default gen_random_uuid()` on every table.
 - **Tenant key:** `business_id uuid references businesses(id)` on every operational table (the security boundary).
-- **Audit columns:** `created_at timestamptz default now()`, `updated_at timestamptz`, and where an actor matters `created_by uuid references auth.users`, `updated_by uuid`.
+- **Audit columns:** `created_at timestamptz default now()`, `updated_at timestamptz`, and where an actor matters `created_by_account_id uuid references base509_accounts(id)`, `updated_by_account_id uuid references base509_accounts(id)`.
 - **Soft state:** `status` enums instead of hard deletes where history matters (e.g., pets, bookings).
 - **Money:** integer minor units (cents) + `currency`, never floats.
-- **RLS:** enabled on all tables below; policies resolve through `current_membership(business_id)` (see architecture §4).
+- **RLS:** enabled on all tables below; policies resolve through `current_base509_account_id()` + `current_membership(business_id)` (see architecture §4). Raw `auth.uid()` is used only inside the identity mapping helper.
 
 ## 2. Entity map
 
 ```
 auth.users (Supabase)
     │
-    ├──< business_memberships >── businesses ──< business_invite_codes
+    └──< auth_identities >── base509_accounts
+                              │
+                              ├──< business_memberships >── businesses ──< business_invite_codes
     │                                  │
     │                                  ├──< business_services ──< business_service_pricing
     │                                  ├──< business_availability      (blocked dates)
@@ -30,7 +32,7 @@ auth.users (Supabase)
     │                                  ├──< business_assets
     │                                  └──< notifications ──< notification_deliveries
     │
-    └──< clients >── (business_id) ──< pets
+                              └──< clients >── (business_id) ──< pets
              │
              └──< bookings >── booking_pets >── pets
                      │
@@ -42,28 +44,38 @@ auth.users (Supabase)
 
 ## 3. Tenant & identity tables
 
+### base509_accounts
+Stable product-agnostic account record. `id, primary_email, display_name, created_at, updated_at.`
+- This is the durable person/account key for PetAppro app relationships and future Base509 products.
+- Do not put PetAppro-specific provider/client fields here.
+
+### auth_identities
+Mapping from the current auth provider to the stable account. `id, base509_account_id, provider (supabase|apple|google|future_idp), provider_subject, created_at.`
+- For MVP, `provider_subject` maps to Supabase `auth.users.id`.
+- RLS helpers use this table to resolve `auth.uid()` to `base509_account_id`.
+
 ### businesses
-The tenant root. `id, name, slug, owner_user_id, branding (jsonb: logo, colors, hero), landing_content (jsonb), currency (D-025), settings (jsonb: meet_greet_required per D-006, timezone), plan_tier, seat_count, billing_period (monthly|annual), subscription_status, stripe_customer_id (Base509 billing), created_at, updated_at.`
+The tenant root. `id, name, slug, owner_account_id, branding (jsonb: logo, colors, hero), landing_content (jsonb), currency (D-025), settings (jsonb: meet_greet_required per D-006, timezone), plan_tier, seat_count, billing_period (monthly|annual), subscription_status, stripe_customer_id (Base509 billing), created_at, updated_at.`
 - One implicit location (D-010 Deferred — no `location_id`).
 - `currency` sets the provider's booking + display currency (D-025); all money elsewhere is minor units in this currency.
 - `plan_tier` / `seat_count` / `billing_period` drive the SaaS subscription (D-020): tier chosen at signup by number of app users (1 user, 2, small business), monthly vs annual, upgradeable with proration.
 
 ### business_memberships
-Staff/owner/admin relationship. `id, business_id, user_id, role (owner|admin|staff), status (active|invited|removed), invited_by, created_at.`
-- Unique `(business_id, user_id)` — a user holds at most one staff-side role per business.
+Staff/provider-side relationship. `id, business_id, base509_account_id, role (owner|admin|manager|staff), status (active|invited|removed), invited_by_account_id, created_at.`
+- Unique `(business_id, base509_account_id)` — an account holds at most one provider-side role per business.
 - Client relationship is **not** here — it lives in `clients` (keeps D-003 clean: no dual client+staff on one business).
 - **First membership (business creator) = `owner`** — the highest role, includes all admin capability + financials. When the owner adds a second user, onboarding **prompts for role** and shows the permission chart (roles doc §10), with a disclaimer that **`admin` can see business financial data** (D-020 onboarding requirement).
 
 ### business_invite_codes
-`id, business_id, code (unique), type (staff|client), role_hint, max_uses, uses_count, expires_at, revoked_at, created_by, created_at.`
+`id, business_id, code (unique), type (staff|client), role_hint, max_uses, uses_count, expires_at, revoked_at, created_by_account_id, created_at.`
 - `max_uses` / `expires_at` present now so D-013/D-014 (Proposed) are config, not migration.
 - A code is tied to one `business_id` and one type; a staff code can't create a client (roles doc §9).
 
 ### clients
-Client profile, **scoped per business** (D-004 Yes across businesses via separate rows; D-005 pets per business). `id, business_id, user_id, display_name, emergency_contact (jsonb), vet_info (jsonb), status (active|blocked|ended), ended_at, blocked_reason, blocked_by, terms_accepted_version, created_at, updated_at.`
+Client profile, **scoped per business** (D-004 Yes across businesses via separate rows; D-005 pets per business). `id, business_id, base509_account_id, display_name, emergency_contact (jsonb), vet_info (jsonb), status (active|blocked|ended), ended_at, blocked_reason, blocked_by_account_id, terms_accepted_version, created_at, updated_at.`
 - `status = ended` is the relationship lifecycle (a customer leaving this provider): reversible, nothing deleted; the account and other-provider relationships are untouched.
-- Unique `(business_id, user_id)` — one client profile per user per business.
-- Same `user_id` may appear in many businesses' `clients` rows (D-004) and also in another business's `business_memberships` (D-012).
+- Unique `(business_id, base509_account_id)` — one client profile per account per business.
+- Same `base509_account_id` may appear in many businesses' `clients` rows (D-004) and also in another business's `business_memberships` (D-012).
 
 ## 4. Business configuration tables
 
@@ -105,13 +117,13 @@ Stored authoritative price (never recomputed for display). `id, business_id, boo
 Gate before first booking when enabled (D-006). `id, business_id, client_id, status (requested|scheduled|completed|waived), scheduled_at, completed_by, terms_version_stamped, created_at, updated_at.`
 
 ### staff_notes
-Staff-only, never client-visible. `id, business_id, client_id (or booking_id), author_user_id, body, created_at.`
+Staff-only, never client-visible. `id, business_id, client_id (or booking_id), author_account_id, body, created_at.`
 - RLS: readable/writable by owner/admin/staff of the business only (roles matrix).
 
 ## 6. Notification & payment tables
 
 ### notifications
-Tenant-aware outbox (replaces global Pushover). `id, business_id, event_type, audience (user_id or role), payload (jsonb), created_at.`
+Tenant-aware outbox (replaces global Pushover). `id, business_id, event_type, audience (base509_account_id or role), payload (jsonb), created_at.`
 
 ### notification_deliveries
 Per-channel fan-out. `id, business_id, notification_id, channel (in_app|push|sms|email), status (pending|sent|failed), error, delivered_at.`
@@ -123,22 +135,22 @@ Client↔business money, **manual in MVP** (D-007). `id, business_id, booking_id
 - **Not** the SaaS subscription — that is Stripe Billing on `businesses.stripe_customer_id` (web, D-001).
 
 ### payment_events
-Audit trail for payment state changes. `id, business_id, payment_id, event_type, actor_user_id, data (jsonb), created_at.`
+Audit trail for payment state changes. `id, business_id, payment_id, event_type, actor_account_id, data (jsonb), created_at.`
 
 ### platform_access_log (D-024)
-Break-glass audit for PetAppro-side support/eng access across the tenant wall. `id, business_id, platform_user_id, reason, granted_by, tenant_consented (bool), scope (jsonb: which surfaces), fields_redacted (bool default true), started_at, expires_at, ended_at.`
+Break-glass audit for PetAppro-side support/eng access across the tenant wall. `id, business_id, platform_account_id, reason, granted_by_account_id, tenant_consented (bool), scope (jsonb: which surfaces), fields_redacted (bool default true), started_at, expires_at, ended_at.`
 - Financial + PII fields redacted by default; access is time-boxed and fully logged. This is the only sanctioned cross-tenant path.
 
 ## 7. RLS-relevant keys (summary)
 
-Every table above: **RLS on**, filtered by `business_id` via `current_membership()`. Client-owned rows (`clients`, `pets`, own `bookings`, own `payments`) additionally allow the owning client. Elevated writes (pricing, terms, invites, ownership, Stripe) restricted to owner/admin per the matrix; ownership/teardown owner-only and double-guarded in Edge Functions.
+Every table above: **RLS on**, filtered by `business_id` via `current_membership()`, which resolves through `current_base509_account_id()`. Client-owned rows (`clients`, `pets`, own `bookings`, own `payments`) additionally allow the owning client. Elevated writes (pricing, terms, invites, ownership, Stripe) restricted to owner/admin per the matrix; ownership/teardown owner-only and double-guarded in Edge Functions.
 
 ## 8. Decisions reflected in this schema
 
 | Decision | Default | Schema effect |
 |---|---|---|
-| D-003 client+staff same business | No | `clients` vs `business_memberships` separate; unique per user per business |
-| D-004 client at many businesses | Yes | Row per `(business_id, user_id)` in `clients` |
+| D-003 client+staff same business | No | `clients` vs `business_memberships` separate; unique per account per business |
+| D-004 client at many businesses | Yes | Row per `(business_id, base509_account_id)` in `clients` |
 | D-005 pet scope | Business-scoped | `pets.business_id` + `client_id` |
 | D-006 meet-and-greet | Configurable | `businesses.settings.meet_greet_required`; `meet_greets` gate |
 | D-007 payments | Manual MVP | `payments.method` incl. manual; Connect fields dormant |
