@@ -1,0 +1,85 @@
+{
+  "$description": "Tier 2 · Themes — Brandy Blue · Dark (PetAppro base brand — DEFAULT dark preset, Option A). Brightened Brandy-Blue primary on dark slate surfaces; same role names as light. Paired typeface: Poppins.",
+  "color": {
+    "$type": "color",
+    "brand": {
+      "primary": {
+        "$value": "{color.primitive.brandy-blue.500}"
+      },
+      "primary-pressed": {
+        "$value": "{color.primitive.brandy-blue.600}"
+      },
+      "on-primary": {
+        "$value": "{color.primitive.brandy-blue.900}"
+      },
+      "primary-container": {
+        "$value": "{color.primitive.brandy-blue.900}"
+      },
+      "on-primary-container": {
+        "$value": "{color.primitive.brandy-blue.100}"
+      },
+      "secondary": {
+        "$value": "{color.primitive.camo.400}"
+      },
+      "secondary-solid": {
+        "$value": "{color.primitive.camo.500}"
+      },
+      "on-secondary": {
+        "$value": "{color.primitive.maverick.900}"
+      },
+      "secondary-container": {
+        "$value": "{color.primitive.camo.900}"
+      },
+      "on-secondary-container": {
+        "$value": "{color.primitive.camo.100}"
+      },
+      "surface": {
+        "$value": "{color.primitive.maverick.900}"
+      },
+      "surface-container": {
+        "$value": "{color.primitive.maverick.800}"
+      },
+      "surface-container-high": {
+        "$value": "{color.primitive.maverick.700}"
+      },
+      "on-surface": {
+        "$value": "{color.primitive.maverick.100}"
+      },
+      "on-surface-body": {
+        "$value": "{color.primitive.maverick.300}"
+      },
+      "on-surface-variant": {
+        "$value": "{color.primitive.maverick.400}"
+      },
+      "on-surface-accent": {
+        "$value": "{color.primitive.brandy-blue.300}"
+      },
+      "outline": {
+        "$value": "{color.primitive.maverick.700}"
+      },
+      "outline-variant": {
+        "$value": "{color.primitive.maverick.800}"
+      },
+      "outline-strong": {
+        "$value": "{color.primitive.maverick.600}"
+      },
+      "focus-ring": {
+        "$value": "rgba(111,199,207,0.32)",
+        "$extensions": {
+          "ds": {
+            "allowLiteral": "translucent focus ring; alpha overlay, no solid primitive equivalent"
+          }
+        }
+      }
+    }
+  },
+  "typography": {
+    "$type": "fontFamily",
+    "semantic": {
+      "font-family": {
+        "$value": "{typography.primitive.family.poppins}",
+        "$description": "Brandy Blue paired typeface (Poppins)"
+      }
+    }
+  }
+}

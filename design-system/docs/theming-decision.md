@@ -44,6 +44,25 @@ tokens/themes/terracotta.tokens.json
 **Agreed: defer.** Do NOT port `--comp-*` into DTCG yet. Author it alongside the first atoms
 (Button, Input, Card) so each component hook is created against a real spec, not speculatively.
 
+## Decision 3 — Light/Dark presets per theme (locked by Danny 2026-07-09: "Option A")
+
+**Decision: each of the 5 themes ships a Light and a Dark preset — 10 fixed theme modes total.**
+These are **preselected, set 24/7 per provider** — NOT dynamic, OS-, or time-of-day-driven.
+
+### Model
+- The `Themes` layer goes from 5 modes to **10**: `<Theme> · Light` / `<Theme> · Dark` (Sage & Sand · Light = Tier-1 base default).
+- A provider is assigned exactly one mode; there is **no runtime light/dark toggle.** Chose the single-collection 10-mode approach over a Theme×Scheme matrix because it matches "pick one preset" and keeps components bound to one semantic layer.
+- **Semantic role names/structure stay identical** (per Decision 1); each theme's **Dark** mode aliases that theme's *dark* neutral + tuned brand steps (dark `surface`, light `on-surface`, `primary` tuned for contrast on dark).
+- **Components need zero changes** — they bind to `color.semantic.*`, which resolves through the active mode. Verified in Figma: the built Button/Badge reskin purely by switching the frame's Themes mode.
+- **PetAppro platform brand** (`color.brand.*` / core-brand) stays theme- and tone-invariant — it identifies the platform, not the provider.
+- **Domain tokens** (`color.semantic.domain.*`) stay theme-independent. **Open sub-question:** verify each `.container` tint reads AA on the *dark* surfaces (the Pixies dark mockups keep light-tint status pills — confirm contrast per dark mode).
+
+### Reference
+Danny's "Pixies Pet Care" mockups (Sage / Harbor / Berry × playful-light / dark) — representative sections: header, section headers, inner cards, status pills, book-a-service CTA, pet-pack cards, bottom nav.
+
+### Next
+Author the Dark mode for each theme in `tokens/themes/*` (dark neutrals + tuned brand steps + same paired font), lint-clean; then materialize the 10 modes in the Figma `Themes` variable collection. Prove on **Sage & Sand · Dark** first.
+
 ## What I've done now (CSS mirror)
 - `fonts.css` loads Nunito Sans, Lexend, Manrope, Source Serif 4 (+ base Hanken Grotesk, Space Mono).
 - `themes.css` sets `--sys-type-family-brand` per theme: Terracotta→Nunito Sans, Harbor→Lexend, Dusk→Manrope, Berry→Source Serif 4, Sage & Sand→Hanken Grotesk.

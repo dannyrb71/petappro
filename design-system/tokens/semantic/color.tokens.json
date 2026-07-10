@@ -42,22 +42,22 @@
       "brand": {
         "$description": "Theme-invariant PetAppro product/identity brand (Core family) — logo, app chrome, marketing. Distinct from action.* (the per-theme white-label brand).",
         "primary": {
-          "$value": "{color.primitive.core-brand.800}"
+          "$value": "{color.primitive.brandy-blue.800}"
         },
         "primary-strong": {
-          "$value": "{color.primitive.core-brand.900}"
+          "$value": "{color.primitive.brandy-blue.900}"
         },
         "primary-container": {
-          "$value": "{color.primitive.core-brand.50}"
+          "$value": "{color.primitive.brandy-blue.50}"
         },
         "on-primary": {
           "$value": "{color.primitive.white}"
         },
         "accent": {
-          "$value": "{color.primitive.core-accent.600}"
+          "$value": "{color.primitive.camo.600}"
         },
         "accent-container": {
-          "$value": "{color.primitive.core-accent.50}"
+          "$value": "{color.primitive.camo.50}"
         },
         "on-accent": {
           "$value": "{color.primitive.white}"
@@ -113,10 +113,10 @@
       },
       "status": {
         "success": {
-          "$value": "{color.primitive.green.500}"
+          "$value": "{color.primitive.camo.500}"
         },
         "success-container": {
-          "$value": "{color.primitive.green.100}"
+          "$value": "{color.primitive.camo.100}"
         },
         "warning": {
           "$value": "{color.primitive.amber.500}"
@@ -125,19 +125,19 @@
           "$value": "{color.primitive.amber.100}"
         },
         "danger": {
-          "$value": "{color.primitive.red.500}"
+          "$value": "{color.primitive.coco.500}"
         },
         "danger-container": {
-          "$value": "{color.primitive.red.100}"
+          "$value": "{color.primitive.coco.100}"
         },
         "info": {
-          "$value": "{color.primitive.teal.500}"
+          "$value": "{color.primitive.bella.500}"
         },
         "info-container": {
-          "$value": "{color.primitive.teal.100}"
+          "$value": "{color.primitive.bella.100}"
         },
         "success-solid": {
-          "$value": "{color.primitive.green.700}"
+          "$value": "{color.primitive.camo.700}"
         }
       },
       "domain": {
@@ -260,15 +260,15 @@
         "service": {
           "boarding": {
             "base": {
-              "$value": "{color.primitive.slate.500}",
+              "$value": "{color.primitive.maverick.500}",
               "$type": "color"
             },
             "container": {
-              "$value": "{color.primitive.slate.100}",
+              "$value": "{color.primitive.maverick.100}",
               "$type": "color"
             },
             "on": {
-              "$value": "{color.primitive.slate.700}",
+              "$value": "{color.primitive.maverick.700}",
               "$type": "color"
             }
           },

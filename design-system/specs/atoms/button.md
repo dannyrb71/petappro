@@ -2,7 +2,7 @@
 
 > Layer: `atoms`
 > Status: `approved`
-> Version: `0.1.1`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
+> Version: `0.1.2`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 
 ## Objective
 The single interactive command control. One component covers every push action in the platform; the variant communicates intent, never ad-hoc color.
@@ -18,7 +18,7 @@ Reference **semantic tokens only**.
   - `success` — booking-CREATION actions only (New/Create/Request Booking). Fill `color.semantic.status.success-solid` (AA-safe solid green; the lighter success tint fails white-text contrast), label `color.semantic.text.on-solid`.
 - **Sizes (height):** from `size.control.{lg,md,sm,xs}` (52/44/36/28). `md` (44) is the standard tap target.
 - **Icon slots:** optional `leading` + `trailing` (Icon atom, Lucide). Icon sizes to the label; gap `spacing.primitive.2`.
-- **States:** default, pressed (scale `motion.semantic.press-scale`), focus-visible (`size.stroke.focus` ring from `color.semantic.focus-ring`, ≥3:1), disabled (`color.semantic.surface.container-high` fill / `color.semantic.text.faint` label), loading (spinner replaces label; width locked; control disabled).
+- **States:** default, pressed (fill shifts to the pressed tone — `color.semantic.action.primary.pressed` (primary) · `color.semantic.action.primary.container` (tertiary) · `color.semantic.surface.container` (secondary) — **and raises with `elevation.semantic.raised`**, the shared press elevation also used by tappable List Row / Booking Card / Report Card; transition `motion.semantic.press-scale` + `motion.semantic.duration-fast`), focus-visible (`size.stroke.focus` ring from `color.semantic.focus-ring`, ≥3:1), disabled (`color.semantic.surface.container-high` fill / `color.semantic.text.faint` label), loading (spinner replaces label; width locked; control disabled).
 - **Shape:** radius `radius.semantic.button` (fully rounded). Padding-x from `spacing.primitive.5` (`md`).
 - **Type:** label = `typography.semantic.body` at bold weight.
 - **Motion:** press transitions `motion.semantic.duration-fast` + `motion.semantic.easing-standard`; honor reduced-motion.
@@ -45,3 +45,4 @@ Reference **semantic tokens only**.
 |---------|------|--------|
 | 0.1.0   | 2026-07-05 | Initial spec. |
 | 0.1.1   | 2026-07-05 | Replace hover state language with pressed-only mobile interaction model. |
+| 0.1.2   | 2026-07-09 | Pressed state adds the shared `elevation.semantic.raised` treatment (soft raise) alongside the pressed fill — aligns Button press with tappable List Row / Booking Card / Report Card. Mobile press = subtle fill shift + raise; no hover. |

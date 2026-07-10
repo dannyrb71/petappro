@@ -2,7 +2,7 @@
 
 > Layer: `patterns`
 > Status: `approved`
-> Version: `0.1.1`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
+> Version: `0.1.2`  ·  Author: Claude Design  ·  Reviewer: Codex  ·  Approver: Danny
 
 ## Objective
 A horizontal row: leading media, a title/subtitle block, and a trailing slot. The base for service lists, bookings lists, and settings rows.
@@ -14,7 +14,7 @@ Reference **semantic tokens**; compose atoms.
 - **Colors:** container `color.semantic.surface.bright`; title `color.semantic.text.default` (body type, semibold); subtitle `typography.semantic.body-sm`, `color.semantic.text.variant`.
 - **Leading square:** 40×40 (governed exception — fixed leading media/icon square), `radius.semantic.input`, bg `color.semantic.action.secondary.container`, Icon `color.semantic.text.accent`.
 - **Layout:** flex row, `spacing.primitive.3` gap, padding `spacing.primitive.4`; dividers `color.semantic.border.variant` between stacked rows.
-- **Clickable variant:** pressed bg `color.semantic.surface.container` + scale `motion.semantic.press-scale`; focus ring `color.semantic.focus-ring`.
+- **Clickable variant:** pressed bg `color.semantic.surface.container` + `elevation.semantic.raised` (shared press elevation — matches Button / Booking Card / Report Card) + scale `motion.semantic.press-scale`; focus ring `color.semantic.focus-ring`.
 - **Shape (as tile):** radius `radius.semantic.tile` when standalone.
 - **RN compatibility:** props `leading` (icon|avatar), `title`, `subtitle?`, `trailing?` (slot), `clickable`, `onPress`.
 
@@ -35,3 +35,4 @@ Reference **semantic tokens**; compose atoms.
 |---------|------|--------|
 | 0.1.0   | 2026-07-05 | Initial spec. |
 | 0.1.1   | 2026-07-05 | Replace hover state language with pressed-only mobile interaction model. |
+| 0.1.2   | 2026-07-09 | Clickable pressed state adds the shared `elevation.semantic.raised` treatment for a consistent press feel across rows, cards, and buttons. |

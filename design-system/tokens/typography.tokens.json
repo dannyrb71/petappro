@@ -29,6 +29,11 @@
           "$value": "Lexend",
           "$type": "fontFamily",
           "$description": "Harbor pairing \u2014 open, highly legible humanist sans"
+        },
+        "poppins": {
+          "$value": "Poppins",
+          "$type": "fontFamily",
+          "$description": "Brandy Blue (PetAppro base brand) pairing \u2014 geometric, confident"
         }
       },
       "size": {
