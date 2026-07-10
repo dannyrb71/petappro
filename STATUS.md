@@ -15,6 +15,38 @@
 
 ---
 
+## 2026-07-10 — Claude Code (D-039 revision)
+
+- **Done:** Revised `packages/pricing` to implement D-039 (explicit rates, no % surcharges). Engine bumped to v0.2.0.
+  - **`types.ts`:** Added `RateTier` / `RateTierCondition` types. Added `rate_tiers?: RateTier[]` to `ServiceRate`. Replaced `PricingRule` with discriminated union `SurchargeRule | DiscountRule` — TypeScript now enforces at compile time that surcharges can only be `action: "fixed_amount"`. Added `per_unit?: boolean` to `SurchargeRule` (puppy +$X/night). Added `rate_tier` to `AppliedPricingRule.action` union.
+  - **`engine.ts`:** Added `resolveRateTier()` helper (priority: holiday > extended > regular; explicit rate lookup, no % at any step). Step 2 now calls `resolveRateTier()` and emits `rate_tier_condition` in `booking_context` and `AppliedPricingRule`. Step 5 (flat surcharges) supports `per_unit` multiplication. Step 7 (% surcharges) **removed entirely** — the engine now has zero code paths for percentage surcharges.
+  - **`golden.test.ts`:** B3 rewritten to holiday rate-override test (`$90/night` explicit rate, asserts no % in `applied_rules`). B4 rewritten to flat surcharge stack test (puppy `per_unit=true` + travel flat). W3 rewritten to flat holiday walk fee ($6 flat, not $6 = $30 × 20%). "No floats" invariant now uses `% discount` (not `% surcharge`) to produce fractional intermediates. "Additive not compounding" invariant now tests % discount codes (the only remaining % use).
+  - **All 24 tests green, 8 skipped, TypeScript strict + `exactOptionalPropertyTypes` clean.**
+- **Decisions / open questions:**
+  - **D-039 fully implemented.** `PricingRule` discriminated union means the Supabase caller and any future admin UI will get compile-time errors if they try to create a % surcharge.
+  - **`per_unit` on SurchargeRule** is the MVP shape for puppy/extra-dog per-night flat fees. If "extra dog" should also be a `ParticipantRule` instead (per George v2), that's a config choice — both shapes exist and produce the same math.
+  - **For Codex:** `rate_tiers` on `ServiceRate` should correspond to a `service_rate_tiers` join table or a JSONB column in the DB; the engine snapshot at booking creation should carry the resolved `rate_tier_condition` in `booking_price_snapshots.booking_context`.
+- **Ready to push? NO** — waiting for Danny's "ready to deploy." Bundle with Cowork's ready-to-push docs (open_decisions.md D-041–D-047, provider-settings-ia.md, STATUS.md) when approved.
+
+---
+
+## 2026-07-10 — Design System (dark-mode surface model)
+- **Done:** Worked out the light+dark surface architecture with Danny and encoded it. Added **`surface.canvas`** (page backdrop) + **`text.on-canvas`**/`-variant` so text stays ADA on both dark canvas and light cards; kept `surface.default` = white holder, `surface.container` = inner. **Model 1 "light islands"** (Danny-approved): dark = **brand-tinted dark canvas** (Brandy Blue → teal `#002C38`) with **white holder cards in both modes**, inner one step darker. Canvas is brand-tinted per theme. `lint-tokens` → **641, 0 violations.** **Figma synced + verified:** new theme vars (`canvas`/`on-canvas`/`on-canvas-variant`) seeded per mode, semantic `surface/canvas` + `text/on-canvas`(+variant), Brandy Blue Light (white holder) + Dark (Model 1) rewritten; resolves correctly. Confirmed **service/status/payment tags ride the `domain.*` tokens** (unique bg per meaning, Woof-referenced).
+- **Decisions / open:** Model 1 + brand-tinted canvas = Danny-approved. **To do in Figma (Danny driving iteration):** author the other 4 themes' `· Dark` modes on this model; build Tag/Pill + Booking Card components; tune type scale down, pill contrast, drop left-border-on-rounded, decide glance-vs-tap disclosure; `Your Pack` separate pass.
+- **Ready to push?** **yes** — `tokens/semantic/color.tokens.json`, `tokens/themes/*` (brandy-blue + brandy-blue-dark rewritten; 5 themes +canvas roles), `CHANGELOG.md`. Figma file updated (not git-tracked). Pending Codex governance review.
+
+## 2026-07-10 — Cowork (product management)
+- **Done:** Scoped drop-in + in-home-sitting verticals and the provider config/payments model. Wrote `docs/planning/provider-settings-ia.md` (settings IA + web-portal/app surface split). Logged **D-041** (web portal = editor/billing surface; app basic), **D-042** (subscription web-only, no in-app purchase/CTA → B2B-SaaS 0% store fee; client booking payments via Stripe Connect, IAP-exempt physical service), **D-043** (off-hours surcharge + hours-of-operation + snapshot-on-booking; flat travel fee MVP, per-mile deferred), **D-044** (secure access storage), **D-045** (availability conflict-groups), **D-046** (report-card CMS templates + edit-lock). Added **D-047** (OPEN — service content + Woof carryover + report-card review; boarding-first). GPS confirmed as v1.1 fast-follow (manual proof-of-walk in MVP).
+- **Decisions / open questions:** D-041–D-046 marked **FINAL** (Danny). Open for Codex: data-model reuse for per-visit/per-night + location, availability/conflict, multi-visit-per-day, snapshot fields (`provider-settings-ia.md` §8). Pricing engine still needs the D-039 revision (below) — separate blocker.
+- **Ready to push? YES** — `docs/decisions/open_decisions.md` (D-041–D-047), `docs/planning/provider-settings-ia.md` (new), `STATUS.md`. **Claude Code to push on Danny's go** (clear `.git/*.lock` first). Bundle with the pricing-engine D-039 revision if it lands first.
+
+---
+
+## 2026-07-10 — Claude Code
+- **Pushed:** `7e2ec97` → `main` (`a5e0ad6..7e2ec97`). 51 files, 4664 insertions. All of last night's work is on GitHub. DS changes version-controlled only — Codex governance review still pending.
+
+---
+
 ## 2026-07-09 — Claude Code
 
 - **Done:**

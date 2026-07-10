@@ -1,5 +1,5 @@
 {
-  "$description": "Tier 2 · Themes — Sage & Sand mode (alternate; Brandy Blue is now the base default per Danny 2026-07-09). Brand roles alias base primitives.",
+  "$description": "Tier 2 \u00b7 Themes \u2014 Sage & Sand mode (alternate; Brandy Blue is now the base default per Danny 2026-07-09). Brand roles alias base primitives.",
   "color": {
     "$type": "color",
     "brand": {
@@ -70,6 +70,15 @@
             "allowLiteral": "translucent focus ring; alpha overlay, no solid primitive equivalent"
           }
         }
+      },
+      "canvas": {
+        "$value": "{color.primitive.sand.50}"
+      },
+      "on-canvas": {
+        "$value": "{color.primitive.ink.900}"
+      },
+      "on-canvas-variant": {
+        "$value": "{color.primitive.taupe.600}"
       }
     }
   },

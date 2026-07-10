@@ -64,6 +64,9 @@
         }
       },
       "surface": {
+        "canvas": {
+          "$value": "{color.brand.canvas}"
+        },
         "default": {
           "$value": "{color.brand.surface}"
         },
@@ -78,6 +81,12 @@
         }
       },
       "text": {
+        "on-canvas": {
+          "$value": "{color.brand.on-canvas}"
+        },
+        "on-canvas-variant": {
+          "$value": "{color.brand.on-canvas-variant}"
+        },
         "default": {
           "$value": "{color.brand.on-surface}"
         },

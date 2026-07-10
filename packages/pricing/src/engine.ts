@@ -1,27 +1,25 @@
 /**
- * PetAppro pricing engine — v0.1.0
+ * PetAppro pricing engine — v0.2.0
  *
  * Pure function: calculateBookingPrice(input, config) → PricingBreakdown.
  * No DB reads, no side effects, no payment capture.
  *
- * Canonical order of operations (spec §4):
+ * Canonical order of operations (spec §4, revised for D-039):
  *   1  Resolve currency + rounding config
- *   2  Resolve base service price
+ *   2  Resolve rate tier by condition (holiday > extended > regular) — explicit rate, NO % (D-039)
  *   3  Base quantity
- *   4  Participant pricing (per-dog)
- *   5  Rate overrides  (reserved; not yet implemented)
- *   6  Fixed surcharges
- *   7  Percentage surcharges — ADDITIVE, applied to pre-surcharge subtotal
- *   8  Add-ons
- *   9  Discounts — fixed first, then percentage
- *  10  Taxable subtotal
- *  11  Tax (when configured)
- *  12  Deposit — always 0 (D-015)
- *  13  Final total
- *  14  Return PricingBreakdown
+ *   4  Participant pricing (per-dog, flat per-unit)
+ *   5  Flat surcharges only — puppy, travel, etc. (D-039: % surcharges removed)
+ *   6  Add-ons
+ *   7  Discounts — fixed first, then percentage (% discounts survive; % for discount codes only)
+ *   8  Taxable subtotal
+ *   9  Tax (ppm; when configured)
+ *  10  Deposit — always 0 (D-015)
+ *  11  Final total = sum of persisted line items
  *
  * Rounding: half-up per line item; total = sum of rounded lines.
- * Money: integer minor units only. Percentages: bps. Tax: ppm.
+ * Money: integer minor units only. Percentages: bps (discounts). Tax: ppm.
+ * D-039: no percentage surcharges — holiday/extended/peak are explicit rate tiers.
  */
 
 import { halfUp, bpsAmount, ppmAmount } from "./math.js";
@@ -33,14 +31,16 @@ import type {
   AppliedPricingRule,
   PricingWarning,
   PricingModel,
+  SurchargeRule,
+  DiscountRule,
+  RateTierCondition,
 } from "./types.js";
 
-export const PRICING_ENGINE_VERSION = "0.1.0";
+export const PRICING_ENGINE_VERSION = "0.2.0";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function newId(): string {
-  // Prefer crypto.randomUUID() where available (Node 19+, all modern runtimes)
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
@@ -98,7 +98,6 @@ function unitLabel(model: PricingModel): string {
   }
 }
 
-// ISO datetime string → Date (handles timezone offsets)
 function parseDate(iso: string): Date {
   return new Date(iso);
 }
@@ -107,13 +106,57 @@ function minutesBetween(from: Date, to: Date): number {
   return (to.getTime() - from.getTime()) / 60_000;
 }
 
+// ─── Rate tier resolution (D-039) ────────────────────────────────────────────
+// Holiday/extended/peak are explicit provider-set rates, selected by condition.
+// Priority: holiday > extended > regular. No % involved at any point.
+
+function resolveRateTier(
+  serviceRate: PricingConfig["service_rate"],
+  input: BookingInput
+): { rate_minor: number; condition: RateTierCondition; label: string } {
+  const tiers = serviceRate.rate_tiers;
+  if (!tiers || tiers.length === 0) {
+    return { rate_minor: serviceRate.rate_minor ?? 0, condition: "regular", label: serviceRate.name };
+  }
+
+  // 1. Holiday (highest priority) — fires if any booking date is in the holiday list
+  if (input.start_at && input.end_at) {
+    const bookingDates = getBookingDates(input);
+    const holidayTier = tiers.find((t) => t.condition === "holiday");
+    if (
+      holidayTier?.holiday_dates &&
+      bookingDates.some((d) => holidayTier.holiday_dates!.includes(d))
+    ) {
+      return { rate_minor: holidayTier.rate_minor, condition: "holiday", label: holidayTier.label };
+    }
+  }
+
+  // 2. Extended — fires if booking quantity meets the threshold
+  const extendedTier = tiers.find((t) => t.condition === "extended");
+  if (
+    extendedTier !== undefined &&
+    extendedTier.extended_min_nights !== undefined &&
+    input.quantity >= extendedTier.extended_min_nights
+  ) {
+    return { rate_minor: extendedTier.rate_minor, condition: "extended", label: extendedTier.label };
+  }
+
+  // 3. Regular
+  const regularTier = tiers.find((t) => t.condition === "regular");
+  if (regularTier) {
+    return { rate_minor: regularTier.rate_minor, condition: "regular", label: regularTier.label };
+  }
+
+  // Fallback to rate_minor (no rate_tiers with condition="regular")
+  return { rate_minor: serviceRate.rate_minor ?? 0, condition: "regular", label: serviceRate.name };
+}
+
 // ─── Main engine ─────────────────────────────────────────────────────────────
 
 export function calculateBookingPrice(
   input: BookingInput,
   config: PricingConfig
 ): PricingBreakdown {
-  // Reset sort order for this calculation (engine is called sequentially server-side)
   _sortOrder = 0;
 
   const lines: PricingLineItem[] = [];
@@ -123,13 +166,13 @@ export function calculateBookingPrice(
   const currency = config.currency;
   const participantCount = input.participant_count ?? 1;
 
-  // ── Step 2+3: Base service price ────────────────────────────────────────────
+  // ── Step 2+3: Base service price with rate tier resolution ──────────────────
 
   let basePriceMinor: number;
   let pricingModel: PricingModel = config.service_rate.pricing_model;
+  let rateTierCondition: RateTierCondition | undefined;
 
   if (pricingModel === "duration_tiered") {
-    // Look up the matching duration tier (exact match required)
     const tiers = config.service_rate.duration_tiers ?? [];
     if (input.duration_minutes === undefined) {
       warnings.push({
@@ -185,10 +228,34 @@ export function calculateBookingPrice(
     }
   } else {
     // flat / per_unit / per_session / per_night
-    const rateMinor = config.service_rate.rate_minor ?? 0;
+    // D-039: resolve the applicable rate tier (holiday > extended > regular)
+    const resolved = resolveRateTier(config.service_rate, input);
     const qty = pricingModel === "flat" ? 1 : input.quantity;
-    basePriceMinor = rateMinor * qty;
-    lines.push(makeBaseLine(basePriceMinor, qty, rateMinor, pricingModel, config.service_rate));
+    basePriceMinor = resolved.rate_minor * qty;
+    rateTierCondition = resolved.condition;
+
+    lines.push(
+      makeBaseLine(basePriceMinor, qty, resolved.rate_minor, pricingModel, config.service_rate, {
+        calculation: {
+          formula: `${resolved.rate_minor} × ${qty}`,
+          ...(resolved.condition !== "regular" && { rate_tier_condition: resolved.condition }),
+        },
+      })
+    );
+
+    // Only emit a rate_tier applied_rule when a non-regular tier was selected (informational)
+    if (config.service_rate.rate_tiers && config.service_rate.rate_tiers.length > 0) {
+      appliedRules.push({
+        rule_id: `rate_tier_${resolved.condition}`,
+        rule_type: resolved.condition === "holiday" ? "holiday" : "base",
+        rule_name: resolved.label,
+        action: "rate_tier",
+        matched: true,
+        match_reason: `rate_tier_condition=${resolved.condition}`,
+        amount_minor: resolved.rate_minor,
+        rate_tier_condition: resolved.condition,
+      });
+    }
   }
 
   // ── Step 4: Participant pricing ──────────────────────────────────────────────
@@ -197,8 +264,7 @@ export function calculateBookingPrice(
   for (const rule of config.participant_rules ?? []) {
     const extraParticipants = Math.max(0, participantCount - (rule.applies_from_participant - 1));
     if (extraParticipants === 0) continue;
-    // action: "fixed_amount_per_unit" → fee × extra participants × quantity
-    const qty = pricingModel === "duration_tiered" ? input.quantity : input.quantity;
+    const qty = input.quantity;
     const amount = rule.amount_minor_per_unit * extraParticipants * qty;
     participantTotalMinor += amount;
     lines.push({
@@ -231,37 +297,36 @@ export function calculateBookingPrice(
     });
   }
 
-  // pre-surcharge subtotal = base + participant (this is the base for % surcharges)
-  const preSurchargeSubtotal = basePriceMinor + participantTotalMinor;
-  const subtotalBaseMinor = preSurchargeSubtotal;
+  const subtotalBaseMinor = basePriceMinor + participantTotalMinor;
 
-  // ── Step 5: Rate overrides (reserved) ───────────────────────────────────────
-  // Not yet implemented; always_apply rate overrides would go here.
+  // ── Step 5: Flat surcharges (D-039: flat amounts only, no % surcharges) ──────
+  // per_unit=true → amount multiplied by booking quantity (e.g., puppy fee +$X/night)
 
-  // ── Step 6: Fixed surcharges; Step 7: Percentage surcharges ────────────────
+  let surchargeTotal = 0;
 
-  let fixedSurchargeTotal = 0;
-  let pctSurchargeTotal = 0;
-
-  // Separate fixed and percentage surcharges; collect eligible rules
   const surchargeRules = (config.pricing_rules ?? []).filter(
-    (r) => r.category === "surcharge" && isRuleMatched(r, input)
+    (r): r is SurchargeRule => r.category === "surcharge" && isRuleMatched(r, input)
   );
 
-  // Step 6: fixed surcharges
-  for (const rule of surchargeRules.filter((r) => r.action === "fixed_amount")) {
-    const amount = rule.amount_minor ?? 0;
-    fixedSurchargeTotal += amount;
+  for (const rule of surchargeRules) {
+    // per_unit: multiply by quantity (e.g., puppy +$10/night × 3 nights = $30)
+    const amount = rule.per_unit ? rule.amount_minor * input.quantity : rule.amount_minor;
+    surchargeTotal += amount;
     const category = rule.rule_type === "holiday" ? "holiday" : "surcharge";
     lines.push({
       line_id: newId(),
       code: `surcharge_${rule.id}`,
       label: rule.name,
       category,
+      ...(rule.per_unit && { quantity: input.quantity, unit_amount_minor: rule.amount_minor }),
       amount_minor: amount,
       taxable: true,
       source: { config_type: "pricing_rule", config_id: rule.id, config_name: rule.name },
-      calculation: { formula: `fixed ${amount}` },
+      calculation: {
+        formula: rule.per_unit
+          ? `${rule.amount_minor} × ${input.quantity} units`
+          : `fixed ${amount}`,
+      },
       sort_order: nextOrder(),
     });
     appliedRules.push({
@@ -275,41 +340,7 @@ export function calculateBookingPrice(
     });
   }
 
-  // Step 7: percentage surcharges — each applies to preSurchargeSubtotal (additive)
-  for (const rule of surchargeRules.filter((r) => r.action === "percentage")) {
-    const bps = rule.percentage_bps ?? 0;
-    const amount = bpsAmount(preSurchargeSubtotal, bps); // halfUp inside
-    pctSurchargeTotal += amount;
-    const category = rule.rule_type === "holiday" ? "holiday" : "surcharge";
-    lines.push({
-      line_id: newId(),
-      code: `surcharge_pct_${rule.id}`,
-      label: rule.name,
-      category,
-      amount_minor: amount,
-      taxable: true,
-      source: { config_type: "pricing_rule", config_id: rule.id, config_name: rule.name },
-      calculation: {
-        formula: `${preSurchargeSubtotal} × ${bps}bps / 10000`,
-        percentage_bps: bps,
-        base_amount_minor: preSurchargeSubtotal,
-      },
-      sort_order: nextOrder(),
-    });
-    appliedRules.push({
-      rule_id: rule.id,
-      rule_type: rule.rule_type,
-      rule_name: rule.name,
-      action: "percentage",
-      matched: true,
-      match_reason: rule.always_apply ? "always_apply" : "date_match",
-      percentage_bps: bps,
-      amount_minor: amount,
-    });
-  }
-
   // ── Overage surcharge (partial_unit_overage) ────────────────────────────────
-  // Treated as a special surcharge in the fixed-surcharge slot (§4 step 6)
 
   let overageTotal = 0;
   if (config.overage_config && input.scheduled_end_at && input.actual_end_at) {
@@ -346,9 +377,9 @@ export function calculateBookingPrice(
     }
   }
 
-  const surchargeTotal = fixedSurchargeTotal + pctSurchargeTotal + overageTotal;
+  surchargeTotal += overageTotal;
 
-  // ── Step 8: Add-ons ──────────────────────────────────────────────────────────
+  // ── Step 6: Add-ons ──────────────────────────────────────────────────────────
 
   let addonTotal = 0;
   for (const addonId of input.selected_addon_ids ?? []) {
@@ -379,15 +410,17 @@ export function calculateBookingPrice(
     });
   }
 
-  const subtotalBeforeDiscounts = preSurchargeSubtotal + surchargeTotal + addonTotal;
+  const subtotalBeforeDiscounts = subtotalBaseMinor + surchargeTotal + addonTotal;
 
-  // ── Step 9: Discounts — fixed first, then percentage ────────────────────────
+  // ── Step 7: Discounts — fixed first, then percentage ────────────────────────
+  // % discounts apply to (subtotalBeforeDiscounts - fixedDiscounts); additive, not compounding.
 
   let discountTotal = 0;
 
-  // 9a: Fixed discounts (from rules)
+  // 7a: Fixed discounts
   const fixedDiscountRules = (config.pricing_rules ?? []).filter(
-    (r) => r.category === "discount" && r.action === "fixed_amount" && isRuleMatched(r, input)
+    (r): r is DiscountRule =>
+      r.category === "discount" && r.action === "fixed_amount" && isRuleMatched(r, input)
   );
   for (const rule of fixedDiscountRules) {
     const amount = rule.amount_minor ?? 0;
@@ -397,7 +430,7 @@ export function calculateBookingPrice(
       code: `discount_${rule.id}`,
       label: rule.name,
       category: "discount",
-      amount_minor: -amount, // stored negative
+      amount_minor: -amount,
       taxable: false,
       source: { config_type: "pricing_rule", config_id: rule.id, config_name: rule.name },
       calculation: { formula: `fixed -${amount}` },
@@ -414,7 +447,7 @@ export function calculateBookingPrice(
     });
   }
 
-  // 9b: Manual discount (authorized override — billing layer verifies auth, D-018)
+  // 7b: Manual discount
   if (input.manual_discount_minor && input.manual_discount_minor > 0) {
     const amount = input.manual_discount_minor;
     discountTotal += amount;
@@ -431,11 +464,11 @@ export function calculateBookingPrice(
     });
   }
 
-  // 9c: Percentage discounts — applied to (subtotalBeforeDiscounts - fixedDiscounts)
-  // per George v2 §6.2: "Discount base = subtotal - fixed discounts"
+  // 7c: Percentage discounts — each applies to the same base (additive, not compounding)
   const pctDiscountBase = subtotalBeforeDiscounts - discountTotal;
   const pctDiscountRules = (config.pricing_rules ?? []).filter(
-    (r) => r.category === "discount" && r.action === "percentage" && isRuleMatched(r, input)
+    (r): r is DiscountRule =>
+      r.category === "discount" && r.action === "percentage" && isRuleMatched(r, input)
   );
   for (const rule of pctDiscountRules) {
     const bps = rule.percentage_bps ?? 0;
@@ -468,7 +501,7 @@ export function calculateBookingPrice(
     });
   }
 
-  // ── Step 10+11: Tax ──────────────────────────────────────────────────────────
+  // ── Step 8+9: Tax ────────────────────────────────────────────────────────────
 
   const taxableSubtotal = subtotalBeforeDiscounts - discountTotal;
   let taxTotal = 0;
@@ -482,7 +515,7 @@ export function calculateBookingPrice(
       label: config.tax_config.name,
       category: "tax",
       amount_minor: taxTotal,
-      taxable: false, // tax line itself is not taxed
+      taxable: false,
       source: { config_type: "tax_config" },
       calculation: {
         formula: `${taxableSubtotal} × ${ppm}ppm / 1000000`,
@@ -493,16 +526,11 @@ export function calculateBookingPrice(
     });
   }
 
-  // ── Step 12: Deposit ─────────────────────────────────────────────────────────
-  // Always 0 (D-015). No calculation, no line item.
+  // ── Step 10: Deposit — always 0 (D-015) ─────────────────────────────────────
 
-  // ── Step 13: Final total ─────────────────────────────────────────────────────
-  // total = sum of persisted line items (no hidden math)
+  // ── Step 11: Final total = sum of persisted line items ───────────────────────
 
   const totalMinor = lines.reduce((acc, l) => acc + l.amount_minor, 0);
-
-  // Verify: totalMinor = taxableSubtotal + taxTotal
-  // (Both paths must agree; this is an internal sanity check)
 
   return {
     pricing_engine_version: PRICING_ENGINE_VERSION,
@@ -515,6 +543,7 @@ export function calculateBookingPrice(
     booking_context: {
       service_type: input.service_type,
       pricing_model: pricingModel,
+      ...(rateTierCondition !== undefined && { rate_tier_condition: rateTierCondition }),
       ...(input.start_at !== undefined && { start_at: input.start_at }),
       ...(input.end_at !== undefined && { end_at: input.end_at }),
       ...(input.timezone !== undefined && { timezone: input.timezone }),
@@ -534,14 +563,14 @@ export function calculateBookingPrice(
       tax_total_minor: taxTotal,
       fee_total_minor: 0,
       total_minor: totalMinor,
-      deposit_due_minor: 0, // D-015
-      balance_due_minor: totalMinor, // D-015: no deposit split
+      deposit_due_minor: 0,
+      balance_due_minor: totalMinor,
     },
 
     rounding: {
       mode: "half_up",
       rounded_per_line: true,
-      currency_minor_unit: 100, // USD cents
+      currency_minor_unit: 100,
     },
 
     lines,
@@ -552,31 +581,31 @@ export function calculateBookingPrice(
 
 // ─── Rule matching ────────────────────────────────────────────────────────────
 
-function isRuleMatched(rule: PricingConfig["pricing_rules"] extends (infer R)[] | undefined ? R : never, input: BookingInput): boolean {
+function isRuleMatched(
+  rule: { always_apply?: boolean; holiday_dates?: string[] },
+  input: BookingInput
+): boolean {
   if (rule.always_apply) return true;
-
-  // Holiday date matching: rule fires if any booking date overlaps configured holiday dates
   if (rule.holiday_dates && rule.holiday_dates.length > 0) {
     const bookingDates = getBookingDates(input);
     return bookingDates.some((d) => rule.holiday_dates!.includes(d));
   }
-
   return false;
 }
 
-/** Returns ISO date strings ("YYYY-MM-DD") for each night/day in the booking. */
+/** Returns ISO date strings ("YYYY-MM-DD") for each night/day of the booking (UTC). */
 function getBookingDates(input: BookingInput): string[] {
   if (!input.start_at || !input.end_at) return [];
-  const start = parseDate(input.start_at);
-  const end = parseDate(input.end_at);
+  const start = new Date(input.start_at);
+  const end = new Date(input.end_at);
   const dates: string[] = [];
   const cursor = new Date(start);
-  cursor.setHours(0, 0, 0, 0);
+  cursor.setUTCHours(0, 0, 0, 0);
   const endDay = new Date(end);
-  endDay.setHours(0, 0, 0, 0);
+  endDay.setUTCHours(0, 0, 0, 0);
   while (cursor < endDay) {
     dates.push(cursor.toISOString().slice(0, 10));
-    cursor.setDate(cursor.getDate() + 1);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
   return dates;
 }

@@ -104,9 +104,12 @@ describe("Boarding golden tests", () => {
     expect(participantLine!.amount_minor).toBe(12000); // $40 × 3 nights
   });
 
-  // B3 ── Holiday percentage surcharge
-  // Base $225 + 20% holiday = $45 surcharge → 27000
-  it("B3: boarding with holiday percentage surcharge — additive on base subtotal", () => {
+  // B3 ── Holiday rate override (D-039)
+  // Provider sets Regular=$75/night, Holiday=$90/night as explicit rate tiers.
+  // Engine selects $90 because the booking dates overlap the holiday calendar.
+  // No percentage involved — the rate IS $90, not $75 × 1.something.
+  // $90/night × 3 holiday nights = $270 → 27000
+  it("B3: holiday rate override — engine selects explicit holiday rate, not base×% (D-039)", () => {
     const config: PricingConfig = {
       business_id: "biz-1",
       currency: "USD",
@@ -116,39 +119,52 @@ describe("Boarding golden tests", () => {
         name: "Boarding",
         pricing_model: "per_night",
         currency: "USD",
-        rate_minor: 7500,
+        rate_tiers: [
+          {
+            condition: "regular",
+            rate_minor: 7500, // $75/night — provider's standard rate
+            label: "Regular boarding",
+          },
+          {
+            condition: "holiday",
+            rate_minor: 9000, // $90/night — provider's explicit holiday rate
+            label: "Holiday boarding",
+            holiday_dates: ["2025-12-25", "2025-12-26", "2025-12-27"],
+          },
+        ],
       },
-      pricing_rules: [
-        {
-          id: "rule-holiday-20",
-          business_id: "biz-1",
-          rule_type: "holiday",
-          name: "Holiday surcharge",
-          category: "surcharge",
-          action: "percentage",
-          percentage_bps: 2000, // 20%
-          always_apply: true,
-        },
-      ],
     };
+    // Christmas stay: check-in Dec 25, check-out Dec 28 → 3 holiday nights
     const input: BookingInput = {
       business_id: "biz-1",
       service_type: "boarding",
       quantity: 3,
+      start_at: "2025-12-25T15:00:00Z",
+      end_at: "2025-12-28T12:00:00Z",
     };
     const bd = calculateBookingPrice(input, config);
-    expect(bd.totals.subtotal_base_minor).toBe(22500);
-    expect(bd.totals.surcharge_total_minor).toBe(4500); // 22500 × 20%
+    expect(bd.totals.subtotal_base_minor).toBe(27000); // $90 × 3 = $270
+    expect(bd.totals.surcharge_total_minor).toBe(0); // no surcharge — rate IS $90
     expect(bd.totals.total_minor).toBe(27000);
-    const surchargeLine = bd.lines.find((l) => l.category === "holiday");
-    expect(surchargeLine!.amount_minor).toBe(4500);
-    expect(surchargeLine!.calculation.percentage_bps).toBe(2000);
+    // Base line must show $90 unit rate, not $75
+    const baseLine = bd.lines.find((l) => l.category === "base");
+    expect(baseLine!.unit_amount_minor).toBe(9000); // $90 holiday rate was selected
+    expect(baseLine!.quantity).toBe(3);
+    expect(baseLine!.amount_minor).toBe(27000);
+    // booking_context records which tier was in effect
+    expect(bd.booking_context.rate_tier_condition).toBe("holiday");
+    // applied_rules shows rate_tier action (not a % surcharge)
+    const rateTierRule = bd.applied_rules.find((r) => r.action === "rate_tier");
+    expect(rateTierRule).toBeDefined();
+    expect(rateTierRule!.rate_tier_condition).toBe("holiday");
+    // Crucially: no applied_rules with action "percentage"
+    expect(bd.applied_rules.every((r) => r.action !== "percentage")).toBe(true);
   });
 
-  // B4 ── Fixed + percentage surcharges (additive, not compounding)
-  // Base $225 + fixed $30 + 10% of $225 = $22.50 → 27750
-  // Spec §4: % surcharges are additive and apply to pre-surcharge subtotal
-  it("B4: fixed and percentage surcharges — % applies to pre-surcharge base, not accumulated", () => {
+  // B4 ── Flat surcharges stack (D-039: all surcharges are flat amounts, never %)
+  // Provider has a puppy fee (+$10/night, per_unit) and a one-time travel fee ($25 flat).
+  // Base $75/night × 3 = $225; puppy $10/night × 3 = $30; travel $25 flat → 28000
+  it("B4: flat surcharges stack arithmetically — per_unit and flat amounts, no % (D-039)", () => {
     const config: PricingConfig = {
       business_id: "biz-1",
       currency: "USD",
@@ -158,27 +174,28 @@ describe("Boarding golden tests", () => {
         name: "Boarding",
         pricing_model: "per_night",
         currency: "USD",
-        rate_minor: 7500,
+        rate_minor: 7500, // $75/night
       },
       pricing_rules: [
         {
-          id: "rule-holiday-fixed",
+          id: "rule-puppy",
           business_id: "biz-1",
-          rule_type: "holiday",
-          name: "Holiday fixed fee",
+          rule_type: "surcharge",
+          name: "Puppy fee",
           category: "surcharge",
           action: "fixed_amount",
-          amount_minor: 3000, // $30
+          amount_minor: 1000, // $10/night
+          per_unit: true, // multiplied by booking quantity (3 nights → $30)
           always_apply: true,
         },
         {
-          id: "rule-weekend-pct",
+          id: "rule-travel",
           business_id: "biz-1",
           rule_type: "surcharge",
-          name: "Weekend surcharge",
+          name: "Travel fee",
           category: "surcharge",
-          action: "percentage",
-          percentage_bps: 1000, // 10%
+          action: "fixed_amount",
+          amount_minor: 2500, // $25 one-time flat
           always_apply: true,
         },
       ],
@@ -189,18 +206,19 @@ describe("Boarding golden tests", () => {
       quantity: 3,
     };
     const bd = calculateBookingPrice(input, config);
-    // $22.50 = 22500 × 10% = 2250
-    expect(bd.totals.surcharge_total_minor).toBe(5250); // 3000 + 2250
-    expect(bd.totals.total_minor).toBe(27750); // 22500 + 3000 + 2250
-    const fixedLine = bd.lines.find(
-      (l) => l.category === "holiday" && l.calculation.formula.includes("fixed")
-    );
-    const pctLine = bd.lines.find(
-      (l) => l.category === "surcharge"
-    );
-    expect(fixedLine!.amount_minor).toBe(3000);
-    expect(pctLine!.amount_minor).toBe(2250);
-    expect(pctLine!.calculation.base_amount_minor).toBe(22500); // applied to pre-surcharge base
+    expect(bd.totals.subtotal_base_minor).toBe(22500); // $75 × 3
+    expect(bd.totals.surcharge_total_minor).toBe(5500); // 3000 + 2500
+    expect(bd.totals.total_minor).toBe(28000); // 22500 + 3000 + 2500
+    // Puppy line: per_unit=true → quantity=3, unit_amount=1000, total=3000
+    const puppyLine = bd.lines.find((l) => l.code === "surcharge_rule-puppy");
+    expect(puppyLine!.amount_minor).toBe(3000);
+    expect(puppyLine!.quantity).toBe(3);
+    expect(puppyLine!.unit_amount_minor).toBe(1000);
+    // Travel line: flat amount
+    const travelLine = bd.lines.find((l) => l.code === "surcharge_rule-travel");
+    expect(travelLine!.amount_minor).toBe(2500);
+    // No percentage lines anywhere
+    expect(bd.applied_rules.every((r) => r.action !== "percentage")).toBe(true);
   });
 
   // B5 ── Add-on + percentage discount
@@ -600,9 +618,10 @@ describe("Walking golden tests (D-022 MVP)", () => {
     expect(participantLine!.amount_minor).toBe(2000); // 2nd dog
   });
 
-  // W3 ── Walk with holiday surcharge
-  // 30-min $30 + 20% holiday = $6 → 3600
-  it("W3: walk with holiday surcharge — percentage applies to walk tier base", () => {
+  // W3 ── Walk with holiday flat surcharge (D-039)
+  // Provider sets a flat $6 holiday walk fee (not 20% — D-039 removes % surcharges).
+  // 30-min walk $30 + holiday flat $6 → 3600
+  it("W3: walk on holiday — flat dollar holiday surcharge, not % (D-039)", () => {
     const config: PricingConfig = {
       business_id: "biz-1",
       currency: "USD",
@@ -623,10 +642,10 @@ describe("Walking golden tests (D-022 MVP)", () => {
           id: "rule-holiday-walk",
           business_id: "biz-1",
           rule_type: "holiday",
-          name: "Holiday surcharge",
+          name: "Holiday walk fee",
           category: "surcharge",
-          action: "percentage",
-          percentage_bps: 2000, // 20%
+          action: "fixed_amount", // D-039: flat dollar, not %
+          amount_minor: 600, // $6 flat — provider-set explicit amount
           always_apply: true,
         },
       ],
@@ -640,9 +659,14 @@ describe("Walking golden tests (D-022 MVP)", () => {
       },
       config
     );
-    expect(bd.totals.subtotal_base_minor).toBe(3000);
-    expect(bd.totals.surcharge_total_minor).toBe(600); // 3000 × 20%
+    expect(bd.totals.subtotal_base_minor).toBe(3000); // $30 walk
+    expect(bd.totals.surcharge_total_minor).toBe(600); // $6 flat holiday fee
     expect(bd.totals.total_minor).toBe(3600);
+    const holidayLine = bd.lines.find((l) => l.category === "holiday");
+    expect(holidayLine!.amount_minor).toBe(600);
+    // No percentage calculation
+    expect(holidayLine!.calculation.percentage_bps).toBeUndefined();
+    expect(bd.applied_rules.every((r) => r.action !== "percentage")).toBe(true);
   });
 });
 
@@ -687,22 +711,24 @@ describe("Engine structural invariants", () => {
     expect(bd.totals.balance_due_minor).toBe(bd.totals.total_minor);
   });
 
-  it("all line item amounts are integers — no floats", () => {
+  it("all line item amounts are integers — no floats (fractional bps/ppm rounded half-up)", () => {
+    // Use a 13.33% discount code + 8.625% tax to force fractional intermediate values.
+    // halfUp must produce integers at every line even when bps/ppm don't divide evenly.
     const config: PricingConfig = {
       ...simpleConfig(),
       pricing_rules: [
         {
           id: "r1",
           business_id: "biz-1",
-          rule_type: "holiday",
-          name: "Holiday",
-          category: "surcharge",
+          rule_type: "discount",
+          name: "Odd % discount",
+          category: "discount",
           action: "percentage",
-          percentage_bps: 1333, // 13.33% — produces fractional cents
+          percentage_bps: 1333, // 13.33% — 7500 × 1333 / 10000 = 999.75 → halfUp = 1000
           always_apply: true,
         },
       ],
-      tax_config: { enabled: true, rate_ppm: 86250, name: "Tax" },
+      tax_config: { enabled: true, rate_ppm: 86250, name: "Tax" }, // 6500 × 86250 / 1e6 = 560.625 → 561
     };
     const bd = calculateBookingPrice(
       { business_id: "biz-1", service_type: "boarding", quantity: 1 },
@@ -746,9 +772,10 @@ describe("Engine structural invariants", () => {
     );
   });
 
-  // Additive-not-compounding percentage surcharges (spec §4, example 3)
-  // $100 × (20% + 10%) = $130, NOT $100 × 1.2 × 1.1 = $132
-  it("percentage surcharges are additive not compounding (spec §4)", () => {
+  // Additive-not-compounding percentage discounts (D-039: % only for discount codes)
+  // $100 base; 20% + 10% discount codes → $30 off ($70), NOT $100 × 0.8 × 0.9 = $72
+  // The engine applies each % to the same pctDiscountBase, not to the running balance.
+  it("percentage discount codes are additive not compounding — 20%+10%=$30 off, not $28 off (D-039)", () => {
     const config: PricingConfig = {
       business_id: "biz-1",
       currency: "USD",
@@ -762,23 +789,23 @@ describe("Engine structural invariants", () => {
       },
       pricing_rules: [
         {
-          id: "r-holiday",
+          id: "r-code-20",
           business_id: "biz-1",
-          rule_type: "holiday",
-          name: "Holiday 20%",
-          category: "surcharge",
+          rule_type: "discount",
+          name: "20% loyalty code",
+          category: "discount",
           action: "percentage",
-          percentage_bps: 2000,
+          percentage_bps: 2000, // 20% of $100 = $20
           always_apply: true,
         },
         {
-          id: "r-weekend",
+          id: "r-code-10",
           business_id: "biz-1",
-          rule_type: "surcharge",
-          name: "Weekend 10%",
-          category: "surcharge",
+          rule_type: "discount",
+          name: "10% referral code",
+          category: "discount",
           action: "percentage",
-          percentage_bps: 1000,
+          percentage_bps: 1000, // 10% of $100 = $10 (additive, NOT 10% of $80)
           always_apply: true,
         },
       ],
@@ -787,7 +814,10 @@ describe("Engine structural invariants", () => {
       { business_id: "biz-1", service_type: "service", quantity: 1 },
       config
     );
-    expect(bd.totals.total_minor).toBe(13000); // $130, NOT $132
+    // Additive: $20 + $10 = $30 off → total $70
+    // Compounding (wrong): $100 × 0.8 × 0.9 = $72 → total $72
+    expect(bd.totals.discount_total_minor).toBe(3000); // $30 off, not $28
+    expect(bd.totals.total_minor).toBe(7000); // $70, NOT $72
   });
 });
 

@@ -1,5 +1,5 @@
 {
-  "$description": "Tier 2 · Themes — harbor mode. Brand roles alias primitives; one file = one Figma mode.",
+  "$description": "Tier 2 \u00b7 Themes \u2014 harbor mode. Brand roles alias primitives; one file = one Figma mode.",
   "color": {
     "$type": "color",
     "brand": {
@@ -70,6 +70,15 @@
             "allowLiteral": "translucent focus ring; alpha overlay, no solid primitive equivalent"
           }
         }
+      },
+      "canvas": {
+        "$value": "{color.primitive.harbor-neutral.50}"
+      },
+      "on-canvas": {
+        "$value": "{color.primitive.harbor-neutral.900}"
+      },
+      "on-canvas-variant": {
+        "$value": "{color.primitive.harbor-neutral.700}"
       }
     }
   },

@@ -6,7 +6,7 @@
 
 ---
 
-> **⚠ PENDING REVISION (2026-07-09) — pricing model = explicit rates, NOT % surcharges.** Per Danny + the **Woof WeTreats pricing reference**: providers type in **explicit dollar rates** for every condition — *Regular / Extended / Holiday* boarding are **separate rate tiers**, not a % markup — plus **flat** surcharges (extra-dog rate, puppy +$/night, payment-method). **Holiday/peak/weekend = a rate *override* (provider-set rate for that condition), never a % surcharge.** Percentages are limited to **tax** (and possibly % discount codes — TBD). The §4 order-of-operations "% surcharge" steps and the holiday-as-20% golden tests (B3/B4) are **superseded on this point** and will be revised — Cowork updates this spec; Claude Code updates the engine default + those tests. Everything else (integer minor units, immutable snapshot, engine purity, tenant-scoping, tips §5A, no deposits) **stands.** **Answered 2026-07-09 (Danny):** (1) **No card/convenience surcharge** — surcharging is a multi-state compliance minefield (state variation + disclosure rules + card-network caps/registration, debit prohibited + CA SB-478 all-in-pricing); providers set rates **inclusive** of their costs. (2) **Rate tiers = provider-set overrides:** ship **Woof's default holiday set**, provider can keep/edit/add/remove via a **calendar picker** in settings with **reset-to-defaults**; *extended* = length threshold. Engine picks the tier from booking dates/length. (3) **Discounts:** flat **and** % codes allowed (the only % besides tax); **plus** a provider-toggle **referral bonus** = one free/credited booking (per Woof — *booking-level, client-facing*; distinct from D-020's SaaS-subscription referral). All to fold into the revision + a new pricing decision entry.
+> **✅ REVISED — pricing model = explicit rates, NOT % surcharges (Decided D-039, 2026-07-09). §4 below is updated; Claude Code still updates the engine + golden tests to match.** Per Danny + the **Woof WeTreats pricing reference**: providers type in **explicit dollar rates** for every condition — *Regular / Extended / Holiday* boarding are **separate rate tiers**, not a % markup — plus **flat** surcharges (extra-dog rate, puppy +$/night, payment-method). **Holiday/peak/weekend = a rate *override* (provider-set rate for that condition), never a % surcharge.** Percentages are limited to **tax** (and possibly % discount codes — TBD). The §4 order-of-operations "% surcharge" steps and the holiday-as-20% golden tests (B3/B4) are **superseded on this point** and will be revised — Cowork updates this spec; Claude Code updates the engine default + those tests. Everything else (integer minor units, immutable snapshot, engine purity, tenant-scoping, tips §5A, no deposits) **stands.** **Answered 2026-07-09 (Danny):** (1) **No card/convenience surcharge** — surcharging is a multi-state compliance minefield (state variation + disclosure rules + card-network caps/registration, debit prohibited + CA SB-478 all-in-pricing); providers set rates **inclusive** of their costs. (2) **Rate tiers = provider-set overrides:** ship **Woof's default holiday set**, provider can keep/edit/add/remove via a **calendar picker** in settings with **reset-to-defaults**; *extended* = length threshold. Engine picks the tier from booking dates/length. (3) **Discounts:** flat **and** % codes allowed (the only % besides tax); **plus** a provider-toggle **referral bonus** = one free/credited booking (per Woof — *booking-level, client-facing*; distinct from D-020's SaaS-subscription referral). All to fold into the revision + a new pricing decision entry.
 
 ## 0. Reconciliation deltas from George v2 — READ FIRST
 
@@ -66,27 +66,25 @@ type PricingRuleType = "base" | "surcharge" | "discount" | "holiday" | "peak";
 Apply in **exactly** this order; round **each line item** to minor units as it's created, then sum. `Final total = sum of persisted line items` (no hidden fractional cents).
 
 1. Resolve business currency + rounding config
-2. Resolve base service price
-3. Base quantity
-4. Participant pricing (per-dog / per-person)
-5. Rate overrides
-6. Fixed surcharges
-7. Percentage surcharges
-8. Add-ons
-9. Discounts — **fixed first, then percentage**
-10. Taxable subtotal
-11. Taxes + pass-through fees (if configured)
-12. ~~Deposit~~ **(MVP: skipped — D-015; `deposit_due_minor = 0`)**
-13. Final total
-14. Return itemized breakdown
+2. **Resolve the applicable rate tier** by condition — regular / **holiday** (provider's holiday calendar) / **extended** (stay-length threshold) — using the **provider-set explicit rate** for that tier. This *is* the rate override; **there is no % markup** (D-039).
+3. Base quantity (× nights / sessions / etc.)
+4. Participant pricing — **extra-dog = flat rate per tier** (provider-set), not a %
+5. **Flat surcharges** — puppy (+$/night), etc.; flat amounts only
+6. Add-ons (flat)
+7. Discounts — **fixed first, then % codes**; plus any **referral-bonus** credit (one free/credited booking)
+8. Taxable subtotal
+9. Taxes + pass-through fees (if configured; tax % via ppm)
+10. ~~Deposit~~ **(MVP: skipped — D-015; `deposit_due_minor = 0`)**
+11. Final total
+12. Return itemized breakdown
 
-**Stacking rules (critical, adopted):**
-- Fixed modifiers **add arithmetically**.
-- Percentage surcharges are **additive, not compounding** (holiday 20% + weekend 10% = 30% of base, i.e. `$100 → $130`, **not** `×1.2×1.1 = $132`). MVP does not support compounding.
-- Discounts apply **after** surcharges + add-ons, to the **full pre-tax subtotal**; fixed before percentage; percentage discounts additive not compounding.
-- **Tax after discounts**, on the post-discount taxable subtotal; rounded once per tax group (one business-level tax line for MVP).
+**Stacking rules (D-039 — explicit-rate model):**
+- **No % surcharges.** Holiday / peak / weekend / extended are **rate *tiers*** the provider sets (rate override), resolved at step 2 — never a percentage on base. Extra-dog, puppy, add-ons are **flat**. (Example: Regular boarding $60/night, Holiday $75/night — the provider types both.)
+- **No card/convenience surcharge** (D-039) — providers set inclusive rates.
+- Discounts apply **after** rate + surcharges + add-ons, to the **full pre-tax subtotal**; fixed before % (% only on **discount codes**); % discounts additive, not compounding; referral bonus applies as a credit line.
+- **Tax after discounts**, on the post-discount taxable subtotal; rounded once per tax group (one business-level tax line for MVP). **Percentages survive only for tax and discount codes.**
 
-**Rounding:** **half-up**, per line item (not banker's). `amount_minor * bps / 10000` for percentages; `amount_minor * ppm / 1_000_000` for tax.
+**Rounding:** **half-up**, per line item (not banker's). `amount_minor * bps / 10000` for % (discount codes); `amount_minor * ppm / 1_000_000` for tax.
 
 ---
 

@@ -1,5 +1,5 @@
 {
-  "$description": "Tier 2 · Themes — Brandy Blue · Dark (PetAppro base brand — DEFAULT dark preset, Option A). Brightened Brandy-Blue primary on dark slate surfaces; same role names as light. Paired typeface: Poppins.",
+  "$description": "Tier 2 · Themes — Brandy Blue · Dark (PetAppro base brand — DEFAULT dark preset, Option A). Model 1 'light islands': brand-tinted dark-teal canvas, WHITE holder cards (same as light), inner one step darker. Brightened primary pops on the dark canvas. Poppins.",
   "color": {
     "$type": "color",
     "brand": {
@@ -13,55 +13,64 @@
         "$value": "{color.primitive.brandy-blue.900}"
       },
       "primary-container": {
-        "$value": "{color.primitive.brandy-blue.900}"
-      },
-      "on-primary-container": {
         "$value": "{color.primitive.brandy-blue.100}"
       },
+      "on-primary-container": {
+        "$value": "{color.primitive.brandy-blue.900}"
+      },
       "secondary": {
-        "$value": "{color.primitive.camo.400}"
+        "$value": "{color.primitive.camo.600}"
       },
       "secondary-solid": {
-        "$value": "{color.primitive.camo.500}"
+        "$value": "{color.primitive.camo.700}"
       },
       "on-secondary": {
-        "$value": "{color.primitive.maverick.900}"
+        "$value": "{color.primitive.white}"
       },
       "secondary-container": {
-        "$value": "{color.primitive.camo.900}"
-      },
-      "on-secondary-container": {
         "$value": "{color.primitive.camo.100}"
       },
-      "surface": {
-        "$value": "{color.primitive.maverick.900}"
+      "on-secondary-container": {
+        "$value": "{color.primitive.camo.900}"
       },
-      "surface-container": {
-        "$value": "{color.primitive.maverick.800}"
+      "canvas": {
+        "$value": "{color.primitive.brandy-blue.900}"
       },
-      "surface-container-high": {
-        "$value": "{color.primitive.maverick.700}"
+      "on-canvas": {
+        "$value": "{color.primitive.maverick.50}"
       },
-      "on-surface": {
-        "$value": "{color.primitive.maverick.100}"
-      },
-      "on-surface-body": {
-        "$value": "{color.primitive.maverick.300}"
-      },
-      "on-surface-variant": {
+      "on-canvas-variant": {
         "$value": "{color.primitive.maverick.400}"
       },
-      "on-surface-accent": {
-        "$value": "{color.primitive.brandy-blue.300}"
+      "surface": {
+        "$value": "{color.primitive.white}"
       },
-      "outline": {
+      "surface-container": {
+        "$value": "{color.primitive.maverick.100}"
+      },
+      "surface-container-high": {
+        "$value": "{color.primitive.maverick.200}"
+      },
+      "on-surface": {
+        "$value": "{color.primitive.maverick.900}"
+      },
+      "on-surface-body": {
         "$value": "{color.primitive.maverick.700}"
       },
+      "on-surface-variant": {
+        "$value": "{color.primitive.maverick.600}"
+      },
+      "on-surface-accent": {
+        "$value": "{color.primitive.brandy-blue.600}"
+      },
+      "outline": {
+        "$value": "{color.primitive.maverick.200}"
+      },
       "outline-variant": {
-        "$value": "{color.primitive.maverick.800}"
+        "$value": "{color.primitive.maverick.100}"
       },
       "outline-strong": {
-        "$value": "{color.primitive.maverick.600}"
+        "$value": "{color.primitive.maverick.300}"
       },
       "focus-ring": {
         "$value": "rgba(111,199,207,0.32)",

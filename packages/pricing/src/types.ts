@@ -14,6 +14,28 @@ export type PricingModel =
 
 export type PricingRuleType = "base" | "surcharge" | "discount" | "holiday" | "peak";
 
+// ─── Rate tiers (D-039) ───────────────────────────────────────────────────────
+// Holiday/extended/peak are explicit provider-set rates, NOT % markups.
+// The engine selects the applicable tier at Step 2 before any other arithmetic.
+
+export type RateTierCondition = "regular" | "holiday" | "extended"; // "peak" later
+
+/**
+ * One condition-based rate tier (D-039).
+ * Provider types in an explicit dollar rate for each condition.
+ * Example: Regular boarding $60/night, Holiday $75/night, Extended $55/night.
+ * Priority order: holiday > extended > regular.
+ */
+export type RateTier = {
+  condition: RateTierCondition;
+  rate_minor: number; // integer minor units — the explicit rate for this condition
+  label: string;
+  // For "holiday": engine selects this tier if any booking date overlaps these
+  holiday_dates?: string[]; // ISO "YYYY-MM-DD"
+  // For "extended": engine selects this tier if booking quantity >= threshold
+  extended_min_nights?: number;
+};
+
 // ─── Config shapes (tenant snapshot, loaded server-side before engine call) ──
 
 /** One duration tier for duration_tiered pricing (e.g. 30-min walk = $30). */
@@ -38,43 +60,67 @@ export type ServiceRate = {
   name: string;
   pricing_model: PricingModel;
   currency: string;
-  rate_minor?: number; // for flat/per_unit/per_session/per_night
+  rate_minor?: number; // regular/default rate (used when no rate_tiers, or as "regular" fallback)
+  rate_tiers?: RateTier[]; // D-039: condition-based rate overrides (holiday, extended, etc.)
   duration_tiers?: DurationTier[]; // for duration_tiered
   volume_tiers?: VolumeTier[]; // for tiered
 };
 
+// ─── Pricing rules (D-039 discriminated union) ────────────────────────────────
+// Surcharges: FLAT ONLY — no % surcharges (D-039 removes them entirely).
+// Discounts: fixed or % allowed (discount codes; % discounts are additive, not compounding).
+// Percentages survive only for tax (ppm) and discount codes (bps).
+
 /**
- * A pricing rule: surcharge, discount, or holiday modifier.
- * Rules with always_apply=true fire unconditionally (used in tests and
- * simple configs). Rules with holiday_dates fire when any booking date
- * overlaps. Per spec §7, holiday granularity: boarding=per-night,
- * daycare=per-day, walking=per-session/day.
+ * A flat surcharge rule.
+ * D-039: surcharges are always fixed dollar amounts, never percentages.
+ * per_unit=true → amount_minor is multiplied by booking quantity (e.g., puppy +$X/night).
  */
-export type PricingRule = {
+export type SurchargeRule = {
   id: string;
   business_id: string;
   rule_type: PricingRuleType;
   name: string;
-  // surcharge/discount → positive amounts reduce/increase
-  category: "surcharge" | "discount";
-  action: "fixed_amount" | "percentage";
-  amount_minor?: number; // for fixed_amount (positive = surcharge, negative OK for discount)
-  percentage_bps?: number; // for percentage, in basis points (100 bps = 1%)
-  always_apply?: boolean; // true → fires unconditionally; used for standing surcharges
-  holiday_dates?: string[]; // ISO "YYYY-MM-DD" dates; fires if booking overlaps any
+  category: "surcharge";
+  action: "fixed_amount"; // D-039: the only allowed action for surcharges
+  amount_minor: number; // integer minor units; must be positive
+  per_unit?: boolean; // true → multiplied by booking quantity (e.g., $10/night puppy fee)
+  always_apply?: boolean; // true → fires unconditionally
+  holiday_dates?: string[]; // ISO dates; fires if booking overlaps any
 };
 
 /**
+ * A discount rule.
+ * fixed_amount → fixed dollar off.
+ * percentage  → % of the pre-discount subtotal (bps); additive, not compounding.
+ */
+export type DiscountRule = {
+  id: string;
+  business_id: string;
+  rule_type: PricingRuleType;
+  name: string;
+  category: "discount";
+  action: "fixed_amount" | "percentage"; // both allowed for discounts (D-039)
+  amount_minor?: number; // for fixed_amount; positive = amount deducted
+  percentage_bps?: number; // for percentage, in basis points (1000 bps = 10%)
+  always_apply?: boolean;
+  holiday_dates?: string[];
+};
+
+/** Union — the only valid rule shapes. TypeScript enforces D-039 at compile time. */
+export type PricingRule = SurchargeRule | DiscountRule;
+
+/**
  * Additional-participant fee: fires for participants beyond the base.
- * Per-unit = the fee multiplies by quantity (nights, sessions).
- * e.g. "extra dog: $40/night" → amount_minor=4000, per_unit=true
+ * Always flat per-unit (D-039).
+ * e.g. "extra dog: $40/night" → amount_minor_per_unit=4000
  */
 export type ParticipantRule = {
   id: string;
   business_id: string;
   name: string;
   applies_from_participant: number; // 2 = starts with 2nd participant
-  action: "fixed_amount_per_unit"; // MVP
+  action: "fixed_amount_per_unit"; // MVP (D-039: flat only)
   amount_minor_per_unit: number; // integer minor units per additional participant per unit
 };
 
@@ -91,7 +137,7 @@ export type AddonConfig = {
 
 /**
  * Overage config for partial_unit_overage: fires when actual pickup
- * exceeds scheduled end + grace. MVP: one flat overage charge.
+ * exceeds scheduled end + grace. MVP: one flat overage charge (D-039: flat).
  */
 export type OverageConfig = {
   grace_period_minutes: number;
@@ -100,7 +146,7 @@ export type OverageConfig = {
   overage_code: string;
 };
 
-/** Tax config — MVP: one business-level rate, can be disabled. */
+/** Tax config — MVP: one business-level rate, can be disabled. % via ppm (D-039). */
 export type TaxConfig = {
   enabled: boolean;
   rate_ppm: number; // parts-per-million; 8.625% = 86250
@@ -131,7 +177,7 @@ export type BookingInput = {
   quantity: number; // nights | days | sessions | units
   participant_count?: number; // e.g. number of dogs (default 1)
   duration_minutes?: number; // for duration_tiered (e.g. walk length)
-  // ISO 8601 datetimes; used for holiday matching and overage
+  // ISO 8601 datetimes; used for rate-tier holiday matching and overage
   start_at?: string;
   end_at?: string;
   timezone?: string; // IANA tz; business timezone is source of truth (arch note 1)
@@ -187,9 +233,10 @@ export type PricingLineItem = {
   };
   calculation: {
     formula: string;
-    percentage_bps?: number;
+    percentage_bps?: number; // only discount codes + tax
     tax_rate_ppm?: number;
     base_amount_minor?: number;
+    rate_tier_condition?: RateTierCondition; // set when rate tier was selected (D-039)
   };
   sort_order: number;
 };
@@ -198,12 +245,18 @@ export type AppliedPricingRule = {
   rule_id: string;
   rule_type: PricingRuleType;
   rule_name: string;
-  action: "fixed_amount" | "percentage" | "rate_override" | "duration_tier" | "partial_unit_overage";
+  action:
+    | "fixed_amount"
+    | "percentage" // discount codes + tax only (D-039)
+    | "rate_tier" // D-039: explicit rate selected by condition
+    | "duration_tier"
+    | "partial_unit_overage";
   matched: boolean;
   match_reason: string;
   amount_minor?: number;
   percentage_bps?: number;
   tax_rate_ppm?: number;
+  rate_tier_condition?: RateTierCondition; // which tier was selected
 };
 
 export type PricingWarning = {
@@ -223,6 +276,7 @@ export type PricingBreakdown = {
   booking_context: {
     service_type: string;
     pricing_model: PricingModel;
+    rate_tier_condition?: RateTierCondition; // which tier was in effect (D-039)
     start_at?: string;
     end_at?: string;
     timezone?: string;
@@ -233,8 +287,8 @@ export type PricingBreakdown = {
   };
 
   totals: {
-    subtotal_base_minor: number; // base + participant
-    surcharge_total_minor: number;
+    subtotal_base_minor: number; // base rate × quantity + participant fees
+    surcharge_total_minor: number; // flat surcharges only (D-039)
     addon_total_minor: number;
     subtotal_before_discounts_minor: number;
     discount_total_minor: number; // positive = amount deducted

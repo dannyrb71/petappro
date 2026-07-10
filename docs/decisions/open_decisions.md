@@ -73,6 +73,8 @@ When a decision is resolved, update its status to **Decided**, add the outcome a
 | D-036 | Auth path for MVP | **Decided** | PetAppro uses Supabase Auth in the PetAppro project for MVP; central IdP/external IdP deferred until app #2 or cross-product SSO is concrete | Avoids IdP migration/build risk before Oct 1 while preserving a clean seam | Phase 1 auth model |
 | D-037 | Shared account-service boundary | **Decided** | Shared Base509 layer stores account identity and Base509 billing relationship only; app-specific provider/client records stay in each app operational DB | Avoids a coupled mega-DB and keeps provider/client concepts app-contextual | Phase 1 architecture |
 | D-038 | Passwordless-first and step-up implementation | **Decided** | Apple/Google/magic-link primary, password fallback; owner/admin MFA before sensitive provider actions; biometric app lock is local protection, not server-side auth replacement | Protects money/PII without blanket login friction; clarifies Supabase/Auth/RLS responsibilities | Before payments/billing-sensitive flows |
+| D-039 | Pricing model: explicit rates, not % surcharges | **Decided** | **Providers set explicit dollar rates** for every condition — holiday/peak/weekend/extended are separate **rate tiers (rate overrides)**, not % markups; extra-dog/puppy/etc. are **flat**. Ship **Woof default holidays**, provider-editable (calendar picker + reset-to-defaults); extended = length threshold. **% only for tax + discount codes.** **No card surcharge** (multi-state compliance/CA SB-478/network rules; set inclusive rates). Provider-toggle **referral bonus** = one free/credited booking (per Woof; booking-level, ≠ D-020 SaaS referral) | Revise `packages/pricing` + spec off the %-model; provider pricing-settings UX | Decided 2026-07-09 |
+| D-040 | Default theme = Brandy Blue (base brand) + theming tiers | **Decided** | **Brandy Blue** (PetAppro base brand; dog-named palette Brandy Blue/Camo/Coco/Bella/Maverick, Poppins) = **default** theme AND **entry-tier** theme. **Supersedes the prior locked "Tier 1 = Sage & Sand" default** (→ alternate). **Custom/alternate themes = higher-tier white-label perk** (D-020 tiers + D-030). DS lane owns tokens/theming-and-tiers; Codex review pending | Brand identity; subscription tiers; white-label; DS specs | Decided 2026-07-09 |
 
 ---
 
@@ -603,3 +605,108 @@ The shared Base509 layer stores account identity and the Base509 billing relatio
 Apple, Google, and magic-link/passwordless login are primary; email/password is fallback. Owner/admin users must satisfy MFA/step-up before sensitive provider actions such as billing, financial settings, refunds, exports, team permission changes, and break-glass consent. Client users can remain risk-based step-up only.
 
 Biometric app lock is local device protection and improves mobile safety, but it is not a server-side authorization factor. Sensitive mutations must still route through Edge Functions/RPCs that check role, auth assurance where available, and audit the action.
+
+---
+
+### D-039 — Pricing model: explicit rates, not % surcharges
+
+**Status:** Decided (Danny, 2026-07-09) — supersedes the %-surcharge model in the earlier pricing spec/tests.
+
+Providers set **explicit dollar rates** for everything; there are **no % surcharges.**
+- **Rate tiers (rate overrides):** holiday / peak / weekend / extended are *separate rates the provider types in* (e.g., Regular boarding $60, Holiday $75, Extended $55) — not a % markup. The engine selects the applicable tier by condition: **holiday** = provider's holiday calendar; **extended** = stay-length threshold.
+- **Holiday calendar:** ship **Woof's default holiday set**; providers keep/edit/add/remove via a calendar picker in settings, with **reset-to-defaults** (deliberately more control than Rover's rigid policy — a differentiator).
+- **Flat surcharges:** extra-dog rate, puppy (+$/night), etc. are flat amounts, per tier.
+- **Percentages** survive only for **tax** and **discount codes** ("10% off").
+- **No card/convenience surcharge:** surcharging is a multi-state compliance minefield (state variation, disclosure rules, card-network caps/registration + debit prohibition, CA SB-478 all-in-pricing). Providers set rates **inclusive** of their costs. (Not legal advice.)
+- **Referral bonus:** provider-toggle giving **one free/credited booking** (per Woof's mechanic; booking-level, client-facing — distinct from D-020's SaaS-subscription referral).
+
+**Why it matters:** matches Woof + how operators think; transparent; per-tenant themeable. **Requires:** Cowork revises `docs/specs/booking_and_pricing.md`; Claude Code revises `packages/pricing` + golden tests (holiday-% → rate-override; extra-dog/puppy flat). Rate source of truth: the Woof pricing reference in `docs/research/woof-wetreats/`.
+
+---
+
+### D-040 — Default theme = Brandy Blue (base brand); theming tiers
+
+**Status:** Decided (Danny, 2026-07-09). Supersedes the prior locked "Tier 1 = Sage & Sand" default. Codex governance review pending.
+
+**Brandy Blue** — the PetAppro base brand (dog-named palette: Brandy Blue [primary], Camo Green [success], Coco Coral [danger], Bella Sky [info], Maverick Grey [neutral]; Poppins) — is the **default theme** and the theme for **entry-level subscribers.** Custom/alternate themes (Sage & Sand, etc.) become a **higher-tier white-label perk** (ties **D-020** subscription tiers + **D-030** white-label runtime theming). Sage & Sand is demoted from default to an alternate.
+
+**Why it matters:** it's the product's actual brand identity and sets the free/entry vs. paid-theming tier boundary. **Requires:** DS lane updates the theming-and-tiers doc + tier lockup text (in progress); Codex reviews the token renames / status re-point / default supersession; George/Codex awareness. Anywhere that still calls "Sage & Sand" the default is now stale.
+
+---
+
+### D-041 — Provider configuration surface: web portal only; app stays basic
+
+**Status:** FINAL (Danny, 2026-07-10). Detail in `docs/planning/provider-settings-ia.md`.
+
+**All provider editing/config is online**, via the **subscription-management web portal** (same login that manages billing) — Services CMS, report-card templates, hours of operation, pricing, availability, T&C, staff. The **native app is not a config editor at MVP**: it carries operations (bookings, check-in/out, report cards, messaging) plus **basic device preferences only** — notifications and **location sharing** (location sharing for future walkers/sitters, tied to GPS v1.1). Web and app are two clients over the **same Supabase provider DB**, not two systems (mirrors Woof WeTreats).
+
+**Why it matters:** content-heavy config is painful on mobile; keeping editors on web shrinks MVP app scope and (with D-042) keeps SaaS revenue off store fees. **Requires:** a provider web portal in MVP scope (hybrid-scope tradeoff, D-023); Codex architecture awareness (shared backend, two clients).
+
+---
+
+### D-042 — App-store fee posture: subscription sold web-only, no in-app purchase/CTA; bookings via Stripe
+
+**Status:** FINAL (Danny, 2026-07-10), from Apple + Google research (July 2026). Not legal advice.
+
+Two payment flows, kept deliberately separate:
+- **Provider SaaS subscription → web only.** The **app contains no purchase and no subscribe/upgrade link or CTA.** The app only requires an active account to log in; providers subscribe/manage billing in the web portal. This keeps us in the stable **B2B SaaS / multiplatform exemption** → **0% to Apple/Google**, independent of the unsettled external-link fee litigation (Apple currently 0% on US external links but a "reasonable commission" may be set by the district court; Google charges a service fee from 10% on subscriptions **even via external links** — so external links are *not* a safe path; not linking is).
+- **Client → provider booking payments → Stripe Connect, in-app OK.** Dog walking/boarding/sitting are **physical real-world services**, which both stores **exempt from IAP** (must use an outside processor). This is unaffected by the subscription posture.
+
+**Build constraint:** no subscription purchase or purchase-link/CTA anywhere in the app (a neutral, non-CTA "manage your account on the web" is the grey zone; safest is no link). EU note: never offer IAP + external in the same binary — moot since we have zero IAP.
+
+**Why it matters:** protects 100% of subscription revenue and de-risks store review. **Requires:** spec reflects the no-in-app-purchase constraint; Codex/Claude Code awareness; watch the Apple external-link ruling only if we ever reconsider in-app selling.
+
+---
+
+### D-043 — Off-hours surcharge, hours of operation & snapshot-on-booking
+
+**Status:** FINAL (Danny, 2026-07-10). Detail + clause text in `docs/planning/provider-settings-ia.md` §2.
+
+Providers capture **hours of operation** (per-weekday open/close; needed regardless to power the public services/pricing page) and an optional **off-hours surcharge** — a **flat $ amount** (per D-039, not a %). A client requesting service outside those hours agrees to the surcharge **at booking, before service** (client-facing clause + matching boilerplate T&C clause, D-009, populated from provider tokens). **Snapshot-on-booking rule:** hours + off-hours surcharge (and travel fee + rates) are **copied onto the booking at creation, immutable** — editing settings later must never rewrite a past agreement (same pattern as the pricing-breakdown snapshot).
+
+**Also decided (pricing):** **flat travel fee** for MVP (provider sets per booking); **per-mile deferred** until feedback demands it (per-mile needs distance/geocoding infra). Folds into D-039's flat-surcharge family.
+
+**Requires:** provider-settings fields; snapshot fields on booking (Codex data-model confirm, D-046 note); T&C template update.
+
+---
+
+### D-044 — Secure storage for key/access data
+
+**Status:** FINAL (Danny, 2026-07-10).
+
+Sensitive access data (lockbox/alarm/gate codes, entry instructions) for in-home services is **encrypted at rest** (never stored or logged in plaintext) and revealed in-app behind a **biometric gate** (Face ID / re-auth, ties into D-031 step-up — a UI gate, not a substitute for encryption). **Transparency:** the input form tells **both provider and client** how the data is stored and protected.
+
+**Requires:** column/field-level encryption in the operational DB; Expo LocalAuthentication reveal gate; privacy-policy line.
+
+---
+
+### D-045 — Availability conflict-groups (overnight-exclusive vs overlap-ok)
+
+**Status:** FINAL — build requirement (Danny, 2026-07-10).
+
+Each service has an exclusivity property. **Overnight-exclusive group (mutually exclusive):** in-home sitting, house sitting, boarding — a provider cannot hold two of these for overlapping dates (**per booking, not per pet**). **Non-blocking services (overlap allowed):** dog walking now; training/grooming later — schedulable *during* a multi-day sit. **Provider override:** the provider can explicitly set which services block vs. overlap.
+
+**Why it matters:** the one genuinely new scheduling logic for the drop-in / in-home verticals. **Requires:** Codex confirms whether boarding already needs overlap/conflict handling (so this is an extension, not net-new).
+
+---
+
+### D-046 — Report cards: per-service CMS templates, checklist editor, edit-lock
+
+**Status:** FINAL in principle (Danny, 2026-07-10); per-card content model to be worked out in the D-047 session. Detail in `docs/planning/provider-settings-ia.md` §3–4.
+
+Report cards are **templated per service** (drop-in, walk, sitting, boarding) with a starter checklist the provider customizes via a **checklist editor** (not raw open text), plus **free-text notes + photo**. A booking's report card is a **mutable draft the provider edits until the booking is marked complete, then locks into an immutable snapshot** both sides see; **client is always read-only**. Check-in/out arrival & departure buttons produce **timestamps visible on both sides** + client notification. **House-sitting household tasks** ship as **two-sided toggle boilerplate** (provider offers → client confirms needed), flowing into the checklist — not priced individually for MVP.
+
+**Open (pending finalization):** exact fields per service card (body-copy editor? photo count? etc.) — recommend speccing **boarding** end-to-end as the reference, then cloning. **Requires:** Codex data-model confirm (per-visit / per-night / location reuse; multi-visit-per-day for drop-ins) — see `provider-settings-ia.md` §8.
+
+---
+
+### D-047 — Service content & Woof-WeTreats carryover review (OPEN — needs working session)
+
+**Status:** OPEN (Danny, 2026-07-10). Scoped next-work item, not yet decided.
+
+Dedicated working session(s) to hash out, per service:
+1. **Content of each service** — the actual copy, fields, and structure of every service card (boarding, daycare, walking, drop-in, in-home sitting, house sitting).
+2. **Functionality review of everything carried over from Woof WeTreats** — audit each Woof feature/behavior and decide keep / change / drop for PetAppro.
+3. **All service report cards** — for each service: report-card **content**, the **boilerplate** (system defaults), and which parts are **editable / add-on** functions (per D-046's checklist-editor + edit-lock model).
+
+**Why it matters:** turns the D-041/D-046 principles into buildable per-service specs and prevents silent scope drift from the Woof rebuild. **Owner:** Cowork (product) drafts, with the Woof reference in `docs/research/woof-wetreats/`; Danny decides; Codex confirms data-model. **Recommended approach:** spec **boarding** end-to-end first as the template, then clone per service.
