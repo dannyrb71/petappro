@@ -12,35 +12,42 @@
 | **Danny** | Product owner — decides & **locks** decisions; approves pushes | via approval | anything |
 | **Cowork (Claude)** | Product management — captures decisions, writes specs/docs; **ledger steward** | edits **local files**; **does NOT run git** | local files |
 | **Claude Code** | Implementation **+ git operator** — `commit`/`push` mirrors local → GitHub | **yes (git)** | GitHub mirror |
-| **Codex** | Tech governor — architecture, data model, code review | yes (its connector works) | GitHub mirror |
-| **George (ChatGPT — desktop app)** | Project governance — roadmap, prioritization, standups | posts to `STATUS.md`; other writes via Cowork (desktop-write TBD) | **reads the repo via the ChatGPT desktop app** (confirmed 2026-07-09 — paste no longer needed) |
+| **Codex** | Tech governor — architecture, data model, code review | **edits local files (its lane)**; **reads git** (history/diffs/CI); **does NOT commit/push** — Claude Code is sole committer; **design-system files = review-only** | **local files (folder-connected)** |
+| **George (ChatGPT)** | Project governance — roadmap, prioritization, standups | posts to `STATUS.md`; write/commit path TBD (else via Cowork) | **reads the repo directly from Git** (confirmed 2026-07-10 — connector works; paste + desktop-only workaround retired) |
 | **Design System chat** ("PetAppro Foundation") | **Design system authority** — tokens, components, atomic structure (atoms→molecules→…), design specs | writes to **`/design-system/`** — the governed DS foundation (CANONICAL). `docs/design-system/` was an earlier mis-pointer; consolidate into `/design-system/` | local files (folder-connected) |
 
 **Sync mechanism (how chats/tools stay aligned):** every Claude chat working on PetAppro **connects the
 Base509 folder and writes to its lane** in the repo — the local files ARE the shared layer, so
-folder-connected chats sync automatically on disk (no manual sharing). Claude Code pushes local → the
-GitHub mirror; Codex reads the mirror. **George** reads the repo via the **ChatGPT *desktop* app**
-(confirmed 2026-07-09 — the *web* ChatGPT can't, its private-repo connector 404s). If a chat saved to
-its own scratchpad instead of the repo, it wasn't folder-connected — fix that, don't paste.
+folder-connected chats sync automatically on disk (no manual sharing). **Codex is also folder-connected**
+(local read/write + git inspection); Claude Code pushes local → the GitHub mirror; **George reads the
+GitHub mirror directly** via its connector (confirmed 2026-07-10 — paste + desktop-only workaround retired).
+If a chat saved to its own scratchpad instead of the repo, it wasn't folder-connected — fix that, don't paste.
 
 ## 1. Source of truth — precedence (revised 2026-07-09)
 
 1. **Local files** on Danny's Mac (`…/Documents/Base509/Products/petappro/`) — **CANONICAL.**
    Cowork authors/edits here directly.
 2. **GitHub** (`dannyrb71/petappro`, private) — a **mirror of local**, kept in sync by **Claude Code**
-   (commit + push) on each commit. Version control + the copy Codex / Claude Code read.
+   (commit + push) on each commit. Version control + the copy George reads.
 3. Conversation context — only if the above don't cover it.
 
-**Who does git:** **Claude Code** is the git operator (runs locally with credentials). **Cowork does
-NOT run git** — its sandbox has no GitHub auth and leaves `.git` lock files. Cowork owns *content*
-(local files correct); Claude Code owns *sync* (mirror local → GitHub). Danny approves/triggers pushes.
+**Who does git — ONE WRITE SURFACE, ONE COMMITTER (locked 2026-07-10, Danny):**
+- **Every agent writes to LOCAL files only. Nobody writes directly to GitHub.** GitHub is a mirror.
+- **Claude Code is the SINGLE git operator** — it runs ALL `add`/`commit`/`push`. **No other agent runs
+  git writes, not even a local commit** (two committers on one `.git` = `index.lock` races — the bug we hit).
+- **Codex** edits **local files in its lane** and may **READ git** (history, diffs, CI/checks) — but does
+  **not** commit/push. Its "I can make local commits" capability is intentionally **not used** under this rule.
+- **Cowork** edits local files, **no git** (sandbox has no auth, leaves lock files).
+- **Danny approves every push.** Rationale: one source of truth (local disk), one push path — no divergence.
+- **Exception — George** (not folder-connected): reads the GitHub *mirror*, cannot write local. George's repo
+  writes go through **Cowork (scribe)** or are posted to `STATUS.md` for Claude Code to commit, until George
+  is folder-connected.
 
-**Read paths:** Cowork = local files. Claude Code / Codex = the GitHub mirror (their connectors work).
-**George reads via the ChatGPT *desktop* app** (confirmed 2026-07-09 — returns current repo files). The
-*web* ChatGPT GitHub connector CANNOT read the private repo (404); **use the desktop app for George.**
+**Read paths:** Cowork, **Claude Code, and Codex read local files** (all folder-connected). **George reads
+the GitHub mirror** via its connector (confirmed 2026-07-10). The old *web*-ChatGPT-can't-read caveat and
+the desktop-app/paste workaround are retired.
 
-**Hard rule:** never infer or "fill in the blanks." If you can't see the current docs, say so and ask
-for the `ALIGNMENT.md` paste.
+**Hard rule:** never infer or "fill in the blanks." If you can't see the current docs, say so — don't guess.
 
 ## 2. Repo facts (read these correctly)
 
@@ -66,9 +73,9 @@ for the `ALIGNMENT.md` paste.
 | This ledger (`ALIGNMENT.md`) | **Cowork (steward)** | read; flag deltas |
 | Code | **Claude Code** | — |
 
-George reads the repo via the **ChatGPT desktop app** (§1). His governance output posts to `STATUS.md`;
-other repo writes go through **Cowork** (scribe model) unless desktop file-write is confirmed — avoids
-multi-writer conflicts. (The *web* ChatGPT still can't read the repo — use the desktop app.)
+George reads the repo directly from Git (§1). His governance output posts to `STATUS.md`; other repo
+writes go through **Cowork** (scribe model) unless George's own commit path is confirmed — avoids
+multi-writer conflicts.
 
 ## 4. Daily protocol
 
@@ -86,7 +93,7 @@ multi-writer conflicts. (The *web* ChatGPT still can't read the repo — use the
 > aligned, **or** list every delta as: `area | your understanding | repo says | proposed fix`. If you
 > cannot read a file, say so explicitly — do not infer.
 
-*(**George** reads these from the repo via the ChatGPT desktop app; Codex / Claude Code read the GitHub mirror; Cowork reads local files.)*
+*(**George, Codex, and Claude Code** all read these from the GitHub mirror directly; Cowork reads local files.)*
 
 ## 6. Sync log (newest first)
 
@@ -99,4 +106,7 @@ multi-writer conflicts. (The *web* ChatGPT still can't read the repo — use the
 
 ## 7. Open discrepancies (live — clear as resolved)
 
-- _(none currently — will list here with owner + status whenever an alignment check finds a delta)_
+- **2026-07-10 — Stale payments docs vs D-007 Option A / D-042 (owner: Codex — architecture/data-model lane).** Cowork reconciled its own-lane doc (`product_brief.md` — Pillar D/E, success criteria, open questions). **Codex-lane docs still say Connect is post-MVP and must be fixed:**
+  - `docs/planning/technical_architecture.md` — lines **67, 178, 219** state "Manual MVP; Stripe Connect post-MVP" / "manual tracking is the sole MVP path… Stripe Connect is deferred post-MVP." Now **wrong**: D-007 Option A puts Connect **IN MVP** (manual = fallback only); add D-042 (subscription billing web-only, no in-app purchase/CTA).
+  - `docs/planning/data_model_draft.md` — line **134** "Stripe Connect fields… present but unused until post-MVP." Connect is **in MVP** — fields are used at launch.
+  - Cowork did **not** edit these (Codex's lane per §3). Codex to correct + note in STATUS. Status: **OPEN.**

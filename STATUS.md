@@ -15,6 +15,81 @@
 
 ---
 
+## 2026-07-10 — Codex (single-committer governance alignment)
+- **Done:** Adopted locked `ALIGNMENT.md` §1 single-committer model. Codex will edit local files only within its assigned lane and will keep all Git operations read-only (history, diffs, PR/CI inspection). Codex will not stage, commit, branch, merge, push, or otherwise write Git state; Claude Code is the sole committer/pusher and Danny approves every push.
+- **Decisions / open questions:** None.
+- **Ready to push?** no — status recorded as a local edit for Claude Code to include when authorized.
+
+## 2026-07-10 — Design System (brand, theming, icons, naming — for PM sign-off)
+- **Done:**
+  - **Brand:** PetAppro base brand = **Brandy Blue** default theme; 5 dog-named bands (Brandy Blue · Camo Green · Coco Coral · Bella Sky · Maverick Grey); Poppins. Tokens lint-clean.
+  - **Theming = Theme × Scheme matrix** (all 6 themes × Light/Dark). Dark = "light islands" (brand-tinted dark canvas, white holder cards). Verified in Figma; demo frames on `04 Themes` fixed and flipping across both axes.
+  - **Icons:** locked **Phosphor (fill) as the base** icon set + 2 custom marks (Boarding doghouse, Walking dog — Danny's SVGs). Built as swappable `icon/*` components (24×24, proportions locked, fill bound to token). Full service set: boarding/walking/daycare/house-sitting/drop-in/grooming/training/pickup/meet-greet/health.
+  - **Naming convention** documented (`design-system/docs/naming-conventions.md`): tokens (slash/lowercase), components (atomic-layer folders + PascalCase, variant sets), icons (`icon/<name>`), pages/§sections. Applying now.
+  - Built atoms so far: Button, Status Badge (8), Service Pill (8) — being upgraded to convention + icons.
+- **Decisions needing product/PM awareness:**
+  - **Rover fully removed** from PetAppro (page + all affordances) — Woof-only. (Flag for George/roadmap.)
+  - **Service model = generic timed services** (start/end triggers; future verticals may auto-trigger + a "no-show → fee" toggle). Services: boarding, daycare, walking, house-sitting, drop-in, grooming, training, pickup, meet & greet (+ health/vet). Confirm this taxonomy with product.
+  - **Responsive dual-platform** confirmed (mobile app + provider website); components built responsive.
+  - **Theming tiers** (for entitlements): Tier 1 = default (Brandy Blue) · Tier 2 = pick 3 · Top = all · **add-on theme packs** (Holiday/Spring; free-or-paid TBD) — needs a product/pricing decision.
+- **Tonight (autonomous build):** applying naming + page reorg, then building atoms → molecules → organisms (text inputs, buttons, images, avatars, form elements + forms), all token-bound with code syntax so Claude Code can implement directly.
+- **Ready to push?** yes — `design-system/docs/naming-conventions.md`, `tokens/**` (matrix + brand), `CHANGELOG.md`; Figma file updated (not git-tracked). Pending Codex governance review.
+
+---
+
+## 2026-07-10 — Claude Code (Codex hardening v2: per-session/per-unit rate resolution bug)
+
+- **Done:** Fixed the same per-date rate-resolution bug in `per_session` and `per_unit` models that the previous session fixed for `per_night`. The v0.3.0 `resolvePerNightRates` helper was renamed to `resolvePerUnitRates` (same algorithm, adds `unitSingular` label param) and is now invoked for all three dated models when `rate_tiers` are configured:
+  - `per_night` ✓ (was already fixed)
+  - `per_session` ✓ (new — daycare bug: 5-day stay with 1 holiday day was billing 5 × holiday rate)
+  - `per_unit` ✓ (new — same logic extended)
+  - `flat` remains whole-booking (no per-date concept)
+  - No-dates fallback: `resolveRateTier` skips its holiday check when `start_at`/`end_at` are absent, so the holiday tier is never mis-fired without date evidence.
+- **Engine version bumped to v0.3.0** (same version — this is the same release candidate).
+- **New golden tests (39 total, 8 skipped — was 35+8):**
+  - Daycare 5-day / 1-holiday regression: `4 × $45 + 1 × $60 = $240`, two base lines, `rate_tier_condition` undefined.
+  - All-holiday daycare: `1 × $60`, one base line, `rate_tier_condition === "holiday"`.
+  - No-holiday daycare: `3 × $45`, one base line, `rate_tier_condition === "regular"`.
+  - Line-sum invariant for mixed per_session stays.
+- **All 39 tests green, 8 skipped. `tsc --noEmit` clean.**
+- **Ready to push? NO — waiting for Danny's "ready to deploy"**
+
+---
+
+## 2026-07-10 — Claude Code (Codex hardening: per-night rates + purity + validation + freeze)
+
+- **Done:** Applied all four Codex `c8b5628` findings to `packages/pricing` (engine bumped to v0.3.0):
+  - **BLOCKER fixed — per-night rate resolution:** `resolvePerNightRates()` now iterates each calendar date independently. Only holiday-calendar dates get the holiday rate; all other nights stay at regular (or extended if the whole stay qualifies). Mixed stays emit one base line per condition group (e.g. "3 × $75 regular + 2 × $90 holiday"). The whole-stay `resolveRateTier()` is kept as the fallback for non-per_night models and when booking dates are absent.
+  - **Function purity:** Removed module-level `let _sortOrder` and `nextOrder()`. Replaced with a local closure counter via `makeCounter()` inside `calculateBookingPrice`. Each call starts fresh; no cross-call interference.
+  - **Runtime validation:** `assertMinorUnit()` + `assertPositiveInt()` called via `validateInputs()` at the top of every calculation. Throws `[pricing] <label> must be a non-negative integer minor unit; got <value>` for non-integer, negative, or non-finite inputs (quantity, rate_minor, amount_minor on all rules, participant rates, addon rates).
+  - **Deep freeze:** `deepFreeze<T>()` recursively freezes the returned `PricingBreakdown`. Mutation at the call site throws `TypeError` in strict mode.
+- **New golden tests (35 total, 8 skipped — was 24+8):**
+  - **(a)** Mixed stay: 5 nights (3 regular $75 + 2 holiday $90) → subtotal 40500, two base lines, `rate_tier_condition` undefined.
+  - **(b)** All-holiday stay: 2 holiday nights → 18000, one base line, `rate_tier_condition === "holiday"`.
+  - **(c)** No-holiday stay with rate_tiers: 3 regular nights → 22500, one base line, `rate_tier_condition === "regular"`.
+  - Line-item sum invariant test for mixed-rate stays.
+  - Deep-freeze invariant: `Object.isFrozen(bd)` and `Object.isFrozen(bd.totals)` true; mutation throws.
+  - Runtime validation: quantity=0, quantity=1.5, negative rate_minor, NaN, fractional amount_minor all throw `[pricing]` errors.
+- **All 35 tests green, 8 skipped. `tsc --noEmit` clean.**
+- **Ready to push? NO — waiting for Danny's "ready to deploy"**
+
+---
+
+## 2026-07-10 — Codex (tech-governor: D-039 / D-041–D-046 review)
+
+- **Done:** Freshness gate passed at `c8b5628` (`main == origin/main`, above `7e2ec97`); D-039 revision and D-041–D-047 are present. Reviewed only the requested pricing/data-model/decision scope. Ran `packages/pricing`: **24 passed, 8 skipped**.
+- **Pricing findings (CHANGES NEEDED):**
+  - **Blocker — mixed holiday stays overcharge:** `packages/pricing/src/engine.ts` `resolveRateTier()` selects holiday when *any* booking date matches, then applies that rate to the entire quantity. This conflicts with `booking_and_pricing.md` §6.2/holiday granularity (boarding per-night, daycare per-day, walking per-session/day). B3 covers only three all-holiday nights, so it does not catch the defect. Split the base into condition-homogeneous lines/units (or otherwise resolve per unit) and add mixed regular+holiday boundary tests.
+  - **Should-fix — purity/reentrancy claim is too strong:** `engine.ts` uses module-global mutable `_sortOrder`, plus `Date`, `Math.random`, and UUID generation inside calculation. Inputs/config are not mutated and totals are repeatable, but the function is not referentially transparent and concurrent/reentrant calls can interfere with ordering. Make ordering call-local and inject/provide calculation metadata if strict purity is required; strengthen the test beyond totals/amount arrays.
+  - **Should-fix — snapshot immutability is a persistence contract, not implemented here:** the returned `PricingBreakdown` is mutable and does not carry the full `PricingConfig`, despite the type comment saying to carry config verbatim. The draft DB has an authoritative `booking_price_breakdowns` row, but no booking-create persistence exists in reviewed scope. Persist the resolved config/context (including tier/date inputs) server-side and preserve prior snapshots on reprice before calling this implemented.
+  - **Should-fix — numeric invariants lack runtime validation:** types document integer minor units and bps/ppm, and percentage math rounds half-up per generated percentage/tax line, but the engine accepts fractional/negative/out-of-range values and can create negative taxable subtotals/totals. Add boundary validation and tests (integer/safe-integer money, valid bps/ppm, discount caps). Remaining percentage discounts are correctly additive/non-compounding for valid inputs; B3/B4 correctly prove explicit-rate and flat-fee behavior in their covered cases.
+- **Data-model feasibility (§8):** (1) **Net-new schema work:** `business_services.date_model` has `overnight|day|slot` and pricing supports `per_night`/`per_session`, but there is no explicit `per_visit` model and no booking/service location attribute (`location_id` is expressly deferred). Drop-in/in-home can reuse pricing/date concepts, but location + service semantics are not already carried. (2) **Small-to-moderate extension of an existing availability domain, but net-new conflict logic:** blocked dates/capacity and server enforcement exist; booking-overlap/conflict groups do not. Add tenant-scoped service conflict policy and transactional server-side overlap enforcement/tests. (3) **Net-new:** no visit-instance/check-in/out/report-card tables support N visits per day. Add booking visit occurrences and per-visit report-card lifecycle with `business_id`, RLS, timestamps, assignment, and completion lock. (4) **Small extension in pattern, new fields/persistence:** D-043 follows the immutable pricing-snapshot principle, but hours/off-hours/travel/source-rate settings are not present in the draft booking/breakdown model or current engine output as a complete config snapshot.
+- **Architecture/governance:** D-041 fits one shared Supabase/RLS backend, but `technical_architecture.md` still describes web as thin marketing/billing only and must be revised before build. Web and native must share identity mapping and active-tenant semantics; never trust a client-supplied `business_id`; config writes need owner/admin authorization, step-up for financial/security-sensitive actions, server/RPC boundaries, audit, CSRF-safe web sessions, and RLS regression coverage across both clients. D-042 has no implementation violation visible (no product app code in reviewed scope; web-only SaaS billing is the standing architecture), but architecture/data-model docs still incorrectly say Connect is post-MVP/manual-only and must be reconciled; enforce no native subscription purchase/link/CTA. D-044 is compatible with D-034–D-038 only if ciphertext remains tenant-scoped under RLS, plaintext decrypt occurs through a narrowly authorized/audited server path for the assigned provider, keys are separated/rotatable, plaintext is excluded from logs/backups/notifications/analytics, and biometric reveal is only an additional client gate. The decision does not yet specify that implementable design. D-045/D-046 require the schema/RLS additions above. D-047 remains open and was not reviewed.
+- **Verdict / open questions:** **CHANGES-NEEDED** for pricing before governor approval. Data-model answers: **(1) net-new schema, (2) existing domain + net-new conflict engine, (3) net-new, (4) reusable pattern + new persisted snapshot fields.** Design-system review remains HELD as requested.
+- **Ready to push? NO** — review entry only; no code or governed files changed, committed, pushed, or deployed.
+
+---
+
 ## 2026-07-10 — Claude Code (D-039 revision)
 
 - **Done:** Revised `packages/pricing` to implement D-039 (explicit rates, no % surcharges). Engine bumped to v0.2.0.
@@ -35,9 +110,15 @@
 - **Decisions / open:** Model 1 + brand-tinted canvas = Danny-approved. **To do in Figma (Danny driving iteration):** author the other 4 themes' `· Dark` modes on this model; build Tag/Pill + Booking Card components; tune type scale down, pill contrast, drop left-border-on-rounded, decide glance-vs-tap disclosure; `Your Pack` separate pass.
 - **Ready to push?** **yes** — `tokens/semantic/color.tokens.json`, `tokens/themes/*` (brandy-blue + brandy-blue-dark rewritten; 5 themes +canvas roles), `CHANGELOG.md`. Figma file updated (not git-tracked). Pending Codex governance review.
 
+## 2026-07-10 — Cowork (pricing fix verification)
+- **Independently verified** Claude Code's per_session/per_unit granularity fix: ran the suite in a clean isolated install (not Danny's node_modules) → **39 passed, 8 skipped**, matching CC's report. Confirmed in-code: `resolvePerUnitRates` wired to per_night/per_session/per_unit (per-date resolution), `validateInputs` (integer/finite/non-negative guards), and `deepFreeze` on the returned snapshot. Codex's CHANGES-NEEDED blocker is **closed**. Fix sits uncommitted in the local tree (head still `c8b5628`) per single-committer model. **Bundle is ready for Danny's "ready to deploy."**
+
+---
+
 ## 2026-07-10 — Cowork (product management)
 - **Done:** Scoped drop-in + in-home-sitting verticals and the provider config/payments model. Wrote `docs/planning/provider-settings-ia.md` (settings IA + web-portal/app surface split). Logged **D-041** (web portal = editor/billing surface; app basic), **D-042** (subscription web-only, no in-app purchase/CTA → B2B-SaaS 0% store fee; client booking payments via Stripe Connect, IAP-exempt physical service), **D-043** (off-hours surcharge + hours-of-operation + snapshot-on-booking; flat travel fee MVP, per-mile deferred), **D-044** (secure access storage), **D-045** (availability conflict-groups), **D-046** (report-card CMS templates + edit-lock). Added **D-047** (OPEN — service content + Woof carryover + report-card review; boarding-first). GPS confirmed as v1.1 fast-follow (manual proof-of-walk in MVP).
-- **Decisions / open questions:** D-041–D-046 marked **FINAL** (Danny). Open for Codex: data-model reuse for per-visit/per-night + location, availability/conflict, multi-visit-per-day, snapshot fields (`provider-settings-ia.md` §8). Pricing engine still needs the D-039 revision (below) — separate blocker.
+- **Decisions / open questions:** D-041–D-046 **FINAL**; added **D-048** (MVP verticals = boarding/daycare/walking + drop-ins stretch; in-home/house sitting = first fast-follow; soft-plan to fold in if gates clear, gut-check at first major check-in). Folded Codex's D-044 crypto reqs (tenant-scoped ciphertext, separated keys, audited decryption).
+- **Pricing blocker root-cause (verified by Cowork, reading c8b5628):** the `per_night` path is **correct** (per-night resolution, holiday-marked dates only) — Danny was right. Codex's blocker is real but in the **`per_session`/`per_unit` path** (multi-day daycare package → holiday applied to whole booking). Narrow fix issued to Claude Code (extend per-date resolution to dated per_session/per_unit; + purity/validation/snapshot hardening). Codex-flagged **stale manual-payment/Connect docs** **full reconciliation pass** of `product_brief.md` (payments + web-first→native/Expo, design-partner→testing-partner, boarding/daycare→+walking/drop-ins, roles+app-fork, theming, architecture, Netlify→EAS, resolved open questions); the two **Codex-lane** docs (`technical_architecture.md` L67/178/219, `data_model_draft.md` L134) are pinned in `ALIGNMENT.md` §7 for Codex to fix (still say Connect is post-MVP — wrong vs D-007 Option A / D-042).
 - **Ready to push? YES** — `docs/decisions/open_decisions.md` (D-041–D-047), `docs/planning/provider-settings-ia.md` (new), `STATUS.md`. **Claude Code to push on Danny's go** (clear `.git/*.lock` first). Bundle with the pricing-engine D-039 revision if it lands first.
 
 ---

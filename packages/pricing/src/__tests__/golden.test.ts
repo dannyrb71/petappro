@@ -821,6 +821,346 @@ describe("Engine structural invariants", () => {
   });
 });
 
+// ─── Per-session rate resolution (Codex hardening — D-039 / per_session bug) ─
+// Same per-date resolution that fixed per_night now applies to per_session / per_unit.
+// Bug (v0.2): a 5-day daycare with 1 holiday day billed all 5 days at the holiday rate.
+// Fix (v0.3): only the calendar-matched dates get the holiday rate; others get regular.
+
+describe("Per-session (daycare) per-date rate resolution (D-039)", () => {
+  const daycareConfig = (): PricingConfig => ({
+    business_id: "biz-1",
+    currency: "USD",
+    service_rate: {
+      id: "rate-daycare",
+      business_id: "biz-1",
+      name: "Daycare",
+      pricing_model: "per_session",
+      currency: "USD",
+      rate_tiers: [
+        { condition: "regular", rate_minor: 4500, label: "Regular daycare" },
+        {
+          condition: "holiday",
+          rate_minor: 6000,
+          label: "Holiday daycare",
+          holiday_dates: ["2025-12-25"],
+        },
+      ],
+    },
+  });
+
+  // Key regression test: 5-day package, only Dec 25 is a holiday.
+  // Expected: 4 × $45 + 1 × $60 = $240 → 24000
+  // Bug behaviour: 5 × $60 = $300 → 30000
+  it("5-day daycare, 1 holiday day — only that day bills at holiday rate (regression)", () => {
+    const bd = calculateBookingPrice(
+      {
+        business_id: "biz-1",
+        service_type: "daycare",
+        quantity: 5,
+        start_at: "2025-12-23T07:00:00Z",
+        end_at: "2025-12-28T18:00:00Z",
+      },
+      daycareConfig()
+    );
+    // 4 regular days × $45 = $180; 1 holiday day × $60 = $60; total = $240
+    expect(bd.totals.subtotal_base_minor).toBe(24000);
+    expect(bd.totals.surcharge_total_minor).toBe(0);
+    expect(bd.totals.total_minor).toBe(24000);
+    // Two base lines — one per condition group
+    const baseLines = bd.lines.filter((l) => l.category === "base");
+    expect(baseLines).toHaveLength(2);
+    const regularLine = baseLines.find((l) => l.unit_amount_minor === 4500);
+    const holidayLine = baseLines.find((l) => l.unit_amount_minor === 6000);
+    expect(regularLine).toBeDefined();
+    expect(holidayLine).toBeDefined();
+    expect(regularLine!.quantity).toBe(4); // 4 regular days
+    expect(regularLine!.amount_minor).toBe(18000);
+    expect(holidayLine!.quantity).toBe(1); // 1 holiday day
+    expect(holidayLine!.amount_minor).toBe(6000);
+    // Mixed stay → no single rate_tier_condition on booking context
+    expect(bd.booking_context.rate_tier_condition).toBeUndefined();
+  });
+
+  it("all-holiday daycare stay — one base line at holiday rate", () => {
+    const bd = calculateBookingPrice(
+      {
+        business_id: "biz-1",
+        service_type: "daycare",
+        quantity: 1,
+        start_at: "2025-12-25T07:00:00Z",
+        end_at: "2025-12-26T18:00:00Z",
+      },
+      daycareConfig()
+    );
+    expect(bd.totals.subtotal_base_minor).toBe(6000); // 1 × $60
+    expect(bd.totals.total_minor).toBe(6000);
+    const baseLines = bd.lines.filter((l) => l.category === "base");
+    expect(baseLines).toHaveLength(1);
+    expect(baseLines[0]!.unit_amount_minor).toBe(6000);
+    expect(bd.booking_context.rate_tier_condition).toBe("holiday");
+  });
+
+  it("no-holiday daycare stay — all days at regular rate", () => {
+    const bd = calculateBookingPrice(
+      {
+        business_id: "biz-1",
+        service_type: "daycare",
+        quantity: 3,
+        start_at: "2025-12-22T07:00:00Z",
+        end_at: "2025-12-25T18:00:00Z",
+      },
+      daycareConfig()
+    );
+    expect(bd.totals.subtotal_base_minor).toBe(13500); // 3 × $45
+    expect(bd.totals.total_minor).toBe(13500);
+    const baseLines = bd.lines.filter((l) => l.category === "base");
+    expect(baseLines).toHaveLength(1);
+    expect(baseLines[0]!.unit_amount_minor).toBe(4500);
+    expect(bd.booking_context.rate_tier_condition).toBe("regular");
+  });
+
+  it("line-item sum invariant holds for mixed per_session stays", () => {
+    const bd = calculateBookingPrice(
+      {
+        business_id: "biz-1",
+        service_type: "daycare",
+        quantity: 5,
+        start_at: "2025-12-23T07:00:00Z",
+        end_at: "2025-12-28T18:00:00Z",
+      },
+      daycareConfig()
+    );
+    const sumOfLines = bd.lines.reduce((acc, l) => acc + l.amount_minor, 0);
+    expect(sumOfLines).toBe(bd.totals.total_minor);
+  });
+});
+
+// ─── Per-night rate resolution (Codex hardening — D-039 clarified) ──────────
+// Each calendar night resolves its OWN applicable tier independently.
+// Holiday dates → holiday rate; non-holiday → regular (or extended if whole stay qualifies).
+// The BLOCKER in v0.2.0 applied the holiday rate to every night if ANY night was a holiday.
+
+describe("Per-night rate resolution (D-039 clarified)", () => {
+  const boardingConfig = (extra?: Partial<PricingConfig>): PricingConfig => ({
+    business_id: "biz-1",
+    currency: "USD",
+    service_rate: {
+      id: "rate-boarding",
+      business_id: "biz-1",
+      name: "Boarding",
+      pricing_model: "per_night",
+      currency: "USD",
+      rate_tiers: [
+        { condition: "regular", rate_minor: 7500, label: "Regular boarding" },
+        {
+          condition: "holiday",
+          rate_minor: 9000,
+          label: "Holiday boarding",
+          holiday_dates: ["2025-12-25", "2025-12-26"],
+        },
+      ],
+    },
+    ...extra,
+  });
+
+  // (a) Mixed stay: 5 nights, 2 holiday + 3 regular → blended total
+  // Dates: Dec 24 (reg $75), Dec 25 (holiday $90), Dec 26 (holiday $90), Dec 27 (reg $75), Dec 28 (reg $75)
+  // 3 × 7500 = 22500; 2 × 9000 = 18000; total = 40500
+  it("(a) mixed stay — holiday nights get holiday rate, regular nights get regular rate", () => {
+    const bd = calculateBookingPrice(
+      {
+        business_id: "biz-1",
+        service_type: "boarding",
+        quantity: 5,
+        start_at: "2025-12-24T15:00:00Z",
+        end_at: "2025-12-29T12:00:00Z",
+      },
+      boardingConfig()
+    );
+    // Blended total: 3 × $75 + 2 × $90
+    expect(bd.totals.subtotal_base_minor).toBe(40500); // 22500 + 18000
+    expect(bd.totals.surcharge_total_minor).toBe(0); // rates, not surcharges
+    expect(bd.totals.total_minor).toBe(40500);
+    // Two base lines (one per condition group)
+    const baseLines = bd.lines.filter((l) => l.category === "base");
+    expect(baseLines).toHaveLength(2);
+    const regularLine = baseLines.find((l) => l.unit_amount_minor === 7500);
+    const holidayLine = baseLines.find((l) => l.unit_amount_minor === 9000);
+    expect(regularLine).toBeDefined();
+    expect(holidayLine).toBeDefined();
+    expect(regularLine!.quantity).toBe(3);
+    expect(regularLine!.amount_minor).toBe(22500);
+    expect(holidayLine!.quantity).toBe(2);
+    expect(holidayLine!.amount_minor).toBe(18000);
+    // booking_context.rate_tier_condition is undefined for mixed stays
+    expect(bd.booking_context.rate_tier_condition).toBeUndefined();
+  });
+
+  // (b) All-holiday stay: 3 nights all on holiday calendar
+  // Same as B3 — should produce ONE base line with holiday rate for all nights
+  it("(b) all-holiday stay — single holiday group, one base line", () => {
+    const bd = calculateBookingPrice(
+      {
+        business_id: "biz-1",
+        service_type: "boarding",
+        quantity: 2,
+        start_at: "2025-12-25T15:00:00Z",
+        end_at: "2025-12-27T12:00:00Z",
+      },
+      boardingConfig()
+    );
+    expect(bd.totals.subtotal_base_minor).toBe(18000); // 2 × $90
+    expect(bd.totals.total_minor).toBe(18000);
+    const baseLines = bd.lines.filter((l) => l.category === "base");
+    expect(baseLines).toHaveLength(1); // single group — all holiday
+    expect(baseLines[0]!.unit_amount_minor).toBe(9000);
+    expect(baseLines[0]!.quantity).toBe(2);
+    expect(bd.booking_context.rate_tier_condition).toBe("holiday");
+  });
+
+  // (c) No-holiday stay: dates don't overlap the holiday calendar → regular rate throughout
+  it("(c) no-holiday stay — all nights at regular rate when no dates overlap holiday calendar", () => {
+    const bd = calculateBookingPrice(
+      {
+        business_id: "biz-1",
+        service_type: "boarding",
+        quantity: 3,
+        start_at: "2025-12-20T15:00:00Z",
+        end_at: "2025-12-23T12:00:00Z",
+      },
+      boardingConfig()
+    );
+    expect(bd.totals.subtotal_base_minor).toBe(22500); // 3 × $75
+    expect(bd.totals.total_minor).toBe(22500);
+    const baseLines = bd.lines.filter((l) => l.category === "base");
+    expect(baseLines).toHaveLength(1); // single group — all regular
+    expect(baseLines[0]!.unit_amount_minor).toBe(7500);
+    expect(baseLines[0]!.quantity).toBe(3);
+    expect(bd.booking_context.rate_tier_condition).toBe("regular");
+  });
+
+  // sum of per-night lines must still equal total_minor
+  it("line-item sum invariant holds for mixed-rate stays", () => {
+    const bd = calculateBookingPrice(
+      {
+        business_id: "biz-1",
+        service_type: "boarding",
+        quantity: 5,
+        start_at: "2025-12-24T15:00:00Z",
+        end_at: "2025-12-29T12:00:00Z",
+      },
+      boardingConfig()
+    );
+    const sumOfLines = bd.lines.reduce((acc, l) => acc + l.amount_minor, 0);
+    expect(sumOfLines).toBe(bd.totals.total_minor);
+  });
+});
+
+// ─── Immutability (Codex hardening) ──────────────────────────────────────────
+
+describe("PricingBreakdown is deeply frozen (Codex hardening)", () => {
+  const simpleConfig = (): PricingConfig => ({
+    business_id: "biz-1",
+    currency: "USD",
+    service_rate: {
+      id: "rate-1",
+      business_id: "biz-1",
+      name: "Boarding",
+      pricing_model: "per_night",
+      currency: "USD",
+      rate_minor: 7500,
+    },
+  });
+
+  it("returned PricingBreakdown is frozen — mutation throws in strict mode", () => {
+    const bd = calculateBookingPrice(
+      { business_id: "biz-1", service_type: "boarding", quantity: 3 },
+      simpleConfig()
+    );
+    expect(Object.isFrozen(bd)).toBe(true);
+    expect(Object.isFrozen(bd.totals)).toBe(true);
+    expect(Object.isFrozen(bd.lines)).toBe(true);
+    expect(Object.isFrozen(bd.applied_rules)).toBe(true);
+  });
+
+  it("mutating a frozen breakdown throws TypeError", () => {
+    const bd = calculateBookingPrice(
+      { business_id: "biz-1", service_type: "boarding", quantity: 3 },
+      simpleConfig()
+    );
+    expect(() => {
+      "use strict";
+      (bd.totals as Record<string, unknown>)["total_minor"] = 0;
+    }).toThrow(TypeError);
+  });
+});
+
+// ─── Runtime validation (Codex hardening) ────────────────────────────────────
+
+describe("Runtime numeric validation (Codex hardening)", () => {
+  const simpleConfig = (): PricingConfig => ({
+    business_id: "biz-1",
+    currency: "USD",
+    service_rate: {
+      id: "rate-1",
+      business_id: "biz-1",
+      name: "Boarding",
+      pricing_model: "per_night",
+      currency: "USD",
+      rate_minor: 7500,
+    },
+  });
+
+  it("rejects quantity=0 with a descriptive error", () => {
+    expect(() =>
+      calculateBookingPrice({ business_id: "biz-1", service_type: "boarding", quantity: 0 }, simpleConfig())
+    ).toThrow("[pricing]");
+  });
+
+  it("rejects quantity=1.5 (non-integer) with a descriptive error", () => {
+    expect(() =>
+      calculateBookingPrice({ business_id: "biz-1", service_type: "boarding", quantity: 1.5 }, simpleConfig())
+    ).toThrow("[pricing]");
+  });
+
+  it("rejects negative rate_minor on service_rate", () => {
+    const config = simpleConfig();
+    config.service_rate.rate_minor = -100;
+    expect(() =>
+      calculateBookingPrice({ business_id: "biz-1", service_type: "boarding", quantity: 1 }, config)
+    ).toThrow("[pricing]");
+  });
+
+  it("rejects NaN on rate_minor", () => {
+    const config = simpleConfig();
+    config.service_rate.rate_minor = NaN;
+    expect(() =>
+      calculateBookingPrice({ business_id: "biz-1", service_type: "boarding", quantity: 1 }, config)
+    ).toThrow("[pricing]");
+  });
+
+  it("rejects fractional amount_minor on surcharge rule", () => {
+    const config: PricingConfig = {
+      ...simpleConfig(),
+      pricing_rules: [
+        {
+          id: "r1",
+          business_id: "biz-1",
+          rule_type: "surcharge",
+          name: "Fractional surcharge",
+          category: "surcharge",
+          action: "fixed_amount",
+          amount_minor: 10.5, // invalid — must be integer
+          always_apply: true,
+        },
+      ],
+    };
+    expect(() =>
+      calculateBookingPrice({ business_id: "biz-1", service_type: "boarding", quantity: 1 }, config)
+    ).toThrow("[pricing]");
+  });
+});
+
 // ─── Later vertical tests (skipped — not MVP) ────────────────────────────────
 
 describe("Later vertical tests (skipped — not MVP scope)", () => {

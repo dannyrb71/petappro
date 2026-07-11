@@ -1,17 +1,19 @@
 /**
- * PetAppro pricing engine — v0.2.0
+ * PetAppro pricing engine — v0.3.0
  *
  * Pure function: calculateBookingPrice(input, config) → PricingBreakdown.
  * No DB reads, no side effects, no payment capture.
+ * Returns a deep-frozen snapshot — mutation at the call site is a runtime error.
  *
- * Canonical order of operations (spec §4, revised for D-039):
- *   1  Resolve currency + rounding config
- *   2  Resolve rate tier by condition (holiday > extended > regular) — explicit rate, NO % (D-039)
+ * Canonical order of operations (spec §4, D-039):
+ *   1  Validate inputs (integer minor units, non-negative, finite)
+ *   2  Resolve rate per night (per_night): each calendar date resolves holiday > extended > regular
+ *      independently; sum per night. Other models resolve whole-stay. (D-039 clarified.)
  *   3  Base quantity
  *   4  Participant pricing (per-dog, flat per-unit)
  *   5  Flat surcharges only — puppy, travel, etc. (D-039: % surcharges removed)
  *   6  Add-ons
- *   7  Discounts — fixed first, then percentage (% discounts survive; % for discount codes only)
+ *   7  Discounts — fixed first, then percentage (% for discount codes only; additive not compounding)
  *   8  Taxable subtotal
  *   9  Tax (ppm; when configured)
  *  10  Deposit — always 0 (D-015)
@@ -19,7 +21,8 @@
  *
  * Rounding: half-up per line item; total = sum of rounded lines.
  * Money: integer minor units only. Percentages: bps (discounts). Tax: ppm.
- * D-039: no percentage surcharges — holiday/extended/peak are explicit rate tiers.
+ * D-039: no percentage surcharges.
+ * Purity: no module-level mutable state — sort-order counter is local to each call.
  */
 
 import { halfUp, bpsAmount, ppmAmount } from "./math.js";
@@ -36,7 +39,7 @@ import type {
   RateTierCondition,
 } from "./types.js";
 
-export const PRICING_ENGINE_VERSION = "0.2.0";
+export const PRICING_ENGINE_VERSION = "0.3.0";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -47,9 +50,10 @@ function newId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-let _sortOrder = 0;
-function nextOrder(): number {
-  return ++_sortOrder;
+/** Returns a fresh per-call counter closure — no module-level mutable state. */
+function makeCounter(): () => number {
+  let n = 0;
+  return () => ++n;
 }
 
 function makeBaseLine(
@@ -58,6 +62,7 @@ function makeBaseLine(
   unit_amount_minor: number,
   pricing_model: PricingModel,
   serviceRate: PricingConfig["service_rate"],
+  nextOrder: () => number,
   extra?: Partial<PricingLineItem>
 ): PricingLineItem {
   return {
@@ -98,18 +103,179 @@ function unitLabel(model: PricingModel): string {
   }
 }
 
-function parseDate(iso: string): Date {
-  return new Date(iso);
-}
-
 function minutesBetween(from: Date, to: Date): number {
   return (to.getTime() - from.getTime()) / 60_000;
 }
 
-// ─── Rate tier resolution (D-039) ────────────────────────────────────────────
-// Holiday/extended/peak are explicit provider-set rates, selected by condition.
-// Priority: holiday > extended > regular. No % involved at any point.
+// ─── Runtime validation ───────────────────────────────────────────────────────
 
+function assertMinorUnit(value: number | undefined, label: string): void {
+  if (value === undefined) return;
+  if (!Number.isFinite(value) || !Number.isInteger(value) || value < 0) {
+    throw new Error(`[pricing] ${label} must be a non-negative integer minor unit; got ${value}`);
+  }
+}
+
+function assertPositiveInt(value: number, label: string): void {
+  if (!Number.isFinite(value) || !Number.isInteger(value) || value < 1) {
+    throw new Error(`[pricing] ${label} must be a positive integer; got ${value}`);
+  }
+}
+
+function validateInputs(input: BookingInput, config: PricingConfig): void {
+  assertPositiveInt(input.quantity, "input.quantity");
+  if (input.participant_count !== undefined) {
+    assertPositiveInt(input.participant_count, "input.participant_count");
+  }
+  assertMinorUnit(input.manual_discount_minor, "input.manual_discount_minor");
+
+  assertMinorUnit(config.service_rate.rate_minor, "service_rate.rate_minor");
+  for (const t of config.service_rate.rate_tiers ?? []) {
+    assertMinorUnit(t.rate_minor, `rate_tier[${t.condition}].rate_minor`);
+  }
+  for (const t of config.service_rate.duration_tiers ?? []) {
+    assertMinorUnit(t.rate_minor, `duration_tier[${t.duration_minutes}min].rate_minor`);
+  }
+
+  for (const rule of config.pricing_rules ?? []) {
+    if (rule.category === "surcharge") {
+      assertMinorUnit(rule.amount_minor, `surcharge_rule[${rule.id}].amount_minor`);
+    } else if (rule.category === "discount" && rule.action === "fixed_amount") {
+      assertMinorUnit(rule.amount_minor, `discount_rule[${rule.id}].amount_minor`);
+    }
+  }
+  for (const r of config.participant_rules ?? []) {
+    assertMinorUnit(r.amount_minor_per_unit, `participant_rule[${r.id}].amount_minor_per_unit`);
+  }
+  for (const a of config.addon_configs ?? []) {
+    assertMinorUnit(a.rate_minor, `addon[${a.id}].rate_minor`);
+  }
+}
+
+// ─── Immutability ─────────────────────────────────────────────────────────────
+
+/** Deep-freeze the returned breakdown — any mutation at the call site is a runtime error. */
+function deepFreeze<T>(obj: T): T {
+  if (obj === null || typeof obj !== "object") return obj;
+  Object.freeze(obj);
+  const record = obj as Record<string, unknown>;
+  for (const key of Object.getOwnPropertyNames(record)) {
+    const val = record[key];
+    if (val !== null && typeof val === "object" && !Object.isFrozen(val)) {
+      deepFreeze(val);
+    }
+  }
+  return obj;
+}
+
+// ─── Rate resolution (D-039) ──────────────────────────────────────────────────
+// For per_night: each calendar date resolves its own rate tier independently.
+// holiday dates get the holiday rate; non-holiday dates get extended (if stay qualifies)
+// or regular. This is per-night, not per-stay. Extended remains a stay-level qualifier.
+//
+// For other models (per_session, flat, per_unit, tiered): whole-stay resolution.
+
+/** Internal shape: a group of units (nights, sessions, days) sharing the same rate condition. */
+type UnitGroup = {
+  condition: RateTierCondition;
+  rate_minor: number;
+  label: string;
+  count: number; // number of units in this group
+  total_minor: number; // count × rate_minor (exact integers — no rounding needed here)
+  unitSingular: string; // "night" | "session" | "unit" — for formula labels
+};
+
+/**
+ * Resolve per-unit (per-date) rates for models that bill one rate per calendar day/unit.
+ * Each date in the booking resolves its OWN tier independently:
+ *   - Dates in the holiday calendar get the holiday rate.
+ *   - Non-holiday dates get the extended rate if the whole booking qualifies the threshold,
+ *     otherwise the regular rate.
+ *
+ * Returns one UnitGroup per condition present (holiday → extended → regular).
+ * Returns null if no rate_tiers configured or no booking dates available (caller falls back).
+ *
+ * Used by: per_night, per_session, per_unit.
+ * NOT used by: flat (no per-unit date concept), tiered, duration_tiered.
+ */
+function resolvePerUnitRates(
+  serviceRate: PricingConfig["service_rate"],
+  input: BookingInput,
+  unitSingular: string
+): UnitGroup[] | null {
+  const tiers = serviceRate.rate_tiers;
+  if (!tiers || tiers.length === 0) return null;
+
+  const dates = getBookingDates(input);
+  if (dates.length === 0) return null;
+
+  const holidayTier = tiers.find((t) => t.condition === "holiday");
+  const extendedTier = tiers.find((t) => t.condition === "extended");
+  const regularTier = tiers.find((t) => t.condition === "regular");
+
+  const regularRate = regularTier?.rate_minor ?? (serviceRate.rate_minor ?? 0);
+  const regularLabel = regularTier?.label ?? serviceRate.name;
+
+  // Extended is a STAY-level qualifier: fires when total nights >= threshold.
+  // Per-night, non-holiday nights get the extended rate if the whole stay qualifies.
+  const isExtendedStay =
+    extendedTier?.extended_min_nights !== undefined &&
+    dates.length >= extendedTier.extended_min_nights;
+
+  // Accumulate units by condition
+  const counts = new Map<RateTierCondition, { rate_minor: number; label: string; count: number }>();
+
+  for (const date of dates) {
+    let condition: RateTierCondition;
+    let rate_minor: number;
+    let label: string;
+
+    if (holidayTier?.holiday_dates?.includes(date)) {
+      condition = "holiday";
+      rate_minor = holidayTier.rate_minor;
+      label = holidayTier.label;
+    } else if (isExtendedStay && extendedTier) {
+      condition = "extended";
+      rate_minor = extendedTier.rate_minor;
+      label = extendedTier.label;
+    } else {
+      condition = "regular";
+      rate_minor = regularRate;
+      label = regularLabel;
+    }
+
+    const existing = counts.get(condition);
+    if (existing) {
+      counts.set(condition, { ...existing, count: existing.count + 1 });
+    } else {
+      counts.set(condition, { rate_minor, label, count: 1 });
+    }
+  }
+
+  // Build result in display priority order: holiday → extended → regular
+  const groups: UnitGroup[] = [];
+  for (const condition of ["holiday", "extended", "regular"] as RateTierCondition[]) {
+    const g = counts.get(condition);
+    if (g) {
+      groups.push({
+        condition,
+        rate_minor: g.rate_minor,
+        label: g.label,
+        count: g.count,
+        total_minor: g.rate_minor * g.count,
+        unitSingular,
+      });
+    }
+  }
+
+  return groups.length > 0 ? groups : null;
+}
+
+/**
+ * Whole-stay rate resolution for non-per_night models (per_session, flat, etc.)
+ * and as the fallback for per_night when booking dates are not provided.
+ * Priority: holiday (any date match) > extended (quantity threshold) > regular.
+ */
 function resolveRateTier(
   serviceRate: PricingConfig["service_rate"],
   input: BookingInput
@@ -119,7 +285,6 @@ function resolveRateTier(
     return { rate_minor: serviceRate.rate_minor ?? 0, condition: "regular", label: serviceRate.name };
   }
 
-  // 1. Holiday (highest priority) — fires if any booking date is in the holiday list
   if (input.start_at && input.end_at) {
     const bookingDates = getBookingDates(input);
     const holidayTier = tiers.find((t) => t.condition === "holiday");
@@ -131,7 +296,6 @@ function resolveRateTier(
     }
   }
 
-  // 2. Extended — fires if booking quantity meets the threshold
   const extendedTier = tiers.find((t) => t.condition === "extended");
   if (
     extendedTier !== undefined &&
@@ -141,13 +305,11 @@ function resolveRateTier(
     return { rate_minor: extendedTier.rate_minor, condition: "extended", label: extendedTier.label };
   }
 
-  // 3. Regular
   const regularTier = tiers.find((t) => t.condition === "regular");
   if (regularTier) {
     return { rate_minor: regularTier.rate_minor, condition: "regular", label: regularTier.label };
   }
 
-  // Fallback to rate_minor (no rate_tiers with condition="regular")
   return { rate_minor: serviceRate.rate_minor ?? 0, condition: "regular", label: serviceRate.name };
 }
 
@@ -157,7 +319,11 @@ export function calculateBookingPrice(
   input: BookingInput,
   config: PricingConfig
 ): PricingBreakdown {
-  _sortOrder = 0;
+  // Step 1: Runtime validation — guard against bad data from DB/JSON deserialization
+  validateInputs(input, config);
+
+  // Per-call counter — no module-level state; function is a pure computation
+  const nextOrder = makeCounter();
 
   const lines: PricingLineItem[] = [];
   const appliedRules: AppliedPricingRule[] = [];
@@ -166,10 +332,12 @@ export function calculateBookingPrice(
   const currency = config.currency;
   const participantCount = input.participant_count ?? 1;
 
-  // ── Step 2+3: Base service price with rate tier resolution ──────────────────
+  // ── Step 2+3: Base service price ─────────────────────────────────────────────
 
   let basePriceMinor: number;
-  let pricingModel: PricingModel = config.service_rate.pricing_model;
+  const pricingModel: PricingModel = config.service_rate.pricing_model;
+  // Set when ALL nights share the same condition (or for non-per_night models).
+  // Undefined for mixed stays where different nights got different rates.
   let rateTierCondition: RateTierCondition | undefined;
 
   if (pricingModel === "duration_tiered") {
@@ -193,7 +361,7 @@ export function calculateBookingPrice(
       } else {
         basePriceMinor = tier.rate_minor;
         lines.push(
-          makeBaseLine(tier.rate_minor, input.quantity, tier.rate_minor, pricingModel, config.service_rate, {
+          makeBaseLine(tier.rate_minor, input.quantity, tier.rate_minor, pricingModel, config.service_rate, nextOrder, {
             label: `${config.service_rate.name} — ${tier.label}`,
             calculation: { formula: `duration_tier[${input.duration_minutes}min]` },
           })
@@ -209,6 +377,7 @@ export function calculateBookingPrice(
         });
       }
     }
+
   } else if (pricingModel === "tiered") {
     const tiers = config.service_rate.volume_tiers ?? [];
     const qty = input.quantity;
@@ -224,38 +393,112 @@ export function calculateBookingPrice(
       basePriceMinor = 0;
     } else {
       basePriceMinor = matchingTier.rate_minor * qty;
-      lines.push(makeBaseLine(basePriceMinor, qty, matchingTier.rate_minor, pricingModel, config.service_rate));
+      lines.push(makeBaseLine(basePriceMinor, qty, matchingTier.rate_minor, pricingModel, config.service_rate, nextOrder));
     }
-  } else {
-    // flat / per_unit / per_session / per_night
-    // D-039: resolve the applicable rate tier (holiday > extended > regular)
-    const resolved = resolveRateTier(config.service_rate, input);
-    const qty = pricingModel === "flat" ? 1 : input.quantity;
-    basePriceMinor = resolved.rate_minor * qty;
-    rateTierCondition = resolved.condition;
 
-    lines.push(
-      makeBaseLine(basePriceMinor, qty, resolved.rate_minor, pricingModel, config.service_rate, {
-        calculation: {
-          formula: `${resolved.rate_minor} × ${qty}`,
-          ...(resolved.condition !== "regular" && { rate_tier_condition: resolved.condition }),
-        },
-      })
-    );
+  } else if (
+    (pricingModel === "per_night" || pricingModel === "per_session" || pricingModel === "per_unit") &&
+    config.service_rate.rate_tiers &&
+    config.service_rate.rate_tiers.length > 0
+  ) {
+    // ── Per-unit (per-date) rate resolution (D-039 clarified) ───────────────
+    // Applies to per_night, per_session, per_unit when rate_tiers are configured.
+    // Each calendar date resolves its OWN tier: holiday dates get the holiday rate;
+    // non-holiday dates get the extended rate (if the whole booking meets the
+    // threshold) or the regular rate. Emit one base line per condition group.
+    // This prevents the v0.2 bug: holiday rate × ALL units when ANY date is a holiday.
+    const unitSingular = unitLabel(pricingModel); // "night" | "session" | "unit"
+    const unitGroups = resolvePerUnitRates(config.service_rate, input, unitSingular);
 
-    // Only emit a rate_tier applied_rule when a non-regular tier was selected (informational)
-    if (config.service_rate.rate_tiers && config.service_rate.rate_tiers.length > 0) {
+    if (unitGroups) {
+      basePriceMinor = 0;
+      rateTierCondition = unitGroups.length === 1 ? unitGroups[0]!.condition : undefined;
+
+      for (const group of unitGroups) {
+        basePriceMinor += group.total_minor;
+        const lineLabel =
+          unitGroups.length === 1
+            ? config.service_rate.name
+            : `${config.service_rate.name} — ${group.label}`;
+
+        lines.push(
+          makeBaseLine(
+            group.total_minor,
+            group.count,
+            group.rate_minor,
+            pricingModel,
+            config.service_rate,
+            nextOrder,
+            {
+              label: lineLabel,
+              calculation: {
+                formula: `${group.rate_minor} × ${group.count} ${group.unitSingular}${group.count !== 1 ? "s" : ""}`,
+                ...(group.condition !== "regular" && { rate_tier_condition: group.condition }),
+              },
+            }
+          )
+        );
+
+        appliedRules.push({
+          rule_id: `rate_tier_${group.condition}`,
+          rule_type: group.condition === "holiday" ? "holiday" : "base",
+          rule_name: group.label,
+          action: "rate_tier",
+          matched: true,
+          match_reason: `${group.count} ${group.unitSingular}(s) with condition=${group.condition}`,
+          amount_minor: group.total_minor,
+          rate_tier_condition: group.condition,
+        });
+      }
+    } else {
+      // No booking dates provided — fall back to whole-booking resolution.
+      // resolveRateTier skips the holiday check when dates are absent, so this
+      // path never mis-fires the holiday rate without actual date evidence.
+      warnings.push({
+        code: "no_dates_for_rate_tiers",
+        message: `rate_tiers configured for ${pricingModel} but start_at/end_at not provided; using whole-booking fallback`,
+        severity: "info",
+      });
+      const resolved = resolveRateTier(config.service_rate, input);
+      const qty = input.quantity;
+      basePriceMinor = resolved.rate_minor * qty;
+      rateTierCondition = resolved.condition;
+      lines.push(
+        makeBaseLine(basePriceMinor, qty, resolved.rate_minor, pricingModel, config.service_rate, nextOrder, {
+          calculation: {
+            formula: `${resolved.rate_minor} × ${qty} (no-dates fallback)`,
+            ...(resolved.condition !== "regular" && { rate_tier_condition: resolved.condition }),
+          },
+        })
+      );
       appliedRules.push({
         rule_id: `rate_tier_${resolved.condition}`,
         rule_type: resolved.condition === "holiday" ? "holiday" : "base",
         rule_name: resolved.label,
         action: "rate_tier",
         matched: true,
-        match_reason: `rate_tier_condition=${resolved.condition}`,
+        match_reason: `whole-booking fallback; condition=${resolved.condition}`,
         amount_minor: resolved.rate_minor,
         rate_tier_condition: resolved.condition,
       });
     }
+
+  } else {
+    // flat / per_night (no rate_tiers) / per_session (no rate_tiers) / per_unit (no rate_tiers)
+    // — whole-booking resolution; rate_tiers not configured so single rate applies.
+    const resolved = resolveRateTier(config.service_rate, input);
+    const qty = pricingModel === "flat" ? 1 : input.quantity;
+    basePriceMinor = resolved.rate_minor * qty;
+    rateTierCondition = resolved.condition;
+
+    lines.push(
+      makeBaseLine(basePriceMinor, qty, resolved.rate_minor, pricingModel, config.service_rate, nextOrder, {
+        calculation: {
+          formula: `${resolved.rate_minor} × ${qty}`,
+          ...(resolved.condition !== "regular" && { rate_tier_condition: resolved.condition }),
+        },
+      })
+    );
   }
 
   // ── Step 4: Participant pricing ──────────────────────────────────────────────
@@ -300,7 +543,6 @@ export function calculateBookingPrice(
   const subtotalBaseMinor = basePriceMinor + participantTotalMinor;
 
   // ── Step 5: Flat surcharges (D-039: flat amounts only, no % surcharges) ──────
-  // per_unit=true → amount multiplied by booking quantity (e.g., puppy fee +$X/night)
 
   let surchargeTotal = 0;
 
@@ -309,7 +551,6 @@ export function calculateBookingPrice(
   );
 
   for (const rule of surchargeRules) {
-    // per_unit: multiply by quantity (e.g., puppy +$10/night × 3 nights = $30)
     const amount = rule.per_unit ? rule.amount_minor * input.quantity : rule.amount_minor;
     surchargeTotal += amount;
     const category = rule.rule_type === "holiday" ? "holiday" : "surcharge";
@@ -344,8 +585,8 @@ export function calculateBookingPrice(
 
   let overageTotal = 0;
   if (config.overage_config && input.scheduled_end_at && input.actual_end_at) {
-    const scheduledEnd = parseDate(input.scheduled_end_at);
-    const actualEnd = parseDate(input.actual_end_at);
+    const scheduledEnd = new Date(input.scheduled_end_at);
+    const actualEnd = new Date(input.actual_end_at);
     const lateMinutes = minutesBetween(scheduledEnd, actualEnd);
     const grace = config.overage_config.grace_period_minutes;
     if (lateMinutes > grace) {
@@ -413,11 +654,10 @@ export function calculateBookingPrice(
   const subtotalBeforeDiscounts = subtotalBaseMinor + surchargeTotal + addonTotal;
 
   // ── Step 7: Discounts — fixed first, then percentage ────────────────────────
-  // % discounts apply to (subtotalBeforeDiscounts - fixedDiscounts); additive, not compounding.
+  // % discounts apply to the same base (post-fixed-discount); additive, not compounding.
 
   let discountTotal = 0;
 
-  // 7a: Fixed discounts
   const fixedDiscountRules = (config.pricing_rules ?? []).filter(
     (r): r is DiscountRule =>
       r.category === "discount" && r.action === "fixed_amount" && isRuleMatched(r, input)
@@ -447,7 +687,6 @@ export function calculateBookingPrice(
     });
   }
 
-  // 7b: Manual discount
   if (input.manual_discount_minor && input.manual_discount_minor > 0) {
     const amount = input.manual_discount_minor;
     discountTotal += amount;
@@ -464,7 +703,6 @@ export function calculateBookingPrice(
     });
   }
 
-  // 7c: Percentage discounts — each applies to the same base (additive, not compounding)
   const pctDiscountBase = subtotalBeforeDiscounts - discountTotal;
   const pctDiscountRules = (config.pricing_rules ?? []).filter(
     (r): r is DiscountRule =>
@@ -532,7 +770,7 @@ export function calculateBookingPrice(
 
   const totalMinor = lines.reduce((acc, l) => acc + l.amount_minor, 0);
 
-  return {
+  const result: PricingBreakdown = {
     pricing_engine_version: PRICING_ENGINE_VERSION,
     calculation_id: newId(),
     calculated_at: new Date().toISOString(),
@@ -577,6 +815,10 @@ export function calculateBookingPrice(
     applied_rules: appliedRules,
     ...(warnings.length > 0 && { warnings }),
   } as PricingBreakdown;
+
+  // Deep-freeze: the returned breakdown is the immutable booking snapshot.
+  // Any mutation attempt will throw in strict mode.
+  return deepFreeze(result);
 }
 
 // ─── Rule matching ────────────────────────────────────────────────────────────
@@ -593,16 +835,14 @@ function isRuleMatched(
   return false;
 }
 
-/** Returns ISO date strings ("YYYY-MM-DD") for each night/day of the booking (UTC). */
+/** Returns ISO date strings ("YYYY-MM-DD") for each night of the booking (UTC). */
 function getBookingDates(input: BookingInput): string[] {
   if (!input.start_at || !input.end_at) return [];
-  const start = new Date(input.start_at);
-  const end = new Date(input.end_at);
-  const dates: string[] = [];
-  const cursor = new Date(start);
+  const cursor = new Date(input.start_at);
   cursor.setUTCHours(0, 0, 0, 0);
-  const endDay = new Date(end);
+  const endDay = new Date(input.end_at);
   endDay.setUTCHours(0, 0, 0, 0);
+  const dates: string[] = [];
   while (cursor < endDay) {
     dates.push(cursor.toISOString().slice(0, 10));
     cursor.setUTCDate(cursor.getUTCDate() + 1);

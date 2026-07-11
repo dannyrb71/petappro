@@ -676,7 +676,7 @@ Providers capture **hours of operation** (per-weekday open/close; needed regardl
 
 Sensitive access data (lockbox/alarm/gate codes, entry instructions) for in-home services is **encrypted at rest** (never stored or logged in plaintext) and revealed in-app behind a **biometric gate** (Face ID / re-auth, ties into D-031 step-up — a UI gate, not a substitute for encryption). **Transparency:** the input form tells **both provider and client** how the data is stored and protected.
 
-**Requires:** column/field-level encryption in the operational DB; Expo LocalAuthentication reveal gate; privacy-policy line.
+**Requires (Codex-confirmed crypto):** **tenant-scoped ciphertext**, **keys held separately** from the data, **audited server-side decryption**, and **no plaintext leakage** anywhere (logs, snapshots, breadcrumbs); Expo LocalAuthentication reveal gate; privacy-policy line. Fits the D-034–D-038 isolation model only under these conditions.
 
 ---
 
@@ -710,3 +710,15 @@ Dedicated working session(s) to hash out, per service:
 3. **All service report cards** — for each service: report-card **content**, the **boilerplate** (system defaults), and which parts are **editable / add-on** functions (per D-046's checklist-editor + edit-lock model).
 
 **Why it matters:** turns the D-041/D-046 principles into buildable per-service specs and prevents silent scope drift from the Woof rebuild. **Owner:** Cowork (product) drafts, with the Woof reference in `docs/research/woof-wetreats/`; Danny decides; Codex confirms data-model. **Recommended approach:** spec **boarding** end-to-end first as the template, then clone per service.
+
+---
+
+### D-048 — MVP vertical scope: drop-ins in; in-home/house sitting = first fast-follow
+
+**Status:** FINAL (Danny, 2026-07-10), informed by Codex feasibility (net-new schema/logic, not free reuse).
+
+**MVP verticals:** boarding, daycare, dog walking (the committed foundation, D-022) **+ drop-in visits as a stretch** (per-visit; closest to walking — check-in/out + report card). **In-home sitting & house sitting = first fast-follow (v1.1)** — they carry the heaviest net-new work (per-night + **location** schema, overnight **conflict-group** logic per D-045, encrypted access codes per D-044) and naturally bundle with the **GPS/location-sharing v1.1** track.
+
+**Soft-plan (Danny):** keep a plan to **fold the deferred verticals in if the foundation gates clear with buffer** (per D-023 flex-scope to hold the Oct 1 date). **Gut-check at the first major check-in** to decide whether they move into the launch window. Not a commitment to launch them — a readiness option.
+
+**Why it matters:** protects the launch date while keeping the verticals live as near-term scope. **Requires:** Codex feasibility items (net-new: per-visit/per-night+location schema, overlap logic, multi-visit-per-day) sized into the plan; revisit at first major check-in.
