@@ -21,7 +21,7 @@
   - **Codex owes:** §7 architecture-doc fixes (`technical_architecture.md`/`data_model_draft.md` still say Connect post-MVP); **D-050** server-side entitlement enforcement design; data-model confirms (per-visit/per-night+location, availability conflict-groups D-045, gapless invoice sequence D-052); flip **D-031** to Decided + add the personal-info-change re-auth trigger (per the design entry below).
   - **Cowork to sweep:** stale "GPS v1.1" refs → **D-054** (competitive-analysis §5, pricing-tiers doc, F-026).
   - **George/roadmap awareness:** GPS now in MVP (D-054), messaging out (D-053), legal is a **launch blocker** (D-055).
-- **Ready to push? YES** — `docs/decisions/open_decisions.md` (D-049–D-055), `pricing-tiers-and-features.md`, `competitive-analysis.md`, `how-to-test-petappro.md`, `feature-ideas-log.md`, `STATUS.md`. **Claude Code to push on Danny's go.**
+- **Ready to push? DONE** — pushed as **`4b48cb2`** (2026-07-14). 42 files, 2505 insertions.
 
 ---
 
