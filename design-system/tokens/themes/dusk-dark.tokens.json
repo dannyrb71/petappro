@@ -1,16 +1,16 @@
 {
-  "$description": "Tier 2 · Themes — dusk mode. Brand roles alias primitives; one file = one Figma mode.",
+  "$description": "Tier 2 · Themes — Dusk · Dark (Option A, light-islands). Brand-tinted dark canvas (dusk-brand.900), light holder cards kept from the light mode, brightened primary. Same role names.",
   "color": {
     "$type": "color",
     "brand": {
       "primary": {
-        "$value": "{color.primitive.dusk-brand.700}"
+        "$value": "{color.primitive.dusk-brand.300}"
       },
       "primary-pressed": {
-        "$value": "{color.primitive.dusk-brand.800}"
+        "$value": "{color.primitive.dusk-brand.400}"
       },
       "on-primary": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.dusk-brand.900}"
       },
       "primary-container": {
         "$value": "{color.primitive.dusk-brand.50}"
@@ -19,13 +19,13 @@
         "$value": "{color.primitive.dusk-brand.900}"
       },
       "secondary": {
-        "$value": "{color.primitive.dusk-accent.400}"
+        "$value": "{color.primitive.dusk-accent.300}"
       },
       "secondary-solid": {
-        "$value": "{color.primitive.dusk-accent.700}"
+        "$value": "{color.primitive.dusk-accent.400}"
       },
       "on-secondary": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.dusk-accent.900}"
       },
       "secondary-container": {
         "$value": "{color.primitive.dusk-accent.50}"
@@ -34,10 +34,10 @@
         "$value": "{color.primitive.dusk-accent.900}"
       },
       "surface": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.dusk-neutral.100}"
       },
       "surface-container": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.dusk-neutral.200}"
       },
       "surface-container-high": {
         "$value": "{color.primitive.dusk-neutral.200}"
@@ -72,16 +72,16 @@
         }
       },
       "canvas": {
-        "$value": "{color.primitive.dusk-neutral.50}"
+        "$value": "{color.primitive.dusk-brand.900}"
       },
       "on-canvas": {
-        "$value": "{color.primitive.dusk-neutral.900}"
+        "$value": "{color.primitive.dusk-neutral.50}"
       },
       "on-canvas-variant": {
-        "$value": "{color.primitive.dusk-neutral.700}"
+        "$value": "{color.primitive.dusk-neutral.400}"
       },
       "on-canvas-accent": {
-        "$value": "{color.primitive.dusk-accent.600}"
+        "$value": "{color.primitive.dusk-accent.300}"
       },
       "primary-on-surface": {
         "$value": "{color.primitive.dusk-brand.700}"
@@ -93,7 +93,7 @@
         "$value": "{color.primitive.dusk-brand.800}"
       },
       "canvas-pressed": {
-        "$value": "{color.primitive.dusk-neutral.200}"
+        "$value": "{color.primitive.dusk-brand.800}"
       }
     }
   },

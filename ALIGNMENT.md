@@ -13,7 +13,7 @@
 | **Cowork (Claude)** | Product management — captures decisions, writes specs/docs; **ledger steward** | edits **local files**; **does NOT run git** | local files |
 | **Claude Code** | Implementation **+ git operator** — `commit`/`push` mirrors local → GitHub | **yes (git)** | GitHub mirror |
 | **Codex** | Tech governor — architecture, data model, code review | **edits local files (its lane)**; **reads git** (history/diffs/CI); **does NOT commit/push** — Claude Code is sole committer; **design-system files = review-only** | **local files (folder-connected)** |
-| **George (ChatGPT)** | Project governance — roadmap, prioritization, standups | posts to `STATUS.md`; write/commit path TBD (else via Cowork) | **reads the repo directly from Git** (confirmed 2026-07-10 — connector works; paste + desktop-only workaround retired) |
+| **George (ChatGPT)** | Project governance — roadmap, prioritization, standups | posts to `STATUS.md`; write/commit path TBD (else via Cowork) | reads the GitHub mirror **when the connector is attached in that chat**; if not, works off **Cowork's relayed canonical** and **labels it as relayed — never claims reads it didn't do**. (Connector *can* work — 2026-07-10; but access is per-chat, not guaranteed live.) |
 | **Design System chat** ("PetAppro Foundation") | **Design system authority** — tokens, components, atomic structure (atoms→molecules→…), design specs | writes to **`/design-system/`** — the governed DS foundation (CANONICAL). `docs/design-system/` was an earlier mis-pointer; consolidate into `/design-system/` | local files (folder-connected) |
 
 **Sync mechanism (how chats/tools stay aligned):** every Claude chat working on PetAppro **connects the
@@ -73,15 +73,20 @@ the desktop-app/paste workaround are retired.
 | This ledger (`ALIGNMENT.md`) | **Cowork (steward)** | read; flag deltas |
 | Code | **Claude Code** | — |
 
-George reads the repo directly from Git (§1). His governance output posts to `STATUS.md`; other repo
-writes go through **Cowork** (scribe model) unless George's own commit path is confirmed — avoids
-multi-writer conflicts.
+George reads canonical per §1 (the mirror when its connector is attached in that chat, else Cowork's
+relayed canonical — labeled as relayed). His governance output posts to `STATUS.md`; other repo writes go
+through **Cowork** (scribe model) unless George's own commit path is confirmed — avoids multi-writer conflicts.
 
 ## 4. Daily protocol
 
 1. **Start of day — alignment check.** Each agent reads `ALIGNMENT.md` + `TASKS.md` +
    `open_decisions.md` and reports **"aligned"** or lists deltas. Cowork reconciles deltas into the
    right docs (expect a few read/write rounds if misaligned). Log the check in §6.
+   - **Read-before-report (rule, 2026-07-11).** No standup or status report is written from memory. Any
+     report — especially George's daily standup — must be generated **from a fresh canonical read first**
+     (the repo at current HEAD if the connector is live, else Cowork's relayed canonical, labeled as
+     relayed). If canonical can't be obtained, **say so and defer** — never present a memory-based report
+     as current. The read is a precondition of the report, not a follow-up correction.
 2. **During the day.** Each change is captured in its owner's doc as it's made.
 3. **End of day — push.** **Claude Code** commits + pushes (mirrors local → GitHub); **Danny approves.**
    Cowork does NOT push. Log the commit hash in §6. **If no push, record why** (the line Danny asked for).
@@ -96,6 +101,14 @@ multi-writer conflicts.
 *(**George, Codex, and Claude Code** all read these from the GitHub mirror directly; Cowork reads local files.)*
 
 ## 6. Sync log (newest first)
+
+- **2026-07-10** — Pushed **`5319f8c`** (`c8b5628 → 5319f8c`) by Claude Code, on Danny's "ready to deploy."
+  Bundle: pricing per_session/per_unit per-date fix (closes Codex blocker; 39 tests green, Cowork-verified in
+  isolated install), decisions **D-041–D-048**, `provider-settings-ia.md` (new; on main since `c8b5628`),
+  `product_brief.md` full reconciliation, `ALIGNMENT.md` single-committer governance + §7 punch-list, `STATUS.md`.
+  **Not in this push (separate, by owners):** Codex's §7 architecture-doc fixes (`technical_architecture.md`,
+  `data_model_draft.md`); newer Design-System files (CHANGELOG, theming-decision, naming-conventions, dark
+  tokens) — pending Codex DS review. This §6 entry + this note will ride the next push.
 
 - **2026-07-09** — Alignment ledger + daily protocol established (Cowork). Commit `3de98e7` made
   (all 2026-07-08/09 work: D-007 Connect-in, D-015 no-deposits, D-022 walking, D-028, D-029,

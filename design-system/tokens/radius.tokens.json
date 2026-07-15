@@ -15,10 +15,12 @@
       "chip":   { "$value": "{radius.primitive.full}", "$type": "dimension" },
       "badge":  { "$value": "{radius.primitive.full}", "$type": "dimension" },
       "switch": { "$value": "{radius.primitive.full}", "$type": "dimension" },
-      "input":  { "$value": "{radius.primitive.3}",    "$type": "dimension" },
-      "card":   { "$value": "{radius.primitive.4}",    "$type": "dimension" },
-      "tile":   { "$value": "{radius.primitive.4}",    "$type": "dimension" },
-      "sheet":  { "$value": "{radius.primitive.5}",    "$type": "dimension" }
+      "input":       { "$value": "{radius.primitive.3}", "$type": "dimension" },
+      "card":        { "$value": "{radius.primitive.4}", "$type": "dimension", "$description": "Inline / standard card (booking, activity, stat, list) — 16px." },
+      "tile":        { "$value": "{radius.primitive.4}", "$type": "dimension" },
+      "container":   { "$value": "{radius.primitive.6}", "$type": "dimension", "$description": "Large card container / holder / section card — 28px (Danny 2026-07-11)." },
+      "modal":       { "$value": "{radius.primitive.6}", "$type": "dimension", "$description": "Modal / dialog — 28px." },
+      "sheet":       { "$value": "{radius.primitive.6}", "$type": "dimension", "$description": "Bottom sheet / large surface — 28px." }
     }
   }
 }

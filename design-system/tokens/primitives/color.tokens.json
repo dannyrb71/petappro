@@ -982,6 +982,13 @@
           "$value": "#AB5FB9",
           "$type": "color"
         }
+      },
+      "grape": {
+        "500": {
+          "$value": "#AD56C1",
+          "$type": "color",
+          "$description": "Grape (purple-magenta) — female gender tint; AA for bold names on white. Was 'coral' #D95C77 (too red); Danny changed value + renamed to grape."
+        }
       }
     }
   }

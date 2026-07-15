@@ -1,0 +1,109 @@
+# Maestro E2E — booking create → server-priced total (D-050 critical path)
+#
+# STUB: screen IDs (accessibilityLabel / testID) are placeholders.
+# Update each `id:` and `text:` to match the actual app component testIDs
+# when apps/mobile is scaffolded. The flow structure matches the booking UX
+# described in docs/user-flows/ and docs/specs/booking_and_pricing.md.
+#
+# Run locally (once app is built):
+#   maestro test e2e/flows/booking-create.yaml
+#
+# Pre-conditions:
+#   - App running on simulator / device (expo run:ios or EAS preview build)
+#   - Test tenant seeded: provider "biz-test-1", client "client-test-1", 1 dog
+#   - Service: boarding, $75/night, no rate_tiers, no surcharges
+#   - Expected booking: 3 nights → $225.00 total
+
+appId: com.base509.petappro  # Update to match app.json bundleIdentifier
+
+---
+
+# ── Login as provider ──────────────────────────────────────────────────────────
+- launchApp:
+    clearState: true
+
+- assertVisible:
+    id: "screen-login"
+
+- tapOn:
+    id: "input-email"
+- inputText: "provider@test.petappro.dev"
+
+- tapOn:
+    id: "input-password"
+- inputText: "test-password-placeholder"
+
+- tapOn:
+    id: "btn-sign-in"
+
+- assertVisible:
+    id: "screen-dashboard"
+    timeout: 5000
+
+# ── Navigate to new booking ────────────────────────────────────────────────────
+- tapOn:
+    id: "btn-new-booking"
+
+- assertVisible:
+    id: "screen-booking-create"
+
+# ── Select client + pet ────────────────────────────────────────────────────────
+- tapOn:
+    id: "input-client-search"
+- inputText: "Test Client"
+
+- tapOn:
+    text: "Test Client"
+
+- tapOn:
+    id: "checkbox-pet-fido"  # first pet in the test client's profile
+
+# ── Select service ─────────────────────────────────────────────────────────────
+- tapOn:
+    id: "btn-service-boarding"
+
+# ── Set dates: 3 nights ───────────────────────────────────────────────────────
+- tapOn:
+    id: "input-start-date"
+- inputText: "2026-08-01"
+
+- tapOn:
+    id: "input-end-date"
+- inputText: "2026-08-04"
+
+# ── Review server-priced total ────────────────────────────────────────────────
+# The booking total must come from the server (Edge Function calling packages/pricing).
+# The app must NOT calculate the total client-side.
+- tapOn:
+    id: "btn-review-booking"
+
+- assertVisible:
+    id: "screen-booking-review"
+
+- assertVisible:
+    text: "$225.00"           # 3 nights × $75 = $225 (from server)
+
+- assertVisible:
+    text: "3 nights"
+
+- assertNotVisible:
+    text: "$0.00"             # Guard: total must never be zero
+
+# ── Confirm booking ────────────────────────────────────────────────────────────
+- tapOn:
+    id: "btn-confirm-booking"
+
+- assertVisible:
+    id: "screen-booking-confirmed"
+    timeout: 8000             # Allow time for Stripe Connect payment intent creation
+
+- assertVisible:
+    id: "booking-id"          # Booking ID must appear; confirms server round-trip
+
+# ── Verify booking appears in dashboard ───────────────────────────────────────
+- tapOn:
+    id: "btn-go-to-dashboard"
+
+- assertVisible:
+    text: "Test Client"
+    timeout: 2000

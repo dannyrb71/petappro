@@ -6,6 +6,16 @@ Per-component changes live in each component's record under `records/`.
 Format: system version · date · summary. Newest first.
 
 ## Unreleased
+- **Card system defined (2026-07-11)** from a full scrub of the live Woof client + staff app.
+  8 card families on a shared "Record card" base (`docs/naming-conventions.md` §9); new shared pieces
+  (Pagination Dots, Carousel, In-Out dual-check, Payment Summary). Locked rules: **payment labeling**
+  ("This booking" vs "Total balance · N bookings"; Amount Due / Past Due / Paid / Partial), **client
+  booking carousel** (paginated dots, no arrows, one card = one booking), **IN/OUT dual checkbox** for
+  same-day (In/Out labels), **info (i) trails the amount**, **cancelled shows cancelled dates**,
+  **gender tint + fallback-glyph tint**. Low-fi catalog on Figma page 09 → "10 · Card Catalog".
+- **`domain/pet/*` → `domain/gender/*`** semantic tokens (male azure · female **coral `#D95C77`** new
+  primitive · unknown taupe); avatar-ring + name-tint. Specs updated. **770 tokens, lint-clean.**
+  (Figma variables for `domain/gender/*` still need syncing.)
 - Established governance operating model (`GOVERNANCE.md`), spec/record templates, and the token linter.
 - **Foundation tokens imported from Claude Design** (v0.3 deliverable) as DTCG source in `tokens/`:
   color (primitive · semantic · domain), typography, spacing, radius, elevation, motion —
@@ -35,6 +45,22 @@ Format: system version · date · summary. Newest first.
   10 domain) + `specs/README.md` + `docs/theming-decision.md`. Token names reconciled old→4-tier;
   all refs resolve except 2 flagged build-time additions: `color.semantic.success-solid` (=green.700)
   and `comp.button.*` (Tier-4 component layer). Pending: Codex review → Danny approval → templates.
+
+### 2026-07-10 (overnight) — Naming convention, type-scale fix, atoms→organisms build (Design System authority chat)
+- **Naming convention** authored (`docs/naming-conventions.md`) + applied: icons `icon/<name>` (renamed from `icon/icon-*`); components = atomic-layer folders + PascalCase; multi-variant = one variant set; pages/§sections; scratch → `99 Sandbox`.
+- **Type scale corrected** (was oversized): Display 28 · Headline 24 · Title Large 20 · Title 16 · Body Large 15 · Body 13 · Body Small 11 · Label 12; line-heights set as % from tokens. **All component text now uses the text styles** (theme-aware font via Scheme.font-family; scale in one place) — 36 nodes retrofitted. Tokens lint-clean (767).
+- **Icons — 33 `icon/*` components** (token-bound fill, 24×24, proportions locked): 10 service (custom boarding + walking, Phosphor-fill rest) + 23 UI (carets, close, plus, check, calendar, clock, info, bell, search, edit, phone, user, more, trash, settings, camera, map-pin, chat, warning, check-circle).
+- **Atoms built:** Button, Status Badge, Service Pill, **Input** (4 states), Textarea, Select, Checkbox, Radio, Switch, Avatar (3 sizes), Money, Link, Divider, Count Badge, Icon Button, Image — all token-bound.
+- **Molecules:** Section Header, Field Group, Price Row, List Row, Collapsible Header, Announcement Banner.
+- **Organisms:** Booking Card (composes Service Pill + Status Badges + Money + detail rows), Stat Card.
+- **Completed same session:** Service Pill icons placed (per-variant); **Date/Time fields**; organisms **Form, Modal, Activity Row, Fee Breakdown**; **component properties** across the library (TEXT / BOOLEAN show-hide / INSTANCE_SWAP icon — prototype-ready, matching Danny's form-field work); icon inner-frames set to Center/Scale constraints; page reorganized into **10 category Sections** (auto-layout grid clusters) stacked in atomic order; **ADA dark-CTA fix** — dark `primary`/`primary-pressed`/`secondary` lightened to the 300/400 band across all 6 themes; **badge text → Label Small (10px)** new style; **code syntax** (`var(--pa-*)` + Android) set on 228 consumed tokens. Naming convention = **functional** (Danny-locked). Tokens lint-clean (769).
+- **Still open:** **Code Connect** (needs `packages/ui` RN components to exist); sync Figma size vars to new scale; publish the library (enables INSTANCE_SWAP defaults by key).
+
+### 2026-07-10 — Theme × Scheme matrix (Figma re-architecture) (Design System authority chat)
+- **Themes restructured into a two-axis matrix** (Danny "Option B"; supersedes Decision 3 single-collection — hit Figma's 10-mode cap at 6 themes × light/dark). New Figma collections: **`Theme`** (6 modes, one per brand; holds `light/<role>`+`dark/<role>`+`font-family`) × **`Scheme`** (Light/Dark, resolves light↔dark). `Color · Semantic` repointed to alias `Scheme`; text styles' font-family rebound to `Scheme.font-family`; **old single Themes collection deleted.** Default = Brandy Blue + Light. **Verified:** Button reskins across Harbor · Dark and back with no edits; a `Theme Preview` frame flips correctly.
+- **All 6 themes now have light + dark** (5 dark theme token files authored on the light-islands model; brand-tinted dark canvas per theme). `tokens` → **766, 0 violations.**
+- **Binding rule (important):** page/screen backgrounds must bind **`surface/canvas`** (flips light-grey↔brand-dark); `surface/default` = white holder (stays white both schemes, by design); inner = `surface/container`; page text = `text/on-canvas`. Frames bound to `surface/default` for their bg won't flip in dark.
+- **Product/code (for Cowork/George/Codex):** one picker sets both axes; each theme-scheme = a token set (unlimited in code); add-on packs (Holiday/Spring, free-or-paid TBD); tiering Tier1=default·Tier2=3·Top=all. See `docs/theming-decision.md` Decision 4.
 
 ### 2026-07-10 — Dark-mode surface model ("light islands") (Design System authority chat)
 - **New surface architecture** for proper light+dark. Added three roles: **`surface.canvas`** (page backdrop), kept **`surface.default`** as the white holder card, **`surface.container`** as the nested/inner card; added **`text.on-canvas`** + **`text.on-canvas-variant`** so text stays ADA-compliant on *both* the dark canvas and the light cards (a single on-surface can't). `tokens` → **641, 0 violations.**

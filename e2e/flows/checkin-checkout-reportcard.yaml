@@ -1,0 +1,108 @@
+# Maestro E2E — check-in → check-out → report card (D-050 critical path)
+#
+# STUB: testIDs are placeholders matching the component naming convention
+# in design-system/docs/naming-conventions.md. Update when apps/mobile is scaffolded.
+#
+# Pre-conditions:
+#   - Confirmed booking exists (booking-create.yaml must have run first, or seed directly)
+#   - Logged in as provider (same session, or re-login)
+#   - Booking: "Test Client / Fido", boarding, 3 nights, starts today
+
+appId: com.base509.petappro
+
+---
+
+# ── Navigate to active bookings ───────────────────────────────────────────────
+- launchApp:
+    clearState: false          # Preserve session from previous flow (or re-login if needed)
+
+- assertVisible:
+    id: "screen-dashboard"
+    timeout: 3000
+
+- tapOn:
+    id: "tab-schedule"
+
+- assertVisible:
+    id: "screen-schedule"
+
+# ── Find and open the booking ─────────────────────────────────────────────────
+- tapOn:
+    text: "Test Client"
+
+- assertVisible:
+    id: "screen-booking-detail"
+
+- assertVisible:
+    text: "Confirmed"          # Booking must be in Confirmed state before check-in
+
+# ── Check in ──────────────────────────────────────────────────────────────────
+- tapOn:
+    id: "btn-check-in"
+
+- assertVisible:
+    id: "modal-confirm-checkin"
+
+- tapOn:
+    id: "btn-confirm-yes"
+
+- assertVisible:
+    text: "Checked in"
+    timeout: 3000
+
+- assertVisible:
+    id: "checkin-timestamp"    # Must display the server-stamped check-in time
+
+# ── Check out ─────────────────────────────────────────────────────────────────
+- tapOn:
+    id: "btn-check-out"
+
+- assertVisible:
+    id: "modal-confirm-checkout"
+
+- tapOn:
+    id: "btn-confirm-yes"
+
+- assertVisible:
+    text: "Checked out"
+    timeout: 3000
+
+# ── Report card ───────────────────────────────────────────────────────────────
+# After check-out, the app should navigate to (or offer) the report card flow.
+- assertVisible:
+    id: "btn-add-report-card"
+
+- tapOn:
+    id: "btn-add-report-card"
+
+- assertVisible:
+    id: "screen-report-card"
+
+# Fill in required fields
+- tapOn:
+    id: "input-report-notes"
+- inputText: "Fido had a great stay! Ate well and played in the yard."
+
+- tapOn:
+    id: "select-mood-great"
+
+- tapOn:
+    id: "select-appetite-good"
+
+# ── Publish report card ───────────────────────────────────────────────────────
+- tapOn:
+    id: "btn-publish-report-card"
+
+- assertVisible:
+    id: "screen-report-card-sent"
+    timeout: 5000
+
+- assertVisible:
+    text: "Report card sent"   # Confirms server round-trip; client notified
+
+# ── Guard: booking status must be Completed ───────────────────────────────────
+- tapOn:
+    id: "btn-back-to-booking"
+
+- assertVisible:
+    text: "Completed"

@@ -1,0 +1,108 @@
+# PetAppro — EAS Build + phased release (D-050)
+#
+# Triggered manually (workflow_dispatch) or when a version tag is pushed (v*.*.*).
+# Produces: store binary via EAS Build, uploads source maps to Sentry, submits to
+# TestFlight / Play Internal for the beta ring, then promotes to staged production.
+#
+# Secrets required in repo Settings → Secrets and variables → Actions:
+#   EAS_TOKEN           — expo.dev project token  (⚠️ Danny must create)
+#   SENTRY_AUTH_TOKEN   — sentry.io auth token     (⚠️ Danny must create)
+#   SENTRY_ORG          — e.g. "base509"           (⚠️ Danny must set)
+#   SENTRY_PROJECT      — e.g. "petappro-mobile"   (⚠️ Danny must set)
+#
+# STUB: this workflow is wired but will not succeed until:
+#   1. apps/mobile exists and has eas.json + app.json
+#   2. The four secrets above are set
+#   3. Apple (App Store Connect API key) + Google (service account JSON) credentials
+#      are added per EAS Submit docs: https://docs.expo.dev/submit/introduction/
+
+name: EAS Build + Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: EAS build profile
+        required: true
+        default: preview
+        type: choice
+        options: [development, preview, production]
+      platform:
+        description: Target platform
+        required: true
+        default: all
+        type: choice
+        options: [all, ios, android]
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    name: EAS Build (${{ github.event.inputs.profile || 'production' }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EAS_TOKEN }}
+
+      - name: Install app deps
+        working-directory: apps/mobile
+        run: npm ci
+
+      - name: Run pricing tests before build
+        working-directory: packages/pricing
+        run: npm ci && npm test
+
+      - name: EAS Build
+        working-directory: apps/mobile
+        env:
+          PROFILE: ${{ github.event.inputs.profile || 'production' }}
+          PLATFORM: ${{ github.event.inputs.platform || 'all' }}
+        run: eas build --profile "$PROFILE" --platform "$PLATFORM" --non-interactive
+
+      # Upload JS bundle source maps to Sentry so crash stack traces are readable.
+      # Runs after a successful build; the build artifact path is EAS-managed.
+      - name: Upload source maps to Sentry
+        working-directory: apps/mobile
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        run: npx @sentry/react-native-cli upload-dsym 2>/dev/null || true
+        # ↑ DSYMs are iOS-only; the || true keeps Android builds from failing here.
+        # The JS source map upload is handled by the Sentry Expo plugin at build time
+        # via the plugin config in app.json (see docs/reliability/sentry.md).
+
+  # ── Phased rollout (post-build, triggered on production builds only) ──────────
+  # Phase 1: internal (own business — Danny + Marco)  → immediate
+  # Phase 2: beta ring (5–6 PCSPs)                   → TestFlight external / Play Internal
+  # Phase 3: staged prod                              → 10% → 50% → 100% over 7 days
+  #
+  # EAS Submit handles TestFlight + Play; staged % rollout is configured in
+  # eas.json under the "production" profile (releaseChannel + rolloutPercentage).
+  submit:
+    name: EAS Submit (phased)
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event.inputs.profile == 'production' || startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EAS_TOKEN }}
+
+      - name: Submit to stores (phased)
+        working-directory: apps/mobile
+        # Submit goes to TestFlight / Play Internal first (phase 2).
+        # Promotion to staged prod is a manual step in App Store Connect / Play Console.
+        run: eas submit --platform all --non-interactive --latest

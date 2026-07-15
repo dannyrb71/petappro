@@ -1,0 +1,105 @@
+# PetAppro — CI gate (D-050)
+# Runs on every PR targeting main and on direct pushes to main.
+# Blocks merge on: lint failure, tsc error, unit/golden test failure.
+# E2E (Maestro) runs on PRs only when the app directory is non-empty (post-scaffold).
+#
+# Secrets required (set in repo Settings → Secrets and variables → Actions):
+#   SENTRY_AUTH_TOKEN  — for release / source-map upload on EAS build (not needed for CI tests)
+#   EAS_TOKEN          — Expo Application Services token (needed for EAS build job below)
+#
+# No secrets are required for the lint/tsc/test jobs — those run cleanly on any fork PR.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── 1. Lint + strict tsc ────────────────────────────────────────────────────
+  lint-and-typecheck:
+    name: Lint + TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: packages/pricing/package-lock.json
+
+      # packages/pricing has its own node_modules; install it
+      - name: Install pricing deps
+        working-directory: packages/pricing
+        run: npm ci
+
+      # Strict tsc — exactOptionalPropertyTypes + noUncheckedIndexedAccess (tsconfig.json)
+      - name: TypeScript (packages/pricing)
+        working-directory: packages/pricing
+        run: npx tsc --noEmit
+
+      # When apps/mobile is scaffolded, add:
+      #   - name: Install app deps
+      #     working-directory: apps/mobile
+      #     run: npm ci
+      #   - name: TypeScript (apps/mobile)
+      #     working-directory: apps/mobile
+      #     run: npx tsc --noEmit
+      #   - name: Lint (apps/mobile)
+      #     working-directory: apps/mobile
+      #     run: npx eslint . --max-warnings 0
+
+  # ─── 2. Unit + golden tests (packages/pricing) ───────────────────────────────
+  pricing-tests:
+    name: Pricing unit + golden tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: packages/pricing/package-lock.json
+
+      - name: Install pricing deps
+        working-directory: packages/pricing
+        run: npm ci
+
+      - name: Run tests (vitest)
+        working-directory: packages/pricing
+        run: npm test -- --reporter=verbose
+
+  # ─── 3. E2E tests (Maestro) — gated on app existing ─────────────────────────
+  # Uncomment and complete once apps/mobile is scaffolded and a physical/emulator
+  # runner is available. The flow YAML files in e2e/flows/ are already committed.
+  #
+  # e2e:
+  #   name: E2E — Maestro (critical paths)
+  #   runs-on: macos-latest          # macOS runner required for iOS simulator
+  #   needs: [lint-and-typecheck, pricing-tests]
+  #   if: github.event_name == 'pull_request'
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 20
+  #     - name: Install Maestro CLI
+  #       run: curl -Ls "https://get.maestro.mobile.dev" | bash
+  #     - name: Install app deps
+  #       working-directory: apps/mobile
+  #       run: npm ci
+  #     - name: Build + launch iOS sim
+  #       working-directory: apps/mobile
+  #       run: npx expo run:ios --configuration Release --simulator "iPhone 15"
+  #     - name: Run Maestro flows
+  #       run: |
+  #         ~/.maestro/bin/maestro test e2e/flows/booking-create.yaml
+  #         ~/.maestro/bin/maestro test e2e/flows/checkin-checkout-reportcard.yaml

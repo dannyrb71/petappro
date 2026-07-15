@@ -67,7 +67,7 @@ When a decision is resolved, update its status to **Decided**, add the outcome a
 | D-028 | MVP-complete / feature-freeze definition | **Decided** | **Danny + Marco's own business runs a genuine booking end-to-end (onboarding → booking → server-validated pricing → staff schedule → history/notifications) on physical iOS *and* Android, tenant isolation verified, with a REAL PAID BOOKING via Stripe Connect** (updated 2026-07-08 per D-007 Option A; manual tracking only if payments derail). When true, features freeze; only bug-fix/polish/store-prep after. Own business is the freeze bar; PCSP beta is the next milestone | Defines "done" for the build; governs scope cuts near launch | Decided 2026-07-07 (freeze bar updated 2026-07-08) |
 | D-029 | Platform stance: booking software, never a marketplace/broker | **Decided** | **PetAppro is booking software the PCSP runs — it never intermediates the PCSP↔client relationship.** No provider directory/discovery (aligns D-026), no lead-gen marketplace, **no take-rate/commission on client→provider payments** (aligns D-007), no platform-set or platform-guaranteed pricing, never holds the client relationship. Revenue = PCSP subscription only (Stripe Billing, D-001). Community-building (social accounts, in-person events to connect PCSPs) is allowed; brokering their money/service exchange is not | Core differentiator vs Wag/Rover; legal/positioning guardrail (software vendor, not agency/broker/marketplace/employer); app-store classification; forecloses commission monetization | Decided 2026-07-07 |
 | D-030 | White-label model + Enterprise isolation tier | **Decided** | **Product = pseudo white-label**: one shared app + one shared DB (RLS), runtime per-tenant theming; provider resolved by invite code / QR / deep link (D-026); one federated client identity + account switcher (D-004). **True white-label = bespoke Enterprise**: separate app + separate DB + separate deployment, fully isolated, higher setup + recurring, custom-contracted, **post-MVP**. Cold open is the only PetAppro-branded surface | Full white-label ("opens already branded") is impossible in one multi-tenant app at cold open; tiering resolves it and protects launch scope (D-023); vindicates DS per-tenant theming; aligns D-004/D-011/D-026/D-029 | Decided 2026-07-07 |
-| D-031 | Login security / step-up MFA (payments + PII) | **Decided** | **Risk-based step-up auth, not blanket 2FA every login**: biometric app lock (Face ID/Touch ID/Android); TOTP MFA for email/password; social sign-in (Apple/Google) as a baseline factor; **step-up required for sensitive actions** (change payment method, change email/password, provider financials/payouts/refunds); **mandatory MFA for owner/admin**. Driver = account-takeover (off-session charges + PII), NOT card data (Stripe vaults cards; we never store them) | Protects money-moving actions + PII; shapes Supabase Auth config + RBAC; pending Danny final lock | Phase 1 auth model; before payments ship |
+| D-031 | Login security / step-up MFA (payments + PII) | **Decided** | **Risk-based step-up auth, not blanket 2FA every login**: biometric app lock (Face ID/Touch ID/Android); TOTP MFA for email/password; social sign-in (Apple/Google) as a baseline factor; **re-auth/step-up is required for every personal-information change** (email, phone, password, etc.) and sensitive money actions (payment method, provider financials/payouts/refunds); **mandatory MFA applies to Owner/Admin only**. Driver = account takeover (off-session charges + PII), not card storage (Stripe vaults cards; we never store them) | Protects money-moving actions + PII; shapes Supabase Auth config + RBAC | Decided 2026-07-14 |
 | D-034 | Base509 master / per-app operational isolation | **Decided** | Thin Base509 master layer for account, product entitlement, SaaS billing, operator audit/support; PetAppro operational data remains isolated and tenant-scoped by `business_id`; no per-row `app_id` in PetAppro tables | Prevents cross-product coupling and RLS complexity while preserving future multi-product seam | Phase 1 architecture |
 | D-035 | Stable Base509 account id | **Decided** | App relationships reference `base509_account_id`, not raw `auth.uid()`; Supabase Auth subjects are mapped through an identity table/helper | Makes later central identity extraction mechanical and keeps RLS from binding to provider-specific auth ids | Before migrations |
 | D-036 | Auth path for MVP | **Decided** | PetAppro uses Supabase Auth in the PetAppro project for MVP; central IdP/external IdP deferred until app #2 or cross-product SSO is concrete | Avoids IdP migration/build risk before Oct 1 while preserving a clean seam | Phase 1 auth model |
@@ -334,7 +334,16 @@ When a decision is resolved, update its status to **Decided**, add the outcome a
 
 **Status:** Proposed (billing build is deferred — gated on D-021 first test tenant / beta; needed by Phase 5). Captured requirements so nothing is lost:
 
-- **Tiers by app users:** chosen at signup by number of users on the provider's side — **1 user, 2 users, small business**. First/creating user always defaults to **`owner`** (all-access incl. financials).
+- **Tier ladder — seat-based, feature-bundled (working model, 2026-07-11; full matrix in `docs/planning/pricing-tiers-and-features.md`):**
+  - **T0 · Starter** — free-forever, **≤5 clients**, 1 user, no support, no in-app payments, default theme, "Powered by PetAppro"–branded (WOM/funnel; DECIDED).
+  - **T1 · Solo** — 1 user, lowest paid; core ops + manual payment tracking; default theme; own branding (no "Powered by PetAppro").
+  - **T2 · Duo** — 1–2 users; **+ in-app payments (Stripe Connect) + tips + pick 1 of 3 themes** (likely conversion anchor).
+  - **T3 · Crew** — 1–5 users; + GPS (v1.1) + expanded themes.
+  - **T4 · Team** — 5–20 users; + all themes + seasonal + in-app messaging (post-MVP) + SMS (opt-in, top-tier only per D-049).
+  - **Enterprise** — 20+ users; white-label/tenant isolation (D-030); contact-us pricing.
+  - **Free trial** (~1–4 weeks) on paid tiers. First/creating user defaults to `owner` (all-access incl. financials).
+  - **No client caps on paid tiers (DECIDED 2026-07-11)** — only Starter is capped (5). Monetize on **seats + features + best-in-class UX**, not metered usage (reads flat-and-fair vs per-staff rivals; matches flat-unlimited market norm).
+  - **Draft pricing (PLACEHOLDER — validate at D-021 beta, not final):** Solo $19 · Duo $39 · Crew $79 · Team $149 (monthly); annual ~2 months free; Starter free; Enterprise custom. Benchmarks: Time To Pet ($25–50 + $16/staff), Scout ($33 + $15/staff), Precise ($20/$45/$90), PetPocketbook ($25 flat), Paw Partner ($99.99 flat).
 - **Adding users:** when the owner adds a 2nd user/staff, onboarding **prompts for permission level** and shows a **chart explaining the levels** (from `user_roles_and_permissions.md` §10), plus a **disclaimer that `admin` can see business financial data**.
 - **Billing period:** offer **monthly vs annual** per tier.
 - **Upgrades:** allow **plan upgrade after purchase, pro-rated**.
@@ -447,20 +456,20 @@ When this is true, **features freeze.** Everything after is bug-fixing, polish, 
 
 ### D-031 — Login security / step-up MFA
 
-**Status:** Proposed — Codex ratified (Phase 1 auth model; finalize before payments ship), pending Danny final lock. **Passwordless-first stance Decided by Danny 2026-07-08.**
+**Status:** **Decided (Danny, 2026-07-14).** Passwordless-first was locked 2026-07-08; the final lock adds re-auth for every personal-information change and limits mandatory MFA to Owner/Admin.
 
 **Question:** Given the app can move money and holds PII, what extra login security do we require — and how much friction?
 
 **Framing (important):** because payments run through **Stripe** (Payment Element + Stripe's vault), **we never store or see card numbers — PCI stays with Stripe.** So the driver is **not** card data in our DB; it's **account takeover** — a compromised account can trigger **off-session charges/tips** on a saved (tokenized) card, read **PII + booking history**, and on the provider side see **financials/payouts**.
 
-**Working default (recommended):**
+**Decision:**
 
 - **Risk-based step-up auth, not blanket 2FA on every login** (avoids mobile friction on everyday booking).
 - **Biometric app lock** (Face ID / Touch ID / Android biometric) as the mobile-native second factor.
 - **TOTP MFA** for email/password accounts (Supabase Auth supports it); **social sign-in (Apple/Google)** counts as a baseline factor (carries the IdP's own MFA).
 - **Passwordless-first (Decided — Danny, 2026-07-08):** strongly prefer/offer **Apple, Google, and magic-link** sign-in; email+password only as a fallback where needed. Better mobile UX *and* de-risks the future central-identity migration (no password-hash portability problem — see `docs/planning/base509-operator-admin-console.md`).
-- **Step-up required for sensitive actions:** add/change payment method, change email/password, and provider financials/payouts/refunds.
-- **Providers > clients:** **mandatory MFA for owner/admin** (touch money + client PII); clients can be step-up only.
+- **Re-auth/step-up required for every personal-information change:** email, phone, password, recovery factors, and any equivalent account/profile identity field. It is also required for sensitive money actions: add/change payment method and provider financials/payouts/refunds. The server must verify recent authentication; a client-only modal is not enforcement.
+- **Providers > clients:** **mandatory MFA applies to Owner/Admin only** (touch money + client PII). Manager, Staff, and Client remain risk-based/step-up rather than enrollment-mandatory unless a later decision expands the policy.
 
 **Why it matters:** Shapes Supabase Auth configuration and the RBAC/permission matrix; gates the payment surface (ties to D-007). Protects money-moving actions and PII regardless of whether Stripe lands in MVP.
 
@@ -619,6 +628,7 @@ Providers set **explicit dollar rates** for everything; there are **no % surchar
 - **Percentages** survive only for **tax** and **discount codes** ("10% off").
 - **No card/convenience surcharge:** surcharging is a multi-state compliance minefield (state variation, disclosure rules, card-network caps/registration + debit prohibition, CA SB-478 all-in-pricing). Providers set rates **inclusive** of their costs. (Not legal advice.)
 - **Referral bonus:** provider-toggle giving **one free/credited booking** (per Woof's mechanic; booking-level, client-facing — distinct from D-020's SaaS-subscription referral).
+- **Customer-side checkout form (confirmed 2026-07-11):** a **single rate sheet** — no rates that vary by payment type; a **customer-facing tip** option; and the customer must **actively select a payment type (not preselected).** **No card surcharge reaffirmed** — an optional provider surcharge toggle was considered on 2026-07-11 and **dropped**: multi-state compliance (outright bans in CT/MA/ME/PR; debit surcharging prohibited nationwide under Durbin; per-state caps — Visa 3%, CO 2%, IL 1%, cost-only in NY/NJ/NV/GA…; mandatory disclosure + 30-day card-network notice). Providers price card costs into their rates instead. (Not legal advice.)
 
 **Why it matters:** matches Woof + how operators think; transparent; per-tenant themeable. **Requires:** Cowork revises `docs/specs/booking_and_pricing.md`; Claude Code revises `packages/pricing` + golden tests (holiday-% → rate-override; extra-dog/puppy flat). Rate source of truth: the Woof pricing reference in `docs/research/woof-wetreats/`.
 
@@ -717,8 +727,116 @@ Dedicated working session(s) to hash out, per service:
 
 **Status:** FINAL (Danny, 2026-07-10), informed by Codex feasibility (net-new schema/logic, not free reuse).
 
-**MVP verticals:** boarding, daycare, dog walking (the committed foundation, D-022) **+ drop-in visits as a stretch** (per-visit; closest to walking — check-in/out + report card). **In-home sitting & house sitting = first fast-follow (v1.1)** — they carry the heaviest net-new work (per-night + **location** schema, overnight **conflict-group** logic per D-045, encrypted access codes per D-044) and naturally bundle with the **GPS/location-sharing v1.1** track.
+**MVP verticals:** boarding, daycare, dog walking (the committed foundation, D-022) **+ drop-in visits as a stretch** (per-visit; closest to walking — check-in/out + report card). **In-home sitting & house sitting = first fast-follow (v1.1)** — they carry the heaviest net-new work (per-night + **location** schema, overnight **conflict-group** logic per D-045, encrypted access codes per D-044) and naturally bundle with the location-sharing work (**GPS is now an MVP launch target — see D-054**, superseding the v1.1 plan).
 
 **Soft-plan (Danny):** keep a plan to **fold the deferred verticals in if the foundation gates clear with buffer** (per D-023 flex-scope to hold the Oct 1 date). **Gut-check at the first major check-in** to decide whether they move into the launch window. Not a commitment to launch them — a readiness option.
 
 **Why it matters:** protects the launch date while keeping the verticals live as near-term scope. **Requires:** Codex feasibility items (net-new: per-visit/per-night+location schema, overlap logic, multi-visit-per-day) sized into the plan; revisit at first major check-in.
+
+---
+
+### D-049 — Notifications & SMS policy
+
+**Status:** Decided (Danny, 2026-07-11). From Apple/Google permission-guideline research (July 2026). Not legal advice.
+
+**Built-in stack:** **push (in-app) + email are free at every tier** and are the primary notification channels — providers run their business in the app, so push adoption is expected to be high.
+
+**Onboarding permission priming** (encouraged, with guardrails):
+- Show a **truthful soft-ask** screen explaining operational value ("get notified to track your pets / your clients") **before** the OS prompt; fire the OS system prompt only when they opt in. **iOS gives exactly one system prompt** — if declined, the only path back is Settings.
+- **Don't prompt on first launch** — ask after a meaningful moment (account created, first client/booking). **Android 13+**: notifications are OFF by default; request `POST_NOTIFICATIONS` at runtime with a why.
+- **Cannot require notifications for core app function**; marketing/promotional push needs separate consent + an opt-out (Apple 4.5.4). Language must be truthful and non-coercive — frame around operations, not marketing.
+- **Deep-link to settings** to re-enable (Expo `Linking.openSettings()`; iOS 16+ notification-settings URL) for users who declined.
+
+**SMS:** **top tier (T4) + Enterprise only, opt-in, OFF by default.** Not a mass channel — real cost (~1.1¢/segment + carrier surcharge; A2P brand ~$44 + $15/campaign + $1.50–10/mo). Metered. Ties **D-008**. Rationale: push+email cover the app-first audience; SMS is a high-assurance reach upgrade (no-show reduction) for the biggest operators only.
+
+**Why it matters:** protects margin (SMS cost), maximizes free-channel reach, and keeps onboarding compliant. **Requires:** onboarding priming screen + permission flow (both OS); settings deep-link; SMS gated to top tier with metering.
+
+---
+
+### D-050 — Tier entitlement gating + UX reliability bar
+
+**Status:** Decided (Danny, 2026-07-11). Enforcement design → Codex; test/monitoring implementation → Claude Code.
+
+**One binary, runtime entitlements (not per-tier downloads):** a single app (D-030/D-033); the provider's tier is an **entitlement resolved server-side** from their subscription, and the app renders to that entitlement set. Gated features are **hidden or shown locked with an "upgrade to unlock" CTA** — hide the irrelevant, show a *few* aspirational locks as a conversion lever. Entitlement changes unlock **instantly** (no app-store update).
+
+**Server-side enforcement is mandatory:** UI hiding is UX, not security. Gated endpoints must **refuse** out-of-tier calls (a Starter/Solo provider cannot invoke a Duo+ capability via the API even if the client is tampered with). Ties D-034–D-038, D-042.
+
+**Reliability bar — makes the "best-in-class UX" differentiator (competitive-analysis §4) a real commitment, not a slogan:**
+- Test pyramid: unit + golden (already 39 on pricing) + **E2E on booking / payment / check-in** (Detox or Maestro).
+- **Crash + error monitoring (Sentry) from day one** — fix by real crash-rate data.
+- **CI gates:** tests + strict TypeScript pass before merge.
+- **Beta ring + phased rollout:** own business → 5–6 PCSPs (TestFlight / Play internal) → staged production; **EAS Update** for JS hotfixes without full re-review.
+- Graceful offline / flaky-network handling; performance budgets; focused MVP scope as a reliability strategy.
+- **Native ≠ automatically stable** (Rover/Precise are native and still crash): the edge = native ceiling + this reliability floor + focus.
+
+**Why it matters:** entitlements are the billing/upsell backbone; the reliability bar is what actually delivers the UX advantage competitors fail on. **Requires:** Codex ratifies the server-side entitlement resolution + enforcement model; Claude Code stands up Sentry + E2E + CI gates + EAS phased rollout.
+
+---
+
+### D-051 — Brand naming & the "appro" family (Base509 multi-vertical vision)
+
+**Status:** Decided (Danny, 2026-07-11); the capital-"A" rule was **reversed** the same day.
+
+- **Casing — REVERSED:** the "always capitalize the A" idea is dropped — it **looks bad in the logo**. The **"appro" family suffix reads lowercase** in the wordmark (exact styling is Danny's logo call; no forced mid-word capital). *(Docs currently write "PetAppro"; final text casing follows the logo — minor, TBD.)*
+- **"appro" is the family.** Base509 is a platform building a **family of booking/scheduling apps for solo-to-small-shop service providers**, one vertical at a time. **PetAppro is the boilerplate** that proves the model; **next = a hair-stylist app**, then **house cleaners**, then other similar solo/small-shop service industries that need booking + scheduling to manage their day(s).
+- Repeatable per vertical on the shared multi-app architecture (**D-034–D-038**: Base509 master → per-app isolated operational DBs). Company folders Title Case; code repo lowercase (unchanged).
+
+**Why it matters:** the boilerplate → multi-vertical family is the core Base509 platform story (the spine of the company deck); naming just needs to stay logo-consistent.
+
+---
+
+### D-052 — Booking invoices / receipts (branded, numbered) — MVP
+
+**Status:** Decided (Danny, 2026-07-11); MVP. QuickBooks format verified.
+
+Each booking produces **one branded, numbered record** built on the D-039 stored breakdown snapshot (line items, surcharges, discounts, tax, total), skinned to the provider's theme/logo (D-030/D-040). It reads as an **invoice** before payment (amount due) and becomes a **receipt** after payment (paid, method, date) — **same number throughout**.
+
+- **Delivery:** viewable + **downloadable PDF in-app** *and* **emailed** (email = paper-trail channel per notification model).
+- **Numbering — `PREFIX-YY-####`** (e.g., `WWT-26-0001`): provider prefix + **2-digit year** + zero-padded sequence. **Resets each year; gapless & sequential within the year;** assigned at issue; **immutable.**
+  - **QuickBooks-verified:** QBO invoice number max **21 chars**; custom alphanumeric allowed (enable "Custom transaction numbers"). Constrain provider prefix (≤ ~10 chars) so prefix + `-YY-` (4) + sequence ≤ 21; default 4-digit sequence (9,999/yr), widen if a tenant needs more. Year prefix keeps numbers unique across time.
+- **Refunds / cancels / edits:** never mutate an issued invoice — issue a **credit note / adjustment** (same discipline as the frozen pricing snapshot; D-015 no-deposits keeps it full-payment-simple).
+- **Our invoice, not Stripe's:** Stripe Connect records the charge; we generate the **branded** invoice/receipt (better for "your brand"). Feeds **F-007** QuickBooks / CSV export.
+
+**Why it matters:** professional, accountant-ready numbered invoices are a real selling point, and cheap because the breakdown data already exists. **Requires:** PDF generation; **per-tenant (`business_id`) gapless invoice sequence** with yearly reset; provider **invoice-prefix** setting; email delivery; credit-note model. Cowork folds into `booking_and_pricing.md`; Codex confirms the sequence + immutability data model.
+
+---
+
+### D-053 — In-app messaging out of MVP; native share for report cards/photos
+
+**Status:** Decided (Danny, 2026-07-13).
+
+**No in-app chat at MVP.** The "keep clients updated" job is met by: report cards + photos delivered **in-app** (D-046) + **push/email** notifications (D-049), **plus a native SHARE action** so a provider can send a report card / photos out through the OS share sheet (text / iMessage / WhatsApp / email — the client's own channel). Uses RN `Share` / `expo-sharing`; the report card renders as a shareable image/PDF (like the invoice, D-052).
+
+- **Big scope + compliance saving:** no chat infrastructure and **no user-generated-content moderation burden** (Apple's UGC report/block rules only trigger if we host user messages — native share doesn't).
+- One-directional (provider → client) for MVP. **Two-way in-app messaging = fast-follow** — **build our own or evaluate a chat SDK/plugin** (e.g., Stream, Sendbird) for speed; either path still adds report/block moderation (Apple UGC compliance).
+
+**Why it matters:** covers the core communication need at near-zero cost, and removes the heaviest comms build + UGC compliance from the launch. **Requires:** shareable report-card render + native share action; confirm the shared artifact excludes sensitive data.
+
+---
+
+### D-054 — GPS: MVP launch target (cuttable), superseding the v1.1 plan
+
+**Status:** Decided (Danny, 2026-07-13). Supersedes the earlier "GPS = v1.1 fast-follow" stance (update any "GPS v1.1" references — D-048, F-026, competitive-analysis §5, pricing-tiers doc).
+
+Danny's call: launch a walking product **with** live GPS rather than risk brand perception in the first weeks. Done responsibly, under three guardrails:
+
+- **First-to-cut / date-flex candidate:** if GPS can't be *accurate and App-Store-approved* in time, it's the designated cut — everything else still launches clean; GPS ships weeks later. Per **D-023**, the date may flex to *include* GPS, but GPS never blocks a clean launch of the rest.
+- **Scheduled EARLY** in the build (not last), so the background-location store-review outcome is known with buffer to cut cleanly — "push out if needed" stays a calm decision, not a launch-week fire.
+- **Held to the reliability bar (D-050):** accurate check-in/out + track, no "miles off." **Buggy GPS damages the brand more than no GPS** (cf. Precise Petcare reviews) — if it can't be reliable by launch, cut it.
+- Fallback if cut: **manual proof-of-walk** (photos + timestamped check-in/out) — already the MVP baseline.
+
+**Why it matters:** GPS is the walking differentiator, but it's also the top store-rejection + reliability risk — this keeps it a launch goal without letting it jeopardize the launch. **Requires:** early scheduling in the build plan; background-location declarations prepped (iOS "Always" + Android `POST_NOTIFICATIONS`/foreground-service); reliability tests; clean cut path.
+
+---
+
+### D-055 — Two-layer legal: PetAppro platform ToS/Privacy (web) + provider ToS/policies (in-app)
+
+**Status:** Decided — *structure* (Danny, 2026-07-13). **Not legal advice — counsel drafts/reviews both layers.**
+
+- **Layer 1 — PetAppro (platform) Terms + Privacy — REQUIRED, launch-critical.** Govern PetAppro ↔ every user (providers + clients as software users): account, acceptable use, the app itself, platform data collected/processed, payment infra (Stripe Connect), liability limits. **App stores mandate a privacy-policy URL (+ effectively ToS) to publish → launch blocker** (ties the Launch Readiness track). Hosted at web URLs (`petappro.com/terms`, `/privacy`), linked **pre-login** on sign-up and in **Settings → Legal/About**.
+- **Layer 2 — Provider's Terms + Policies — in-app, inside their space.** Govern provider ↔ client: cancellation/refund, meet-&-greet, house rules. Surfaced in provider profile/preview + booking review. Builds on **D-009** (template terms), **F-021** (preview shows T&C/house rules), **F-022** (boilerplate + auto name-fill).
+- **Data protection (flag for counsel):** PetAppro is likely a **controller** for platform/account data and a **processor** for the client data providers manage → probably a **DPA** between PetAppro and each provider; PetAppro's privacy policy scopes "platform data," the provider owns their client relationship. Consistent with D-029 (we're software, not the provider).
+- **Two consent points:** (1) **sign-up** → accept PetAppro ToS + Privacy (consent line + links); (2) **first booking** with a provider → accept that provider's booking policy / house rules (record version + timestamp per F-022).
+- **UI touchpoints (DS/Fable — wireframes):** sign-up consent line ("By continuing you agree to PetAppro's Terms & Privacy"); Settings (More tab) → **Legal** row → PetAppro ToS + Privacy (web links); provider policies in preview/profile + the booking review step.
+
+**Why it matters:** legally necessary, **app-store-required to publish**, and clarifies the platform-vs-provider responsibility split. **Requires:** counsel drafts/reviews both layers + the DPA; the marketing site hosts `/terms` + `/privacy` (Launch Readiness); DS adds the 3 touchpoints; versioned consent capture wired.

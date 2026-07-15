@@ -102,6 +102,10 @@
         "accent": {
           "$value": "{color.brand.on-surface-accent}"
         },
+        "on-canvas-accent": {
+          "$value": "{color.brand.on-canvas-accent}",
+          "$description": "Accent text/icon on the app CANVAS — scheme-adaptive (dark accent on light canvas, light accent on dark canvas). Use for links/labels on the page background; use text/accent on cards."
+        },
         "on-solid": {
           "$value": "{color.primitive.white}"
         }
@@ -519,13 +523,14 @@
             "$type": "color"
           }
         },
-        "pet": {
+        "gender": {
+          "$description": "Pet gender tint — avatar ring + name label. Theme-invariant, ADA-tuned on white cards.",
           "male": {
             "$value": "{color.primitive.azure.500}",
             "$type": "color"
           },
           "female": {
-            "$value": "{color.primitive.magenta.500}",
+            "$value": "{color.primitive.grape.500}",
             "$type": "color"
           },
           "unknown": {

@@ -46,7 +46,7 @@
         "$value": "{color.primitive.white}"
       },
       "surface-container": {
-        "$value": "{color.primitive.maverick.100}"
+        "$value": "{color.primitive.white}"
       },
       "surface-container-high": {
         "$value": "{color.primitive.maverick.200}"
@@ -67,7 +67,7 @@
         "$value": "{color.primitive.maverick.200}"
       },
       "outline-variant": {
-        "$value": "{color.primitive.maverick.100}"
+        "$value": "{color.primitive.maverick.200}"
       },
       "outline-strong": {
         "$value": "{color.primitive.maverick.300}"
@@ -79,6 +79,21 @@
             "allowLiteral": "translucent focus ring; alpha overlay, no solid primitive equivalent"
           }
         }
+      },
+      "on-canvas-accent": {
+        "$value": "{color.primitive.brandy-blue.600}"
+      },
+      "primary-on-surface": {
+        "$value": "{color.primitive.brandy-blue.600}"
+      },
+      "primary-on-surface-label": {
+        "$value": "{color.primitive.white}"
+      },
+      "primary-on-surface-pressed": {
+        "$value": "{color.primitive.brandy-blue.700}"
+      },
+      "canvas-pressed": {
+        "$value": "{color.primitive.maverick.200}"
       }
     }
   },

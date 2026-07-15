@@ -1,16 +1,16 @@
 {
-  "$description": "Tier 2 · Themes — Sage & Sand mode (alternate; Brandy Blue is now the base default per Danny 2026-07-09). Brand roles alias base primitives.",
+  "$description": "Tier 2 · Themes — Sage & Sand · Dark (Option A, light-islands). Brand-tinted dark canvas (pine.900), light holder cards kept from the light mode, brightened primary. Same role names.",
   "color": {
     "$type": "color",
     "brand": {
       "primary": {
-        "$value": "{color.primitive.pine.800}"
+        "$value": "{color.primitive.pine.300}"
       },
       "primary-pressed": {
-        "$value": "{color.primitive.pine.900}"
+        "$value": "{color.primitive.pine.400}"
       },
       "on-primary": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.pine.900}"
       },
       "primary-container": {
         "$value": "{color.primitive.pine.50}"
@@ -19,13 +19,13 @@
         "$value": "{color.primitive.pine.900}"
       },
       "secondary": {
-        "$value": "{color.primitive.sage.500}"
+        "$value": "{color.primitive.sage.300}"
       },
       "secondary-solid": {
-        "$value": "{color.primitive.sage.700}"
+        "$value": "{color.primitive.sage.400}"
       },
       "on-secondary": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.sage.900}"
       },
       "secondary-container": {
         "$value": "{color.primitive.sage.50}"
@@ -34,10 +34,10 @@
         "$value": "{color.primitive.sage.900}"
       },
       "surface": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.sand.100}"
       },
       "surface-container": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.sand.200}"
       },
       "surface-container-high": {
         "$value": "{color.primitive.sand.200}"
@@ -72,16 +72,16 @@
         }
       },
       "canvas": {
-        "$value": "{color.primitive.sand.50}"
+        "$value": "{color.primitive.pine.900}"
       },
       "on-canvas": {
-        "$value": "{color.primitive.ink.900}"
+        "$value": "{color.primitive.sand.50}"
       },
       "on-canvas-variant": {
-        "$value": "{color.primitive.taupe.600}"
+        "$value": "{color.primitive.sand.400}"
       },
       "on-canvas-accent": {
-        "$value": "{color.primitive.sage.700}"
+        "$value": "{color.primitive.sage.300}"
       },
       "primary-on-surface": {
         "$value": "{color.primitive.pine.800}"
@@ -93,7 +93,7 @@
         "$value": "{color.primitive.pine.900}"
       },
       "canvas-pressed": {
-        "$value": "{color.primitive.sand.200}"
+        "$value": "{color.primitive.pine.800}"
       }
     }
   },

@@ -36,6 +36,12 @@
 | F-020 | Provider co-user/backups — count + rights tier (admin vs booking-only) | Provider (PCSP) | Roles/permissions, staff invite, membership model | parked (not MVP) | 2026-07-07 |
 | F-021 | Invite-scoped provider preview before signup (home + pricing + terms/house-rules) | Prospective pet-owner client | Invite/onboarding flow, per-provider page, website vs app, branding (D-030) | raw | 2026-07-08 |
 | F-022 | Boilerplate T&C + Policies with auto name-fill | Provider (PCSP) + pet-owner client | Provider settings, legal/policies, booking agreement | raw | 2026-07-08 |
+| F-023 | Shareable provider marketing card + QR (social acquisition) | Provider + prospective client | F-021 rate card, F-011 QR, F-006, D-026/D-029, D-030 | exploring | 2026-07-11 |
+| F-024 | Provider profile "story" / bio | Provider + client | Provider profile, F-021, F-008, D-047 | exploring | 2026-07-11 |
+| F-025 | Retail/sponsor partnerships for acquisition | Provider (GTM) | GTM/marketing, competitive-analysis §5 | exploring | 2026-07-11 |
+| F-026 | In-app "coming soon" roadmap preview | Provider + client | D-048 (GPS v1.1), competitive-analysis §5 | exploring | 2026-07-11 |
+| F-027 | Walk (timed-service) variants + duration pills | Provider + client | D-039, timed-service model, D-046/D-047, F-014, DS service-pill | exploring | 2026-07-11 |
+| F-028 | Client self-service booking edit/cancel (provider-gated window) | Provider + client | Provider settings (D-041), F-004, F-018, D-039, D-052, F-022 | exploring | 2026-07-11 |
 
 > **Evidence source:** F-014–F-019 (and validation on F-012/F-013) come from Rover review mining across the **App Store, Google Play, and r/RoverPetSitting** — see `docs/research/teardowns/rover-app-store-reviews.md`. Marketplace signals were deliberately excluded. **Dominant finding:** per-service availability + capacity is the #1 provider software complaint; Rover's crude binary availability model is a concrete PetAppro wedge.
 
@@ -387,3 +393,73 @@
   - **Guardrail:** PetAppro provides templates only, not legal advice — disclaimer must be prominent and acknowledged.
 - **Status:** raw
 - **Logged:** 2026-07-08
+
+### F-023 — Shareable provider marketing card + QR (social acquisition)
+- **What:** An auto-generated, on-brand shareable **card (image)** a provider posts to social (Nextdoor, Facebook, Instagram, etc.) carrying their **QR code + profile handle/link** so prospects can find and connect to them in-app. Modeled on how Rover sitters share a profile card/QR.
+- **Why / problem it solves:** Closes the "we don't bring clients" gap (competitive-analysis §5) **without becoming a marketplace** — providers grow their *own* book, we stay booking-software. Two-sided word-of-mouth (their clients + prospects).
+- **Who it serves:** Provider (shares) → prospective client (scans → invite preview F-021 → connect).
+- **Ties to:** F-021 (rate card / invite preview, carries the code), F-011 (QR onboarding/hub), F-006 (social links), D-026 (share-only), D-029 (no marketplace), D-030 (branded); later `adobe-create-social-variations` for per-platform sizes.
+- **Notes / open questions:** auto-generate from live profile (stays in sync); per-platform formats; QR deep-links (app store → app carrying code); **distinct from F-021's rate card** (that's pricing; this is a marketing/profile card). **Guardrail:** share-only handle/QR, **no searchable directory** (D-026/D-029).
+- **Status:** exploring
+- **Logged:** 2026-07-11 (Danny)
+
+### F-024 — Provider profile "story" / bio
+- **What:** A provider-profile section for an **authentic personal story/bio** (like Rover profile stories — e.g. "…since I was 6, dogs were my people… I'll love your pooch as much as you do"). Rich text + optional photo.
+- **Why / problem it solves:** Trust + differentiation — pet parents choose providers on personality and story; humanizes the provider and the app. Complements portfolio (F-008) and reviews (F-009).
+- **Who it serves:** Provider writes; pet-owner client reads (invite preview F-021 + profile).
+- **Ties to:** Provider profile, F-021 (invite preview), F-008 (portfolio), D-047 (service content), subscription tiers (which tier surfaces it?).
+- **Notes / open questions:** char limit + light formatting; moderation; where it renders (profile header, invite preview); which tier unlocks it (or all). Sample tone captured from Danny 2026-07-11.
+- **Status:** exploring
+- **Logged:** 2026-07-11 (Danny)
+
+### F-025 — Retail / sponsor partnerships for acquisition
+- **What:** Explore partnerships with pet retailers (Pet Food Express, PetSmart, Chewy, etc.) as an acquisition channel for providers.
+- **Why / problem it solves:** A growth channel that keeps us **out of the marketplace** (co-marketing / referral / in-store QR), addressing the competitive §5 acquisition gap.
+- **Who it serves:** Base509 BD (Danny) — GTM, not a build feature.
+- **Ties to:** GTM/marketing, competitive-analysis §5, brand policy.
+- **Notes / open questions:** exploratory; structure TBD (referral, co-brand, in-store QR/flyer, bundle offers). BD lane, not near-term build.
+- **Status:** exploring (GTM)
+- **Logged:** 2026-07-11 (Danny)
+
+### F-026 — In-app "coming soon" roadmap preview
+- **What:** A **minimal** in-app preview of near-term roadmap (e.g. "Coming soon: GPS walking") to set expectations and build anticipation — softens the launch parity gap where GPS is v1.1, not day-one.
+- **Why / problem it solves:** Signals momentum + manages expectations for features competitors already have (competitive §5); can gauge interest.
+- **Who it serves:** Provider + client.
+- **Ties to:** competitive-analysis §5 (GPS gap), D-048 (GPS v1.1), settings/profile.
+- **Notes / open questions:** keep tasteful/minimal — **verify App Store rules on advertising unreleased features** (Apple can reject prominent "coming soon" of unavailable functionality); don't make it a core screen.
+- **Status:** exploring
+- **Logged:** 2026-07-11 (Danny)
+
+### F-027 — Walk (timed-service) variants + duration pills
+- **What:** Model walking (and any timed service) so the schedule/booking **pill shows the walk length at a glance** — `Walk 30m` · `Walk 1h` · `Walk 2h` · `Group Walk`. Length is an attribute of every walk booking, preset or custom, so the pill labels it either way.
+- **Why / problem it solves:** Glanceable schedule (Danny's ask) **without boxing providers** into fixed PetAppro presets. Resolves the "menu vs. open-ended" tension — do both.
+- **Model:**
+  - Provider configures their **own menu of preset variants** (their durations, prices, labels) — the fast, clean default path.
+  - Optionally allow a **custom duration** per booking (escape hatch); pill still reads the length.
+  - **Group walk** = a variant flag (multi-dog, own price + capacity, ties F-014).
+  - **Start time stays flexible** within availability (F-001/F-016) — duration = *what kind*, time = *when*; they're separate.
+  - Duration drives **price (D-039), the no-show-fee window (timed-service model), and the schedule block.**
+- **Who it serves:** Provider (configures) + client (books) + provider (glanceable schedule).
+- **Ties to:** D-039 (per-variant rates), timed-service generic model, D-046/D-047 (service CMS/content), F-014 (group capacity), F-001/F-016 (availability), **DS service-pill component**.
+- **Notes:** pill label auto-derives from duration/type; provider can rename. Suggest clean labels (no slashes) + a subtle color/icon to set Group apart (DS call).
+- **Status:** exploring
+- **Logged:** 2026-07-11 (Danny)
+
+### F-028 — Client self-service booking edit/cancel (provider-gated window)
+- **What:** Optional provider setting letting pet-owner clients **edit / change / cancel their own booking** up to a cutoff before it. Provider toggles it on; if on, sets a **policy window per service type** (days/hours before service start). When enabled, the client's booking card gets the **same bottom row (Cancel + edit)** as the provider's. **Past the window** both controls **gray out**, and tapping shows a "contact [provider] to change or cancel" message. The whole bottom row shares this one gate.
+- **Why / problem it solves:** Client self-service convenience while the provider keeps control of the cutoff — less provider admin, matches expectations.
+- **Who it serves:** Provider (configures) + client (self-serves).
+- **Provider settings:** (a) toggle "allow clients to edit/cancel their own bookings"; (b) if on, **per-service-type cutoff** (days/hours before service start). Default **OFF**.
+- **Rules:**
+  - Client controls visible + active **only within the window**; grayed + "contact provider" message after.
+  - **Provider always retains full edit/cancel** — their card is never gated.
+  - Window measured from the **service start** (drop-off / start time), provider timezone.
+- **Open questions (from PM review):**
+  - **Edit vs cancel weight:** shared window (Danny's model) is fine for *timing*, but **cancel carries refunds** an edit doesn't. Unpaid booking → just voids; **paid booking cancel → refund/credit logic** (+ possible cancellation fee). Decide if cancellation refund policy is MVP or fast-follow.
+  - **Edit re-prices + re-invoices:** an edit recomputes via D-039 and adjusts amount-due/invoice via **D-052** (credit note — never edit an issued invoice).
+  - **Edit re-check:** date/scope changes should re-validate availability and may need re-approval (**F-004**); a plain cancel doesn't. Recurring: single-occurrence edits tie to **F-018**.
+  - **Edit scope:** dates/times, add/remove pets — which fields are client-editable?
+  - Self-edit policy should surface in the booking **T&C (F-022)**.
+- **Ties to:** provider settings (D-041), F-004 (approval), F-018 (recurring), D-039 (re-price), D-052 (invoice adjustment), F-022 (T&C), DS booking-card bottom-row component.
+- **Status:** exploring (well-specified by Danny)
+- **Logged:** 2026-07-11 (Danny)

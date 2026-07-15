@@ -4,10 +4,10 @@
     "$type": "color",
     "brand": {
       "primary": {
-        "$value": "{color.primitive.brandy-blue.500}"
+        "$value": "{color.primitive.brandy-blue.300}"
       },
       "primary-pressed": {
-        "$value": "{color.primitive.brandy-blue.600}"
+        "$value": "{color.primitive.brandy-blue.400}"
       },
       "on-primary": {
         "$value": "{color.primitive.brandy-blue.900}"
@@ -19,13 +19,13 @@
         "$value": "{color.primitive.brandy-blue.900}"
       },
       "secondary": {
-        "$value": "{color.primitive.camo.600}"
+        "$value": "{color.primitive.camo.300}"
       },
       "secondary-solid": {
-        "$value": "{color.primitive.camo.700}"
+        "$value": "{color.primitive.camo.400}"
       },
       "on-secondary": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.camo.900}"
       },
       "secondary-container": {
         "$value": "{color.primitive.camo.100}"
@@ -43,10 +43,10 @@
         "$value": "{color.primitive.maverick.400}"
       },
       "surface": {
-        "$value": "{color.primitive.white}"
+        "$value": "{color.primitive.maverick.100}"
       },
       "surface-container": {
-        "$value": "{color.primitive.maverick.100}"
+        "$value": "{color.primitive.maverick.200}"
       },
       "surface-container-high": {
         "$value": "{color.primitive.maverick.200}"
@@ -79,6 +79,21 @@
             "allowLiteral": "translucent focus ring; alpha overlay, no solid primitive equivalent"
           }
         }
+      },
+      "on-canvas-accent": {
+        "$value": "{color.primitive.brandy-blue.300}"
+      },
+      "primary-on-surface": {
+        "$value": "{color.primitive.brandy-blue.600}"
+      },
+      "primary-on-surface-label": {
+        "$value": "{color.primitive.white}"
+      },
+      "primary-on-surface-pressed": {
+        "$value": "{color.primitive.brandy-blue.700}"
+      },
+      "canvas-pressed": {
+        "$value": "{color.primitive.brandy-blue.800}"
       }
     }
   },

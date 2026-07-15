@@ -2,7 +2,7 @@
 
 Multi-tenant foundation for PetAppro. This doc defines the tenant boundary, auth/membership model, RLS strategy, pricing authority, notification outbox, storage scoping, and the code/repo shape. It is the architecture half of Phase 1; the table-level detail lives in `data_model_draft.md`.
 
-> **Status:** Phase 1 draft (2026-07-06). Working defaults from `docs/decisions/open_decisions.md` are cited by ID; any change from a default requires updating that log and this doc.
+> **Status:** Phase 1 draft (updated 2026-07-11 for D-050). Working defaults from `docs/decisions/open_decisions.md` are cited by ID; any change from a default requires updating that log and this doc.
 >
 > **Canonical inputs:** `docs/planning/product_brief.md` (what/who), `docs/planning/user_roles_and_permissions.md` (permission matrix), `docs/planning/woof-wetreats-to-petappro-rebuild-plan.md` (data model + anti-patterns), `docs/roadmap/mvp_roadmap.md` (phase gates), `docs/decisions/open_decisions.md` (decisions).
 >
@@ -134,6 +134,55 @@ RLS is the enforcement layer for the permission matrix in `user_roles_and_permis
 - No policy relies on a global email or a hardcoded id (`pricing_rates.id = 1`, `ADMIN_EMAIL` — explicitly retired, rebuild plan "What Must Be Rebuilt").
 - A dedicated **RLS regression test suite** proves no cross-tenant read/write (Sprint 3 exit; Aug 15 go/no-go).
 
+### 4.1 Tier entitlements and server enforcement (D-050 — ratified)
+
+PetAppro ships as one binary (D-030/D-033). A provider's subscription tier is not compiled into the app and is never trusted from client state, JWT custom metadata, a locally cached value, or a client-supplied tier name. The server resolves an **effective entitlement set** for the active `business_id`; the client only renders that result.
+
+#### Authority and data placement
+
+- **Base509 master is the commercial source of truth** (D-034/D-037). It owns the Base509 account/customer, Stripe Billing subscription reference and status, product identifier, tier/price mapping, subscription period, grace/cancellation state, and the versioned product entitlement catalogue. Stripe webhooks update this layer; neither the native app nor the PetAppro anon/authenticated role may write it.
+- **PetAppro's operational DB owns an enforcement projection**, not a second billing system. A tenant-scoped `business_entitlements` projection (or equivalent) records `business_id`, the resolved tier key, explicit capability values/limits, source subscription/version, effective/expiry timestamps, projection version, and last successful sync time. It contains no card data and no authority to alter billing. Only a narrowly privileged internal sync path may write it; ordinary app roles receive read-only access to the effective result for businesses to which they belong.
+- **Why the projection is required:** PetAppro RLS and transactional RPCs must make a local, deterministic authorization decision. They must not depend on a live cross-project request to Base509 or Stripe, and no service-role credential may be shipped to the client. This preserves the D-034 per-app isolation boundary while giving RLS a local entitlement predicate.
+- Entitlements are **capability data, not scattered tier conditionals**. Server checks use stable keys/limits such as `booking_payments`, `seat_limit`, `theme_allowlist`, `gps`, `messaging`, `sms`, and `client_limit`; they do not embed assumptions such as `tier >= 'duo'`. Tier-to-capability mapping remains versioned in the Base509 catalogue and is projected explicitly.
+
+#### Resolution and propagation
+
+1. Stripe Billing events are verified and applied idempotently in the Base509 master. A Base509 resolver converts the current subscription state into a versioned entitlement set for the PetAppro business.
+2. Base509 sends the resolved set through an authenticated, signed, replay-resistant internal sync endpoint. PetAppro upserts the projection transactionally only when the incoming source version is newer; duplicate and out-of-order events are harmless. Every change records an operator/security audit event.
+3. At login, app launch, foreground/resume, active-business switch, and after returning from web billing, the app calls an authenticated PetAppro `get_effective_entitlements(active_business_id)` RPC/API. The server first proves the caller belongs to that business, then returns the server-resolved capability set plus a monotonic version and expiry/freshness metadata.
+4. The client subscribes to a tenant-scoped entitlement-change signal (Supabase Realtime or push invalidation) and immediately refetches. It also refetches on mutation authorization failures. The client may cache the last result only for rendering/offline UX; cached data never authorizes a server action.
+5. A tier change therefore requires **no new binary or app-store release**. The Stripe webhook → Base509 resolution → PetAppro projection path changes server enforcement immediately, and the invalidation/refetch changes the visible UI. The web billing completion flow may request an idempotent reconciliation, but polling or the browser redirect is not the source of truth.
+
+“Instant” means the entitlement change takes effect through this event-driven server path without an app release or user sign-out. The propagation service must expose latency/error metrics, retry with a durable queue, and support reconciliation against Base509/Stripe so a missed webhook cannot silently leave a permanent stale tier.
+
+#### Mandatory enforcement boundary
+
+UI hiding or an “upgrade to unlock” treatment is presentation only. Every gated operation must pass both normal tenant/RBAC authorization and an entitlement check using the **current PetAppro server projection**:
+
+- **API/RPC/Edge Function:** all sensitive mutations enter through typed server endpoints. The endpoint derives `business_id` from the authorized resource/active membership, never trusts a client-supplied tier or entitlement, calls a shared `require_entitlement(business_id, capability, requested_amount?)` helper, and returns a stable `ENTITLEMENT_REQUIRED` or `LIMIT_EXCEEDED` error without leaking another tenant's state.
+- **RLS/database:** gated tables and direct-write paths use local entitlement helper predicates in their `USING` and `WITH CHECK` policies. Where a limit requires counting or external effects, direct client writes are denied and a transactional security-definer RPC/Edge Function is the sole write path. The function must set a safe search path, validate membership/role, validate entitlement, and scope every query by `business_id`.
+- **External side effects:** payment creation/capture, GPS session creation, message delivery, and SMS dispatch check entitlement immediately before creating the provider-side job or calling the vendor. A queued job rechecks entitlement at execution time; an entitlement revoked after enqueue must not produce a new paid/gated side effect.
+- **Read exposure:** RLS also gates higher-tier stored data where the capability promises restricted access. Downgrades never delete provider data; they disable new gated actions and expose only the explicitly defined read/export grace behavior.
+
+This applies at minimum to in-app client→provider payments (Duo+), additional team seats, themes beyond the default Brandy Blue theme, GPS, in-app messaging, and SMS. Each capability requires negative tests proving a lower-tier caller with a valid login and tampered request is refused at both endpoint and database policy boundaries. Cross-tenant RLS tests remain separate and mandatory.
+
+#### Starter client cap and other numeric limits
+
+Starter has `client_limit = 5`; paid tiers resolve to no client limit. “Client” for this limit means an active client relationship for the business, not pets, archived relationships, invitations, or a person's relationships with another business.
+
+- Creating, importing, accepting an invite for, or reactivating a client must use one server transaction. The transaction serializes on the `business_id` (row/advisory lock), reads the effective entitlement locally, counts active clients for that same business, and inserts/reactivates only when the resulting count is within the limit. A client-side count followed by an insert is forbidden because concurrent requests could exceed five.
+- RLS denies direct client inserts/state changes that could bypass the capped RPC. Bulk import and operator tooling call the same invariant-enforcing service; service-role access is not a bypass.
+- A paid-to-Starter downgrade must not delete or silently reassign client data. The normal downgrade flow requires the owner to archive down to five before the downgrade completes. If cancellation, payment failure, or an operator action makes Starter effective while more than five relationships remain, the business enters an explicit `over_limit` restriction: existing records remain readable/exportable, but no new/reactivated clients or new bookings for over-limit relationships are accepted until the owner archives down to five or restores a paid tier. This exceptional state is monitored and cannot be treated as unlimited Starter access.
+- Seat limits and any future numeric entitlement follow the same atomic, server-side pattern; never enforce them only in UI counters.
+
+#### Fail-safe and outage behavior
+
+- **Missing, invalid, expired, unverifiable, or failed entitlement resolution evaluates to the lowest safe capability set**: Starter, with default Brandy Blue theme only, no paid booking-payment invocation, no extra seats, no GPS, no messaging, and no SMS. Unknown capability keys are denied. The system never guesses Solo or any higher tier.
+- The last projection may be displayed as stale for offline/read-only continuity only within an explicitly defined server grace window. It must not grant a new gated mutation after its server validity/expiry window. Base509/Stripe unavailability therefore fails closed for premium actions while preserving safe reads and local drafts where possible.
+- Entitlement-fetch/sync failures, stale projections, downgrade conflicts, and denied gated calls are structured, tenant-safe audit/monitoring events. Alerts must distinguish expected upgrade prompts from resolver/sync outages.
+
+**Architecture verdict:** D-050 is ratified with the Base509-authority/PetAppro-enforcement-projection model above. Build is gated on additive tenant-scoped schema, generated types, shared server entitlement helpers, endpoint/RLS negative tests for every gated capability, atomic limit tests (including concurrency), webhook idempotency/out-of-order tests, and fail-closed outage tests.
+
 ## 5. Booking & pricing authority
 
 The single shared pricing package is the crown jewel (Sprint 1; never cut).
@@ -211,6 +260,9 @@ supabase/
 | Decision | Status | Architectural effect |
 |---|---|---|
 | D-001 platform | **Decided** | Native/Expo product + thin Next.js billing; subscription sold on web, not iOS IAP |
+| D-030/D-033 app model | **Decided** | One shared binary; role and tenant presentation resolve at runtime |
+| D-034–D-038 account/auth boundary | **Decided** | Base509 master owns billing/product entitlement; PetAppro keeps a tenant-scoped enforcement projection tied to stable account identity |
+| D-050 entitlements | **Decided — ratified here** | Server-resolved capabilities; API/RPC/Edge Function + RLS enforcement; atomic Starter client cap; fail to lowest safe tier |
 | D-023 delivery | **Decided** | Foundation is gate-driven (tenant boundary, RBAC/RLS, pricing pkg + tests never cut) |
 | D-003 client+staff same business | Default No | Enforce at invite; no dual membership one business |
 | D-004 client at multiple businesses | Default Yes | Separate client profile per business |

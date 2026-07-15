@@ -63,6 +63,21 @@ Danny's "Pixies Pet Care" mockups (Sage / Harbor / Berry × playful-light / dark
 ### Next
 Author the Dark mode for each theme in `tokens/themes/*` (dark neutrals + tuned brand steps + same paired font), lint-clean; then materialize the 10 modes in the Figma `Themes` variable collection. Prove on **Sage & Sand · Dark** first.
 
+## Decision 4 — Theme × Scheme matrix (supersedes Decision 3 "Option A", Danny 2026-07-10)
+
+**Decision: split theming into two independent Figma variable-collection axes — `Theme` (one mode per brand) × `Scheme` (Light / Dark).** Option A's single 10-mode collection was outgrown: 6 themes × light/dark = 12 > Figma's 10-mode cap, and the catalog is meant to grow (see add-on packs).
+
+### Structure (Figma)
+- **`Theme` collection** — one mode per theme (Brandy Blue · Sage & Sand · Terracotta · Harbor · Dusk · Berry). Holds every brand role twice: `light/<role>` and `dark/<role>`, aliasing primitives. Also `font-family` (per theme).
+- **`Scheme` collection** — modes `Light` / `Dark`. One var per role that resolves `Light → Theme.light/<role>`, `Dark → Theme.dark/<role>`. `font-family` passes through.
+- **`Color · Semantic`** aliases the `Scheme` vars → components bind to Semantic and resolve through **Scheme → Theme → primitive**. A frame sets **both** a Theme mode and a Scheme mode; defaults = **Brandy Blue + Light**. Verified: `atom/Button` reskins across Harbor · Dark and back with no component edits.
+- Dark model = **Model 1 "light islands"** (Decision, 2026-07-10): brand-tinted dark canvas per theme, white/near-white holder cards kept from light, one-step-darker inner, brightened primary. New roles `surface.canvas` + `text.on-canvas`/`-variant` carry it (ADA on both surfaces).
+
+### Product / code implications (for Cowork · George · Codex)
+- **One picker, two axes:** the app shows a single theme picker; selecting an option sets both the Theme and the Scheme (e.g. "Brandy Blue · Dark"). Danny: "the picker is which mode then chooses which theme."
+- **Code scales without the Figma cap:** each theme-scheme is a **token set** (`tokens/themes/<theme>[-dark].tokens.json`) — unlimited. **Add-on theme packs** (e.g. Holiday, Spring) are just new token sets; monetization (free vs paid) **TBD**. Figma only needs the core catalog (≤10 theme modes).
+- **Tiering (product):** Tier 1 = Default (Brandy Blue) only · Tier 2 = choose from 3 themes (each light/dark) · Top tier = all · packs layer on top. This is a product/entitlement decision to formalize with Cowork.
+
 ## What I've done now (CSS mirror)
 - `fonts.css` loads Nunito Sans, Lexend, Manrope, Source Serif 4 (+ base Hanken Grotesk, Space Mono).
 - `themes.css` sets `--sys-type-family-brand` per theme: Terracotta→Nunito Sans, Harbor→Lexend, Dusk→Manrope, Berry→Source Serif 4, Sage & Sand→Hanken Grotesk.

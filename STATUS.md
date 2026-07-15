@@ -15,6 +15,37 @@
 
 ---
 
+## 2026-07-14 — Cowork (product management)
+- **Done:** Logged **D-049** (notifications/SMS: push+email free, SMS top-tier opt-in), **D-050** (tier entitlement gating + UX reliability bar), **D-051** ("appro" family + naming; capital-A reversed), **D-052** (branded numbered invoices, QB-verified `PREFIX-YY-####`), **D-053** (in-app messaging OUT of MVP → native share of report cards/photos; two-way chat fast-follow, build-or-buy), **D-054** (GPS → MVP launch target, cuttable/date-flex, reliability-gated — supersedes v1.1), **D-055** (two-layer legal: PetAppro platform ToS/Privacy on web = app-store launch blocker + provider ToS/policies in-app; DPA flag for counsel). Wrote `docs/planning/pricing-tiers-and-features.md` (Starter→Enterprise seat ladder + placeholder pricing + competitive positioning), `docs/research/competitive-analysis.md` (complaint→feature map), `docs/planning/how-to-test-petappro.md`. Feature log **F-023–F-028** (shareable card+QR, provider story, retail partnerships, coming-soon preview, walk duration pills, client self-service edit/cancel). Built the Base509/PetAppro **company deck** (24 slides → `Company/Business Plan/`). Gave Fable the DS-reorg + reference-list + native-share prompts.
+- **Decisions / open questions:**
+  - **Codex owes:** §7 architecture-doc fixes (`technical_architecture.md`/`data_model_draft.md` still say Connect post-MVP); **D-050** server-side entitlement enforcement design; data-model confirms (per-visit/per-night+location, availability conflict-groups D-045, gapless invoice sequence D-052); flip **D-031** to Decided + add the personal-info-change re-auth trigger (per the design entry below).
+  - **Cowork to sweep:** stale "GPS v1.1" refs → **D-054** (competitive-analysis §5, pricing-tiers doc, F-026).
+  - **George/roadmap awareness:** GPS now in MVP (D-054), messaging out (D-053), legal is a **launch blocker** (D-055).
+- **Ready to push? YES** — `docs/decisions/open_decisions.md` (D-049–D-055), `pricing-tiers-and-features.md`, `competitive-analysis.md`, `how-to-test-petappro.md`, `feature-ideas-log.md`, `STATUS.md`. **Claude Code to push on Danny's go.**
+
+---
+
+## 2026-07-14 — Cowork · Design/Figma (Claude, with Danny) — RE-POSTED (earlier 7/14 entry was overwritten by a later STATUS.md save; decisions below still need Codex)
+- **Done:** Figma DS reorganized Moon-style + badge merge (one `atom/Status Badge`, kind=Booking|Payment) + spec-driven domain components (capacity meter, vaccination badge, medication chip, temperament tag, risk indicator, booking timeline, care report card, activity card, SSO buttons). **All 64+ app screens built** across 15 flow rows on Danny's iPhone template. FigJam flow board audited/patched (D-015 deposits removed, D-022 provider-defined walk tiers, +notifications/invoices/device-prefs flows). **D-053 executed:** `icon/share` + `molecule/Share Action` (header-trailing convention) on completed report cards, receipts, and a new photo-viewer screen. **Danny's review-feedback pass done:** chips fixed to 24px, Surface=Card modes applied (light-islands verified), onboarding now Flow 02 and completes BEFORE M&G (FigJam amended), booking starts on empty dashboard, per-service booking paths + daycare/drop-in + picker overlays, FULL GPS walk flow both sides (CUTTABLE, D-054), sign-in screen, provider-confirm via multi-provider hub (PetAppro-branded, never themed), Provider Profile (absorbs Business Preview; web-builder fields flagged), progress indicator, vax-proof uploader (optional*, provider setting), pet-profile edit screen w/ temperament selector, asterisk+disclaimer copy convention.
+- **Decisions / open questions:**
+  - **D-031 LOCKED (Danny, 2026-07-14):** risk-based step-up as drafted, **plus any personal-info change (email, phone, etc.) triggers re-auth**; mandatory MFA = Owner/Admin only. → **Codex: flip D-031 to Decided in `docs/decisions/open_decisions.md` (still shows Proposed) + add the personal-info trigger.** Screens exist (re-auth sheet, Owner/Admin TOTP, D-044 access-code reveal).
+  - **D-047 (Danny):** completes at screen-review sign-off = gate for Claude Code build start.
+  - Asset need: 4 custom dog-size icons (toy→giant; emoji placeholders on the Provider Profile).
+- **Ready to push?** no — Figma/FigJam work; this STATUS edit is local for Claude Code to bundle.
+
+---
+
+## 2026-07-11 — Codex (D-050 tier-entitlement architecture ratification)
+- **Done:** Ratified D-050 in `docs/planning/technical_architecture.md`. Base509 master is the billing/catalogue authority; PetAppro holds a tenant-scoped, server-written enforcement projection for local API/RPC/Edge Function and RLS checks. Specified event-driven instant propagation/refetch, capability-based gates for payments/seats/themes/GPS/messaging/SMS, atomic Starter ≤5 active-client enforcement, downgrade/over-limit handling without data deletion, and fail-closed Starter defaults on missing/stale/invalid resolution.
+- **Decisions / open questions:** No product decision required for the architecture. Implementation gate: additive schema + generated types; signed/idempotent projection sync; shared server helpers; negative endpoint/RLS tests per capability; concurrent cap tests; stale/outage and webhook-ordering tests.
+- **Ready to push?** no — design-only local edits; Claude Code is the sole committer/pusher after Danny approval.
+
+## 2026-07-10 — Claude Code (pushed 5319f8c)
+- **Pushed:** `5319f8c` → `origin/main`. Bundle: `packages/pricing` per-session/per-unit fix + 39-test suite, `open_decisions.md` D-041–D-048, `product_brief.md`, `ALIGNMENT.md` governance update, `STATUS.md`.
+- **Ready to push? DONE**
+
+---
+
 ## 2026-07-10 — Codex (single-committer governance alignment)
 - **Done:** Adopted locked `ALIGNMENT.md` §1 single-committer model. Codex will edit local files only within its assigned lane and will keep all Git operations read-only (history, diffs, PR/CI inspection). Codex will not stage, commit, branch, merge, push, or otherwise write Git state; Claude Code is the sole committer/pusher and Danny approves every push.
 - **Decisions / open questions:** None.
