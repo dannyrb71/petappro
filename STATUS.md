@@ -15,6 +15,14 @@
 
 ---
 
+## 2026-07-16 — Claude Code (pushed 09ac2ad)
+
+Committed and pushed 40 files: D-056 website architecture, D-057 account deletion [OPEN], D-054 GPS gate update; TASKS BIZ-4/5 D-U-N-S + hold resolved, MKT-4 critical path, MKT-12 App Store guidelines pass; ALIGNMENT single-committer/George/provenance rules; auth architecture (Codex); design-system naming conventions (Fable); dog SVGs v2 + dog-sizes.ai + woof wetreats screenshots. `.gitignore` updated to exclude `design_working/*.zip`.
+
+Commit: `09ac2ad54fd1a5fb32c548ebf315d6aec1d3c9b4`
+
+---
+
 ## 2026-07-17 — Cowork (theme renames + City themes FINAL: palettes, fonts, neutrals) ⚑ TOKEN-STRUCTURE CHANGE
 - **Done (Figma, all live, Danny-approved in session):**
   - **Theme renames:** Sage & Sand → **Chessie**, Terracotta → **Irish Setter**, Harbor → **Husky**, Berry → **Poodle** (Dusk unchanged). Theme collection now 9 modes: Brandy Blue (default) · Chessie · Irish Setter · Husky · Dusk · Poodle · New York · Miami · Hollywood.
