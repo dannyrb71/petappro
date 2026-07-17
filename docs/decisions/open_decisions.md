@@ -820,7 +820,8 @@ Each booking produces **one branded, numbered record** built on the D-039 stored
 
 Danny's call: launch a walking product **with** live GPS rather than risk brand perception in the first weeks. Done responsibly, under three guardrails:
 
-- **First-to-cut / date-flex candidate:** if GPS can't be *accurate and App-Store-approved* in time, it's the designated cut — everything else still launches clean; GPS ships weeks later. Per **D-023**, the date may flex to *include* GPS, but GPS never blocks a clean launch of the rest.
+- **UPDATED 2026-07-14 (Danny) — GPS is a HARD launch gate:** *"we will not launch until GPS is worked out."* The **date flexes rather than cutting GPS** — we won't ship a walking product without live tracking, and we won't ship *bad* GPS (D-050: buggy GPS damages the brand more than none). **Supersedes the earlier "first-to-cut / cuttable" framing.** Consequence: F-026 "coming soon" preview is **dropped** (nothing unreleased to advertise → Apple 2.3 risk moot).
+- **RESOLVED 2026-07-14 (Danny) — fallback if Apple refuses background location on *policy*:** the scenario is **unlikely** — live background tracking of an in-progress service is a well-established, approved pattern (Wag; every food-delivery / rideshare app), and it's exactly what the entitlement exists for. **If it ever did happen: launch without GPS and add it later via appeal/entitlement** — we don't hold the launch hostage to a reviewer. The real risk isn't *whether* it's allowed but **how well we justify + implement it**: clear review notes on the walk-tracking use, honest permission priming (D-049), accurate tracking (D-050). → covered by **MKT-12** (guidelines pass).
 - **Scheduled EARLY** in the build (not last), so the background-location store-review outcome is known with buffer to cut cleanly — "push out if needed" stays a calm decision, not a launch-week fire.
 - **Held to the reliability bar (D-050):** accurate check-in/out + track, no "miles off." **Buggy GPS damages the brand more than no GPS** (cf. Precise Petcare reviews) — if it can't be reliable by launch, cut it.
 - Fallback if cut: **manual proof-of-walk** (photos + timestamped check-in/out) — already the MVP baseline.
@@ -840,3 +841,44 @@ Danny's call: launch a walking product **with** live GPS rather than risk brand 
 - **UI touchpoints (DS/Fable — wireframes):** sign-up consent line ("By continuing you agree to PetAppro's Terms & Privacy"); Settings (More tab) → **Legal** row → PetAppro ToS + Privacy (web links); provider policies in preview/profile + the booking review step.
 
 **Why it matters:** legally necessary, **app-store-required to publish**, and clarifies the platform-vs-provider responsibility split. **Requires:** counsel drafts/reviews both layers + the DPA; the marketing site hosts `/terms` + `/privacy` (Launch Readiness); DS adds the 3 touchpoints; versioned consent capture wired.
+
+---
+
+### D-056 — Website architecture: one skeleton, per-brand theme, Base509 endorsement footer
+
+**Status:** Decided (Danny, 2026-07-14). Shapes **MKT-4**.
+
+**Pattern: "endorsed house of brands."** Each product site is a **standalone brand experience** (no cross-sell, no shared nav — per-vertical apps share zero buyers, D-051), but the sites **feel related** by design:
+
+- **Shared page structure** — the same information architecture + component skeleton across product sites.
+- **Per-brand reskin** — colors + fonts swap per product, **exactly like the app's runtime theming** (D-030/D-040). The website is themed the same way the app is.
+- **Endorsement footer** — each product site footers back to **base509.com** ("the company behind the software"). Light parent signature (cf. Automattic's "An Automattic invention") — credibility without diluting the product brand.
+- **Company hub stays thin** until product #2 exists (37signals precedent: with one product, the company brand is noise; it mattered again only once HEY shipped).
+
+**Implementation:**
+- **One deployment, multi-domain** (MKT-4): one Next.js codebase on Vercel serving base509.com + petappro.com (+ future verticals), routed by hostname. Adding a vertical = a new domain + a new theme, **not a new site**.
+- **Shared tokens with the app:** the site consumes the **same design-system token JSON** (`design-system/tokens/`) that skins the app — so petappro.com and the PetAppro app are brand-identical *by construction*, and HairAppro's site skins from HairAppro's tokens. One token source → app + web (matches the "responsive dual-platform" DS approach).
+
+**Why it matters:** this makes the **website a boilerplate too** — HairAppro's site becomes a theme swap + copy, not a project. Same build-once / deploy-per-vertical compounding as the app (D-051), applied to marketing. **Requires:** MKT-4 built with a theme layer + hostname routing **from day one** (not retrofitted); Claude Code wires the site to consume DS tokens.
+
+---
+
+### D-057 — Owner account deletion: ownership transfer vs tenant closure (OPEN)
+
+**Status:** **OPEN** — surfaced by Codex's auth review (2026-07-14). **Needs Danny's call** before the deletion flow is built.
+
+Apple **requires in-app account deletion** (guideline 5.1.1(v); see **MKT-12**). Codex designed the flow, but one piece is a **product policy** call, not engineering:
+
+**When a provider OWNER deletes their account, what happens to the business and its clients' data?** The tenant holds *other people's* records — client profiles, pets, booking history, report cards, and **issued invoices that can't be deleted** (D-052 immutability + tax retention).
+
+- **(a) Ownership transfer** — require handing the business to another Owner/Admin first. Clean, but **blocks deletion for solo providers** who have no second admin (i.e. most of our Starter/Solo tiers).
+- **(b) Tenant closure** — close the business, notify clients, retain what's legally required (invoices/tax records) as tombstones, purge the rest.
+- **(c) Hybrid** — offer transfer; fall back to closure. *(Likely the practical answer.)*
+
+**Constraints to resolve:** active bookings; active subscription (cancel/refund); immutable issued invoices (D-052); staff accounts; and clients who belong to **multiple** providers (F-011) must keep their other relationships intact.
+
+**RULED OUT (2026-07-14) — "soft close" is NOT an option.** Danny floated: *"when they close the account they just can't access it, but we can"* (and a co-mapped "b version" account). **Apple 5.1.1(v) explicitly rejects this** — deactivation-only, revoke-access-but-retain, and "contact us to delete" all fail review. It's the most common way apps fail this check. **Compliant shape:** the **person's account + personal data are genuinely deleted** (incl. Sign in with Apple token revocation); **legally-required records may be retained with disclosure** (issued invoices / tax per D-052); the **business/tenant** is transferred if an Owner/Admin exists, else closed with tombstones. **Note:** this does not contradict CLAUDE.md's "deactivate, don't hard-delete" — that rule governs *bookings/records*, not a user exercising a deletion right. Two different things.
+
+**Also required (engineering, Codex-flagged):** **Sign in with Apple token revocation** on deletion.
+
+**Why it matters:** store-rejection risk if missing; data/legal risk if done wrong. **Requires:** Danny's policy call → Cowork specs it → Codex/Claude Code build.

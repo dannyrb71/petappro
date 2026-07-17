@@ -1,6 +1,9 @@
 # OS
 .DS_Store
 
+# Design working files — archives (extracted folders are tracked)
+design_working/*.zip
+
 # Secrets / env
 .env
 .env.*

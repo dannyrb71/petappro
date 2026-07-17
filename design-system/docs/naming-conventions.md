@@ -91,8 +91,22 @@ The scrub of the live Woof app clustered every card onto a shared **base = "Reco
 
 Low-fi catalog lives on page **09 Wireframes → §ction "10 · Card Catalog"**.
 
+## §10 Theme naming — families (Danny, 2026-07-17)
+
+PetAppro theme names are **styles and personalities — never literal coat colors**. The proof is the default: *Brandy Blue* is named for Danny's late Golden Retriever, Brandy (his soul-mate dog), plus blue — his favorite color. A Golden isn't blue; the name carries feeling, not pigment. Every theme is named for the person/energy it evokes.
+
+**Theme families:**
+- **DOGS (breed personalities):** Chessie (Chesapeake Bay Retriever — sedge/deadgrass, duck-hunter/park-ranger energy), Irish Setter (warm chestnut), Husky (icy blue-grey), Poodle (pink/purple, playful, a little fancy — the poodle-*owner* personality). Dusk retains its name pending Danny (may become a City).
+- **CITIES:** New York (charcoal/slate + a splash of blue — sharp, understated), Miami (salmon + teal — vacation energy), Hollywood (golden-hour orange + blue, touch of red — cinematic).
+- **SEASONAL:** reserved, per D-040.
+
+**Do not confuse the layers:** PRIMITIVES are named after Danny's dogs (`brandy-blue`, `camo`, `coco`, `bella`, `maverick`) — dog *names*. THEMES are breeds + cities. *Brandy Blue* is the deliberate exception living in both layers, because it's the brand.
+
+**Structural rule:** every theme ships Light + Dark via the Theme × Scheme matrix (light-islands: cards/containers stay light in both schemes), built by aliasing existing primitive ramps — new themes must not alter primitive values, and must pass the WCAG contrast matrix on both schemes before shipping.
+
 ## Version history
 | Version | Date | Change |
 |---|---|---|
 | 0.1.0 | 2026-07-10 | Initial convention (Danny-requested standard). |
 | 0.2.0 | 2026-07-11 | §9 Card system — 8 families on a shared base; payment labeling, booking carousel, IN/OUT dual-check, cancelled dates, gender tint + fallback glyph. `domain/pet/*` → `domain/gender/*` (female = coral). |
+| 0.3.0 | 2026-07-17 | §10 Theme naming families (dogs/cities/seasonal); renames Chessie · Irish Setter · Husky · Poodle; City themes New York · Miami · Hollywood. |

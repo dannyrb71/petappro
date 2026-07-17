@@ -2,7 +2,7 @@
 
 Multi-tenant foundation for PetAppro. This doc defines the tenant boundary, auth/membership model, RLS strategy, pricing authority, notification outbox, storage scoping, and the code/repo shape. It is the architecture half of Phase 1; the table-level detail lives in `data_model_draft.md`.
 
-> **Status:** Phase 1 draft (updated 2026-07-11 for D-050). Working defaults from `docs/decisions/open_decisions.md` are cited by ID; any change from a default requires updating that log and this doc.
+> **Status:** Phase 1 draft (updated 2026-07-16; web-portal auth/identity architecture ratified for D-031, D-034–D-038, D-041/D-042, D-050/D-051/D-056, and MKT-12). Working defaults from `docs/decisions/open_decisions.md` are cited by ID; any change from a default requires updating that log and this doc.
 >
 > **Canonical inputs:** `docs/planning/product_brief.md` (what/who), `docs/planning/user_roles_and_permissions.md` (permission matrix), `docs/planning/woof-wetreats-to-petappro-rebuild-plan.md` (data model + anti-patterns), `docs/roadmap/mvp_roadmap.md` (phase gates), `docs/decisions/open_decisions.md` (decisions).
 >
@@ -33,9 +33,9 @@ PetAppro is one shared application and one shared Supabase (Postgres) database. 
                        └───────────────┬──────────────────────────┘
                                        │  Supabase JS (anon key + user JWT)
    Web (Next.js)       ┌───────────────▼──────────────────────────┐
-   ── marketing + ────▶│  apps/web      — marketing site +         │  D-001
-      subscription     │                  provider subscription    │  (web checkout,
-      checkout         │                  checkout (Stripe Billing) │   not iOS IAP)
+   ── config + billing▶│  apps/web      — public marketing routes + │  D-041/D-042
+                       │  provider portal (config + Stripe Billing) │  (web checkout,
+                       │  at app.<vertical-domain>                  │   never IAP)
                        └───────────────┬──────────────────────────┘
                                        │
           ┌────────────────────────────▼────────────────────────────┐
@@ -45,7 +45,7 @@ PetAppro is one shared application and one shared Supabase (Postgres) database. 
           └───────────────────────────────────────────────────────────┘
 ```
 
-The native app is the product (client + staff). The web app is a thin marketing + billing surface only — there is no web product app at MVP (D-001).
+The native app is the operations/device-preferences surface. The authenticated provider portal is the configuration and SaaS-billing surface (D-041); public marketing routes remain unauthenticated. Both are clients of the same product backend and identity mapping, but they do not share session storage. The portal is not a second operational database or a second authorization model.
 
 ## 1a. Technology stack
 
@@ -56,15 +56,15 @@ The concrete "what we build on." Choices follow D-001 (native/Expo) and the exis
 | **Language** | TypeScript end-to-end | App, web, packages, Edge Functions — one language, shared types |
 | **Client + staff app** | **Expo / React Native** | The product; iOS + Android from one codebase (D-001) |
 | **App build/release** | **EAS Build + EAS Submit** | Store binaries; ties to Apple/Google Org accounts (store clock) |
-| **Marketing + billing web** | **Next.js** | `apps/web`; marketing pages + provider subscription checkout only |
-| **Web hosting** | Vercel or Netlify (TBD) | Marketing/checkout surface; low complexity |
+| **Marketing + provider portal** | **Next.js** | `apps/web`; public marketing plus authenticated config/billing portal at `app.<vertical-domain>` |
+| **Web hosting** | **Vercel** | One Next.js deployment; allowlisted hostname routing separates public sites and per-vertical portals (D-056) |
 | **Backend / DB** | **Supabase — Postgres 15** | One shared DB, RLS-enforced tenancy |
 | **Auth** | **Supabase Auth** | PetAppro project auth for MVP; mapped to stable Base509 account ids |
 | **Server logic** | **Supabase Edge Functions** (Deno/TS) | Server-authoritative booking + pricing paths |
 | **File storage** | **Supabase Storage** | Tenant-prefixed paths, signed URLs |
 | **Shared pricing** | `packages/pricing` (TS) | Single source of truth, server authority |
 | **Subscription billing** | **Stripe Billing** (web) | Business → Base509 SaaS fee; not iOS IAP (D-001) |
-| **Client↔business payments** | Manual MVP; **Stripe Connect** post-MVP | D-007 |
+| **Client↔business payments** | **Stripe Connect Standard in MVP**; manual fallback only | D-007 Option A |
 | **Push / notifications** | Expo push (in-app + native); SMS deferred | D-008 |
 | **Monorepo tooling** | npm/pnpm workspaces + Turborepo (TBD) | `apps/*`, `packages/*`, `supabase/` |
 | **CI** | **GitHub Actions** | Typecheck + lint + test per PR (S1-6) |
@@ -110,12 +110,110 @@ The active business is passed to the server on every request (JWT claim or expli
 ## 3. Auth & membership
 
 - **Auth:** Supabase Auth in the PetAppro project for MVP. Apple, Google, and magic-link/passwordless are primary; email/password is fallback (D-031). The app maps `auth.uid()` to a stable `base509_account_id`; app tables and RLS use that stable id.
+- **Step-up and MFA (D-031, Decided):** Owner/Admin must enroll in MFA; Manager/Staff/Client use risk-based step-up. Every personal-information change (email, phone, password, recovery factors, or equivalent identity/profile field) and every sensitive payment/financial action requires server-verified recent re-authentication. Biometric app lock is a local convenience gate, never a substitute for server verification.
 - **Future shared identity seam:** A central Base509 IdP is deferred until app #2 or cross-product SSO is concrete. Do not hand-roll auth, and do not buy an external IdP for the Oct 1 MVP.
 - **Onboarding via invite codes** (`user_roles_and_permissions.md` §9): a code is tied to exactly one `business_id` and a type (staff vs client). Redeeming a code creates the membership or client profile. Owner is created by the business-bootstrap flow (no code).
-- **Roles:** `owner`, `admin`, `staff`, `client` (rebuild plan; roles doc §2). Hierarchy owner → admin → staff; client is outside the staff hierarchy.
+- **Roles:** `owner`, `admin`, `manager`, `staff`, `client` (D-032; roles doc §2). Hierarchy owner → admin → manager → staff; client is outside the staff hierarchy.
 - **Code mechanics** (single-use vs reusable, expiration) are D-013/D-014 (Proposed) — build the `business_invite_codes` table to carry `max_uses`, `uses_count`, and `expires_at` now so the decision is a config change, not a migration.
 - **Connecting to a provider (customer-initiated).** Customers never browse a directory. They connect only via a provider-issued **invite code** or **QR code** (a QR is just that code, scannable). **Search-by-business-name is intentionally never offered** (D-026). The picker shows only providers the user is already connected to.
 - **PetAppro support / break-glass role (D-024).** A platform-side role for us (or outsourced help/eng) to assist a provider. It deliberately crosses the tenant wall, so: least-privilege, **financial + PII fields redacted by default**, every access **logged, audited, time-boxed, and ideally tenant-consented**. Not MVP-blocking, but the schema assumes it exists (audit table + field redaction) so it isn't retrofitted insecurely. This is the *only* sanctioned exception to "no cross-tenant access," and it must stay narrow.
+
+### 3.1 One account across Expo and the provider portal (ratified)
+
+Expo and `app.petappro.com` authenticate against the same PetAppro Supabase Auth issuer for MVP. They resolve the login through the same stable identity chain:
+
+```text
+Supabase session (issuer + auth subject)
+    -> auth_identities (issuer, provider_subject)
+    -> base509_accounts.id (= base509_account_id)
+    -> business_memberships (base509_account_id, business_id, role, status)
+    -> businesses.id (= active tenant in the PetAppro operational DB)
+```
+
+The login subject proves *who signed in*; `base509_account_id` is the durable person/account key; a membership proves *which provider business that account may operate* and with what role. Neither the portal nor Expo may derive authorization from email, OAuth provider, Stripe customer id, or raw `auth.uid()`.
+
+The Base509 master is canonical for the stable account and cross-product identity/billing metadata. Each isolated product DB keeps the minimum local identity projection needed for local FK/RLS enforcement. In PetAppro, `current_base509_account_id()` resolves the local Supabase issuer+subject to that projected stable id. A local projection is not authority to merge or create Base509 accounts; only the trusted identity/bootstrap path may write it.
+
+**Required schema correction before migrations:** an auth identity is unique by **`(issuer, provider_subject)`**, not merely `(provider, provider_subject)`. `issuer` identifies the Supabase project/auth tenant (or future external IdP); the provider field records the login method such as Apple, Google, or email. A UUID from PetAppro Supabase and a UUID from a future HairAppro Supabase are unrelated even if they happen to have the same text value. Never merge accounts by matching email alone—Apple relay addresses, changed addresses, and recycled addresses make that unsafe. Cross-issuer linking requires proof of control of both authenticated identities or an approved account-recovery flow and must be audited.
+
+### 3.2 Next.js SSR web-session boundary (ratified)
+
+The portal uses the current Supabase SSR integration with PKCE and cookie-backed sessions. Create a Supabase server client per request; never keep a user client/session in module scope. Authenticated routes are dynamic/private and must not be ISR/CDN cached; any response that refreshes or sets an auth cookie carries `Cache-Control: private, no-store`. Server-rendered content and every mutation re-derive the account from the validated session and then run membership/RBAC/RLS checks.
+
+**Cookie recommendation: host-only `app.petappro.com`.** Omit the cookie `Domain` attribute; use `Path=/`, `Secure`, and `SameSite=Lax` in production, with a product-specific cookie name. Do **not** set `Domain=.petappro.com`. The broader cookie would expose the portal session to every current and future PetAppro subdomain and enlarge the blast radius of a marketing-site compromise, DNS/deployment mistake, or subdomain takeover. The public marketing site does not need the refresh/access tokens to render or sell the product.
+
+The public `petappro.com` site therefore **does not participate in auth**: no portal session cookie, no authenticated user rendering, and no session refresh. Its sign-in control is a normal navigation to `https://app.petappro.com/sign-in`; its public subscribe flow may arrive at the portal, authenticate there, and then start server-created Stripe Checkout. Do not pass tokens through query parameters or local storage. Marketing and portal may share the same Next.js repository/deployment, but hostname routing, middleware, caching, CSP, and cookie policy treat them as separate security origins.
+
+Because Supabase's browser SSR client needs to maintain its token cookies, cookie scope is not a substitute for XSS/CSRF defenses. Portal mutations use same-origin POSTs/server actions, validate `Origin`/`Host` and an anti-CSRF token where the framework does not provide equivalent protection, and apply a strict CSP with no untrusted script execution. OAuth/magic-link redirect allowlists contain exact portal callback hosts, not wildcard parent domains.
+
+Primary implementation references: [Supabase SSR advanced guide](https://supabase.com/docs/guides/auth/server-side/advanced-guide), [Supabase MFA](https://supabase.com/docs/guides/auth/auth-mfa).
+
+### 3.3 App-to-portal SSO/session behavior (ratified)
+
+**Recommendation: shared identity, independent sessions.** Signing into Expo must not silently sign a browser into the portal, and signing into the portal must not silently mint or transfer an Expo session. Expo keeps its refresh token in the OS secure-store/keychain boundary; the portal keeps its own host-only browser cookie. Both sessions resolve to the same `base509_account_id`, so users see the same businesses and permissions after authenticating, but no refresh/access token crosses surface boundaries.
+
+Automatic handoff would save one sign-in, but it creates bearer-token transfer/deep-link interception risk, makes shared/public computers dangerous, complicates logout/revocation, and couples native release behavior to web session mechanics. Passwordless Apple/Google/magic-link keeps the independent sign-in low-friction. A later explicit, short-lived QR/device-authorization flow may be considered, but only as a one-time, audience-bound, replay-proof authorization code exchanged server-side—never a token embedded in a URL. It is not an MVP requirement.
+
+Logout defaults to the current device/session. Security settings also provide audited **sign out all sessions** and identity-revocation flows. D-031 recent re-auth and AAL checks are evaluated on the session performing the sensitive action; an MFA event in one surface does not automatically elevate the other surface's session.
+
+### 3.4 Product and active-business resolution (ratified)
+
+The server resolves context in two independent stages:
+
+1. **Product/vertical from a trusted hostname registry.** An allowlisted deployment map resolves `app.petappro.com -> product_key=petappro -> PetAppro auth/config/operational-DB binding`. Future `app.hairappro.com -> product_key=hairappro -> HairAppro binding` uses the same code path. Reject unknown, malformed, forwarded, or unconfigured hosts; do not accept `product_key`, Supabase URL, project id, or database target from client input. Only a trusted proxy configuration may supply a forwarded host.
+2. **Business from the authenticated account's local product membership.** A route such as `/b/<opaque-slug>/...` may express the requested context, but the server resolves that slug to `business_id` inside the already-selected product DB and proves an active `business_memberships` row for the current `base509_account_id`. A last-used-business cookie is a UX hint only. Every query/mutation still scopes by the server-resolved `business_id`, and RLS independently enforces it.
+
+The Base509 master needs a non-client-writable `products` registry and `product_businesses` mapping such as `(id, product_id, operational_business_id, status)`. `operational_business_id` is an opaque locator interpreted only by the product adapter; it is not permission to query that product. No PetAppro operational row gains an `app_id`. PetAppro runtime credentials can address only the PetAppro project, so even a forged HairAppro id cannot make `app.petappro.com` read HairAppro operational data. Base509 support access remains a separate audited break-glass path, never a portal session capability.
+
+Nothing in the identity model hard-codes PetAppro: product keys, domains, auth issuers, OAuth callback hosts, cookie names, branding, Stripe price/catalogue ids, and product adapters are registry/config data. Pet-specific roles and records remain correctly isolated in the PetAppro DB; they do not leak into `base509_accounts`.
+
+### 3.5 Portal entitlement enforcement (D-050 applied to D-041)
+
+Portal reads use the server-resolved `business_entitlements` projection in §4.1. Theme selection and seat changes are typed server mutations, not direct client table writes:
+
+- A theme picker receives the effective `theme_allowlist`; selection submits a stable theme key to an Owner/Admin-authorized server action/RPC, which re-reads current entitlements and rejects a disallowed key. The database `WITH CHECK`/RPC invariant prevents a Solo business from storing a Team-only theme even if the browser request is tampered with.
+- Invite acceptance, member activation, reactivation, and seat creation all call the same serialized seat-limit transaction described in §4.1. UI counts are informational only; concurrency cannot exceed the server limit.
+- Billing/theme/team mutations require normal membership/RBAC plus D-031 recent re-auth/MFA where sensitive. Denials are stable, tenant-safe errors and audited. Service-role/admin tooling calls the same entitlement invariants rather than bypassing them.
+
+Theme-to-tier policy remains Base509 catalogue data (D-020/D-040); the portal never contains a parallel `if tier === ...` map. A product decision that changes which themes belong to a tier updates the versioned catalogue/projection, not portal authorization code.
+
+### 3.6 Stripe Billing identity (ratified)
+
+Stripe Billing models the **provider business subscription**, not the human login and not client-to-provider Connect payments. The Base509 master owns the authoritative mapping:
+
+```text
+base509_account_id (current billing owner/payer)
+    -> billing_accounts
+    -> product_business_id -> (product_id, operational business_id)
+    -> stripe_customer_id
+    -> stripe_subscription_id -> Stripe price/product -> entitlement catalogue version
+```
+
+For MVP, one billable product business has one active billing account and one Stripe Customer. The concrete master mapping is `billing_accounts(id, billing_owner_account_id -> base509_accounts.id, product_business_id UNIQUE, stripe_customer_id UNIQUE, status)` plus `billing_subscriptions(billing_account_id, stripe_subscription_id UNIQUE, stripe_price_id, status, period/grace fields)`. `product_businesses` supplies the product id and opaque PetAppro `business_id` locator. Ownership transfer updates the authorized billing owner without changing tenant identity or trusting the Customer email. Stripe Customer/Subscription metadata repeats the Base509 internal ids for reconciliation/support, and Base509 stores the Stripe ids in return; metadata is not the authorization source. Stripe recommends this bidirectional internal-id mapping in its [Customer guidance](https://docs.stripe.com/billing/customer).
+
+Verified, idempotent Stripe webhooks update subscription truth; the entitlement resolver projects capabilities to the selected product DB. Checkout, Customer Portal, plan change, cancellation, invoices, and payment-method management exist only on the authenticated web portal. Expo contains no SaaS price catalogue, Checkout/Customer Portal URL, purchase/upgrade control, external purchase link, or copy directing a user to buy (D-042). Server-side cancellation performed as part of account deletion is lifecycle cleanup, not an in-app purchase path.
+
+### 3.7 Account deletion across master and product stores (MKT-12; launch gate)
+
+Apple 5.1.1(v) requires an in-app path that initiates deletion of the entire account, not merely deactivation. PetAppro Account Settings must expose a plainly labeled **Delete account** action without requiring a support email/call. It may also offer narrower actions such as leave a business or close only a PetAppro relationship, but those do not replace whole-account deletion. The confirmation explains that the stable Base509 account and every linked product relationship are affected, then discloses every affected product/business, subscription consequence, retained-record category and retention reason, expected completion time, and export option. See Apple's current [account-deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app).
+
+Deletion is an idempotent, auditable server-side saga coordinated by the Base509 master:
+
+1. **Inventory and step-up.** Require a fresh D-031 re-authentication; Owner/Admin satisfy MFA. Resolve the account from the session, enumerate all linked auth identities, products, client relationships, memberships, owned businesses, and active subscriptions server-side, and freeze conflicting ownership/billing mutations. The client never supplies the deletion target account id.
+2. **Resolve owned businesses before identity destruction.** If other members will keep a business, the owner must transfer ownership to an eligible re-authenticated successor; then only the departing person's membership/personal account is removed. If the user chooses to close a business (or is its sole eligible owner), mark the tenant `closing`, block new bookings/invites/charges, offer a time-limited export, cancel the Base509-controlled Stripe Billing subscription immediately, and start tenant closure. Account deletion cannot be denied merely to preserve a subscription; no further SaaS renewal may occur after the immediate deletion choice.
+3. **Separate the person's account from tenant-custody records.** End the deleting person's memberships/client relationships and erase or anonymize their personal profile, device tokens, private uploads, and user-authored content unless a documented legal/contractual retention duty applies. Do not cascade-delete a provider's clients' Base509 accounts or their relationships with other businesses. When a provider tenant closes, delete that tenant's operational copies on the published schedule; retain only records legally required for tax, payment dispute, fraud/security, or other stated obligations, minimized and access-restricted. Immutable invoices/payment/audit rows use a tombstoned actor reference or pseudonymous retained key so FK/audit integrity never forces a live login identity to remain.
+4. **Revoke identity and sessions.** Revoke every session/refresh token and enrolled factor; revoke Sign in with Apple tokens through Apple's REST API when linked; unlink OAuth identities; delete the per-app Supabase Auth user(s); remove identity projections; scrub master account PII. Keep only a non-login deletion tombstone and narrowly necessary compliance/audit fields with a retention deadline. Email completion confirmation before removing the last reachable address, or send it to a separately confirmed delivery address.
+5. **Verify every store.** Durable deletion jobs fan out to each isolated product DB and storage bucket with idempotency keys, retries, per-store completion state, alerts, and a reconciliation report. The user sees `requested -> processing -> completed` (or a precise actionable failure), and support can inspect status without restoring access. A product-store outage may delay completion within the disclosed/legal window but must not reactivate login or billing.
+
+The retention/deletion schedule, provider-vs-Base509 data-controller responsibilities, export format, successor eligibility, refund policy, and deletion SLA require counsel/product sign-off before implementation. That policy work does not change the technical rule: account access and SaaS renewal stop promptly, other people's master accounts survive, and legally retained tenant records are minimized rather than kept as an active account.
+
+**Launch gate:** automated tests must cover client-only deletion; staff deletion; owner transfer; sole-owner tenant closure; active subscription cancellation; shared account across two products; Sign in with Apple revocation; partial product-store outage/retry; session revocation; retained immutable financial/audit rows; and proof that deleting one tenant/account cannot delete or expose another tenant's data.
+
+### 3.8 HairAppro no-rework checklist
+
+Before portal implementation is considered build-ready, the shared code must keep these seams configurable: exact hostname-to-product registry; product-specific cookie name with host-only scope; auth `issuer + subject`; exact OAuth/magic-link callback allowlists; Base509 `product_businesses`; per-product operational adapter/credentials; Stripe product/price catalogue keys; branding/token bundle; and deletion fan-out by product adapter. The first future vertical may require deploying its isolated Supabase project and registering its issuer/adapter, but must not require changing PetAppro tables, widening cookies, adding `app_id` to operational rows, or rewriting portal authorization.
+
+**Rework warning:** launching HairAppro with separate per-app Supabase Auth while promising one cross-product Base509 login requires the central identity/linking path to be production-ready. D-036 intentionally defers a central external IdP for PetAppro MVP; app #2 is the trigger to complete that extraction or adopt a packaged IdP. The `(issuer, subject) -> base509_account_id` contract above makes that an infrastructure migration, not a domain/RLS redesign. Shipping only `provider_subject` or email-based linking now would force a dangerous identity rewrite later and is rejected.
 
 ## 4. Access control & RLS strategy
 
@@ -124,8 +222,8 @@ RLS is the enforcement layer for the permission matrix in `user_roles_and_permis
 **Core helpers (security-definer functions):** `current_base509_account_id()` maps the caller's Supabase Auth subject to the stable Base509 account id. `current_membership(business_id)` returns that account's role for a business (or null). RLS policies call these helpers rather than embedding email checks or raw `auth.uid()` predicates.
 
 **Policy shape per operational table:**
-- **Read:** row visible only if the caller has a membership (owner/admin/staff) in `row.business_id`, or — for client-owned rows — is the owning client in that business.
-- **Write:** allowed only if the caller's role in `row.business_id` permits the action per the matrix (e.g., pricing edits → owner/admin; staff notes → owner/admin/staff; own pets → owning client).
+- **Read:** row visible only if the caller has an active provider-side membership (owner/admin/manager/staff) in `row.business_id`, or — for client-owned rows — is the owning client in that business.
+- **Write:** allowed only if the caller's role in `row.business_id` permits the action per the matrix (e.g., pricing edits → owner/admin; staff notes → owner/admin/manager/staff; own pets → owning client).
 - **Elevated actions** (ownership transfer, business delete, Stripe connect, admin promotion) are owner-only and additionally guarded in Edge Functions/RPCs, not just RLS (roles doc §12).
 
 **Non-negotiables (D-023 foundation):**
@@ -224,9 +322,10 @@ Replaces global Pushover-style alerts (rebuild plan "Notifications"; `docs/specs
 Payments stay **between the client and the business**; PetAppro is software, not merchant/broker/employer (product brief §7).
 
 - **Two independent money flows — do not conflate:**
-  1. **Client → Business** for pet care: **manual tracking is the sole MVP path** (cash/check/Venmo/Zelle/other + staff confirmation) (D-007 **Decided 2026-07-07**, D-015, no deposits). **Stripe Connect is deferred post-MVP** (nice-to-have, not launch-critical — first post-freeze payment add) — when it ships, each business connects its own Stripe account; fees pass to the business; no PetAppro markup.
-  2. **Business → Base509** for the SaaS subscription: **Stripe Billing on the web** (`apps/web`), because Apple's rules bar selling that subscription inside the iOS app (D-001, Decided). This is the settled reason the subscription is web-only, not in-app.
-- **Manual payment confirmation** defaults to owner/admin (roles doc §12; staff optional, open).
+  1. **Client → Business** for pet care: **Stripe Connect Standard ships in MVP** (D-007 Option A; D-015 no deposits). Each provider owns/connects its Stripe account; booking payments flow to that provider, Stripe fees are provider-side, and PetAppro takes no commission (D-029). The server recomputes the authoritative booking total, creates/confirms the PaymentIntent against the tenant's validated Connect account, verifies signed Stripe webhooks idempotently, and derives payment state from server events rather than client success screens. Manual cash/check/Venmo/Zelle/other tracking remains a safety-net fallback, not the planned MVP rail.
+  2. **Business → Base509** for the PetAppro SaaS subscription: **Stripe Billing on the web only** (`apps/web`) (D-042). The native binaries contain no subscription purchase, upgrade checkout, external purchase link, or CTA that routes users to buy the SaaS tier. The resulting subscription changes propagate through the D-050 server entitlement path; the client only renders the resolved capabilities.
+- Connect onboarding, payout/account changes, refunds, and other financial mutations are Owner-only where specified by the roles matrix, require D-031 recent re-authentication/MFA, run through typed server functions, and are audited. No Stripe secret or service-role credential enters either client bundle.
+- Manual payment confirmation defaults to Owner/Admin (roles doc §12; Staff optional, open).
 
 ## 9. Storage
 
@@ -241,7 +340,7 @@ Monorepo (Sprint 1, S1-1). Matches D-001 and the roadmap's Phase→calendar mapp
 ```
 apps/
   mobile/      Expo / React Native — client + staff product
-  web/         Next.js — marketing site + provider subscription checkout
+  web/         Next.js — public marketing + authenticated provider config/billing portal
 packages/
   pricing/     single source of truth (server-authoritative)   ← Sprint 1 crown jewel
   booking/     validation + availability rules                 ← S1-4
@@ -259,7 +358,7 @@ supabase/
 
 | Decision | Status | Architectural effect |
 |---|---|---|
-| D-001 platform | **Decided** | Native/Expo product + thin Next.js billing; subscription sold on web, not iOS IAP |
+| D-001/D-041 surfaces | **Decided — ratified here** | Native/Expo = operations/device prefs; Next.js portal = provider config + web-only subscription billing |
 | D-030/D-033 app model | **Decided** | One shared binary; role and tenant presentation resolve at runtime |
 | D-034–D-038 account/auth boundary | **Decided** | Base509 master owns billing/product entitlement; PetAppro keeps a tenant-scoped enforcement projection tied to stable account identity |
 | D-050 entitlements | **Decided — ratified here** | Server-resolved capabilities; API/RPC/Edge Function + RLS enforcement; atomic Starter client cap; fail to lowest safe tier |
@@ -268,7 +367,11 @@ supabase/
 | D-004 client at multiple businesses | Default Yes | Separate client profile per business |
 | D-005 pet scope | Default Business-scoped | `pets.business_id`; re-entry at second business |
 | D-006 meet-and-greet | Default Configurable | Per-business on/off gate before first booking |
-| D-007 payments | Default Manual MVP | Manual tracking; Stripe Connect post-MVP |
+| D-007 payments | **Decided — Option A** | Stripe Connect Standard in MVP; manual tracking is safety-net fallback only |
+| D-031 step-up/MFA | **Decided** | Re-auth for every personal-info and sensitive financial change; mandatory MFA for Owner/Admin only |
+| D-042 SaaS billing surface | **Decided** | Provider subscription sold/managed on web only; no native purchase/link/CTA |
+| D-051/D-056 multi-vertical portal | **Decided — ratified here** | Hostname registry selects product adapter/theme; host-only cookies; no `app_id` on operational rows |
+| MKT-12 / Apple 5.1.1(v) | **Required — ratified here** | In-app whole-account deletion initiates an idempotent master/per-product deletion saga and cancels active SaaS billing |
 | D-008 SMS | Default post-MVP | In-app + push in MVP; SMS deferred |
 | D-010 multi-location | Deferred | Single location; no `location_id` in MVP |
 | D-013/D-014 invite codes | Proposed | Carry `max_uses`/`expires_at` columns now |

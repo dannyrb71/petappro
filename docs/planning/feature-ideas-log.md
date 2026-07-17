@@ -426,8 +426,8 @@
 - **Why / problem it solves:** Signals momentum + manages expectations for features competitors already have (competitive §5); can gauge interest.
 - **Who it serves:** Provider + client.
 - **Ties to:** competitive-analysis §5 (GPS gap), D-048 (GPS v1.1), settings/profile.
-- **Notes / open questions:** keep tasteful/minimal — **verify App Store rules on advertising unreleased features** (Apple can reject prominent "coming soon" of unavailable functionality); don't make it a core screen.
-- **Status:** exploring
+- **Notes / open questions:** ~~keep tasteful/minimal — verify App Store rules on advertising unreleased features~~ — **moot.**
+- **Status:** **dropped (Danny, 2026-07-14)** — we're not doing "coming soon" at all: GPS ships **at launch** (D-054), so there's no unreleased feature to preview, and nothing for Apple guideline **2.3 (accurate metadata)** to catch.
 - **Logged:** 2026-07-11 (Danny)
 
 ### F-027 — Walk (timed-service) variants + duration pills

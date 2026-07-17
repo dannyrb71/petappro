@@ -13,7 +13,7 @@
 | **Cowork (Claude)** | Product management — captures decisions, writes specs/docs; **ledger steward** | edits **local files**; **does NOT run git** | local files |
 | **Claude Code** | Implementation **+ git operator** — `commit`/`push` mirrors local → GitHub | **yes (git)** | GitHub mirror |
 | **Codex** | Tech governor — architecture, data model, code review | **edits local files (its lane)**; **reads git** (history/diffs/CI); **does NOT commit/push** — Claude Code is sole committer; **design-system files = review-only** | **local files (folder-connected)** |
-| **George (ChatGPT)** | Project governance — roadmap, prioritization, standups | posts to `STATUS.md`; write/commit path TBD (else via Cowork) | reads the GitHub mirror **when the connector is attached in that chat**; if not, works off **Cowork's relayed canonical** and **labels it as relayed — never claims reads it didn't do**. (Connector *can* work — 2026-07-10; but access is per-chat, not guaranteed live.) |
+| **George (ChatGPT — new desktop app)** | Project governance — roadmap, prioritization, standups | posts to `STATUS.md`; local write via desktop app | **reads canonical directly — local folder + git repo — via the new ChatGPT desktop app** (Danny moved to it 2026-07-14). Relay is fallback only; each standup's provenance stamp shows the actual source. |
 | **Design System chat** ("PetAppro Foundation") | **Design system authority** — tokens, components, atomic structure (atoms→molecules→…), design specs | writes to **`/design-system/`** — the governed DS foundation (CANONICAL). `docs/design-system/` was an earlier mis-pointer; consolidate into `/design-system/` | local files (folder-connected) |
 
 **Sync mechanism (how chats/tools stay aligned):** every Claude chat working on PetAppro **connects the
@@ -43,9 +43,10 @@ If a chat saved to its own scratchpad instead of the repo, it wasn't folder-conn
   writes go through **Cowork (scribe)** or are posted to `STATUS.md` for Claude Code to commit, until George
   is folder-connected.
 
-**Read paths:** Cowork, **Claude Code, and Codex read local files** (all folder-connected). **George reads
-the GitHub mirror** via its connector (confirmed 2026-07-10). The old *web*-ChatGPT-can't-read caveat and
-the desktop-app/paste workaround are retired.
+**Read paths:** Cowork, Claude Code, and Codex read local files (all folder-connected). **George reads
+canonical directly via the new ChatGPT desktop app — local folder + git repo** (Danny moved to it
+2026-07-14); the old web-ChatGPT-connector 404 is moot on the new app. Cowork-relay remains a fallback;
+each standup's provenance stamp (§4) shows which source was used.
 
 **Hard rule:** never infer or "fill in the blanks." If you can't see the current docs, say so — don't guess.
 
@@ -87,6 +88,10 @@ through **Cowork** (scribe model) unless George's own commit path is confirmed �
      (the repo at current HEAD if the connector is live, else Cowork's relayed canonical, labeled as
      relayed). If canonical can't be obtained, **say so and defer** — never present a memory-based report
      as current. The read is a precondition of the report, not a follow-up correction.
+   - **Provenance header (rule, 2026-07-14, proposed by George).** Every standup/status report
+     opens with a source stamp so its basis is never ambiguous:
+     `Source: ✓ Canonical repo · Commit: <hash> · Read: <timestamp>` when read from the repo, or
+     `Source: ⚠ Cowork-relayed canonical · Commit: <hash> · Reason: <why>` when relayed.
 2. **During the day.** Each change is captured in its owner's doc as it's made.
 3. **End of day — push.** **Claude Code** commits + pushes (mirrors local → GitHub); **Danny approves.**
    Cowork does NOT push. Log the commit hash in §6. **If no push, record why** (the line Danny asked for).
@@ -119,7 +124,4 @@ through **Cowork** (scribe model) unless George's own commit path is confirmed �
 
 ## 7. Open discrepancies (live — clear as resolved)
 
-- **2026-07-10 — Stale payments docs vs D-007 Option A / D-042 (owner: Codex — architecture/data-model lane).** Cowork reconciled its own-lane doc (`product_brief.md` — Pillar D/E, success criteria, open questions). **Codex-lane docs still say Connect is post-MVP and must be fixed:**
-  - `docs/planning/technical_architecture.md` — lines **67, 178, 219** state "Manual MVP; Stripe Connect post-MVP" / "manual tracking is the sole MVP path… Stripe Connect is deferred post-MVP." Now **wrong**: D-007 Option A puts Connect **IN MVP** (manual = fallback only); add D-042 (subscription billing web-only, no in-app purchase/CTA).
-  - `docs/planning/data_model_draft.md` — line **134** "Stripe Connect fields… present but unused until post-MVP." Connect is **in MVP** — fields are used at launch.
-  - Cowork did **not** edit these (Codex's lane per §3). Codex to correct + note in STATUS. Status: **OPEN.**
+- **2026-07-10 — Stale payments docs vs D-007 Option A / D-042 (owner: Codex — architecture/data-model lane). RESOLVED 2026-07-14.** `docs/planning/technical_architecture.md` and `docs/planning/data_model_draft.md` now specify Stripe Connect Standard in MVP with manual payment tracking as fallback only, and D-042 SaaS subscription billing on web only with no native purchase/link/CTA. The data model now treats Connect PaymentIntent/webhook fields as active launch scope. Resolution recorded in `STATUS.md`; local documentation edits await the single-committer flow and Danny's push approval.
